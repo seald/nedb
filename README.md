@@ -34,7 +34,7 @@ It is a subset of MongoDB's API (the most used operations).
 * <a href="#inserting-documents">Inserting documents</a>
 * <a href="#finding-documents">Finding documents</a>
   * <a href="#basic-querying">Basic Querying</a>
-  * <a href="#operators-lt-lte-gt-gte-in-nin-ne-exists-regex">Operators ($lt, $lte, $gt, $gte, $in, $nin, $ne, $exists, $regex)</a>
+  * <a href="#operators-lt-lte-gt-gte-in-nin-ne-stat-regex">Operators ($lt, $lte, $gt, $gte, $in, $nin, $ne, $stat, $regex)</a>
   * <a href="#array-fields">Array fields</a>
   * <a href="#logical-operators-or-and-not-where">Logical operators $or, $and, $not, $where</a>
   * <a href="#sorting-and-paginating">Sorting and paginating</a>
@@ -236,14 +236,14 @@ db.findOne({ _id: 'id1' }, function (err, doc) {
 });
 ```
 
-#### Operators ($lt, $lte, $gt, $gte, $in, $nin, $ne, $exists, $regex)
+#### Operators ($lt, $lte, $gt, $gte, $in, $nin, $ne, $stat, $regex)
 The syntax is `{ field: { $op: value } }` where `$op` is any comparison operator:  
 
 * `$lt`, `$lte`: less than, less than or equal
 * `$gt`, `$gte`: greater than, greater than or equal
 * `$in`: member of. `value` must be an array of values
 * `$ne`, `$nin`: not equal, not a member of
-* `$exists`: checks whether the document posses the property `field`. `value` should be true or false
+* `$stat`: checks whether the document posses the property `field`. `value` should be true or false
 * `$regex`: checks whether a string is matched by the regular expression. Contrary to MongoDB, the use of `$options` with `$regex` is not supported, because it doesn't give you more power than regex flags. Basic queries are more readable so only use the `$regex` operator when you need to use another operator with it (see example below)
 
 ```javascript
@@ -262,8 +262,8 @@ db.find({ planet: { $in: ['Earth', 'Jupiter'] }}, function (err, docs) {
   // docs contains Earth and Jupiter
 });
 
-// Using $exists
-db.find({ satellites: { $exists: true } }, function (err, docs) {
+// Using $stat
+db.find({ satellites: { $stat: true } }, function (err, docs) {
   // docs contains only Mars
 });
 
@@ -724,4 +724,4 @@ You don't have time? You can support NeDB by sending bitcoins to this address: 1
 
 ## License 
 
-See [License](LICENSE)
+See [License](LICENSE.md)
