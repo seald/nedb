@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 const model = require('../lib/model')
 const chai = require('chai')
-const _ = require('underscore')
 const util = require('util')
 const Datastore = require('../lib/datastore')
 const fs = require('fs')
@@ -256,7 +255,7 @@ describe('Model', function () {
       }
       const b = model.deepCopy(a)
 
-      assert.deepEqual(a, b)
+      assert.deepStrictEqual(a, b)
     })
 
     it('With the strictKeys option, only valid keys gets deep copied', function () {
@@ -269,7 +268,7 @@ describe('Model', function () {
       }
       const b = model.deepCopy(a, true)
 
-      assert.deepEqual(b, { a: 4, nested: { yes: 1 }, array: [{}, { yes: true }, {}] })
+      assert.deepStrictEqual(b, { a: 4, nested: { yes: 1 }, array: [{}, { yes: true }, {}] })
     })
   }) // ==== End of 'Deep copying' ==== //
 
@@ -366,10 +365,10 @@ describe('Model', function () {
         }
         const modified = model.modify(obj, updateQuery)
 
-        _.isEqual(modified, {
+        assert.deepStrictEqual(modified, {
           yup: { subfield: 'changed', yop: 'yes indeed' },
           totally: { doesnt: { exist: 'now it does' } }
-        }).should.equal(true)
+        })
       })
 
       it('Doesn\'t replace a falsy field by an object when recursively following dot notation', function () {
@@ -377,7 +376,7 @@ describe('Model', function () {
         const updateQuery = { $set: { 'nested.now': 'it is' } }
         const modified = model.modify(obj, updateQuery)
 
-        assert.deepEqual(modified, { nested: false }) // Object not modified as the nested field doesn't exist
+        assert.deepStrictEqual(modified, { nested: false }) // Object not modified as the nested field doesn't exist
       })
     }) // End of '$set modifier'
 
@@ -390,17 +389,17 @@ describe('Model', function () {
         obj = { yup: 'yes', other: 'also' }
         updateQuery = { $unset: { yup: true } }
         modified = model.modify(obj, updateQuery)
-        assert.deepEqual(modified, { other: 'also' })
+        assert.deepStrictEqual(modified, { other: 'also' })
 
         obj = { yup: 'yes', other: 'also' }
         updateQuery = { $unset: { nope: true } }
         modified = model.modify(obj, updateQuery)
-        assert.deepEqual(modified, obj)
+        assert.deepStrictEqual(modified, obj)
 
         obj = { yup: 'yes', other: 'also' }
         updateQuery = { $unset: { nope: true, other: true } }
         modified = model.modify(obj, updateQuery)
-        assert.deepEqual(modified, { yup: 'yes' })
+        assert.deepStrictEqual(modified, { yup: 'yes' })
       })
 
       it('Can unset sub-fields and entire nested documents', function () {
@@ -411,28 +410,28 @@ describe('Model', function () {
         obj = { yup: 'yes', nested: { a: 'also', b: 'yeah' } }
         updateQuery = { $unset: { nested: true } }
         modified = model.modify(obj, updateQuery)
-        assert.deepEqual(modified, { yup: 'yes' })
+        assert.deepStrictEqual(modified, { yup: 'yes' })
 
         obj = { yup: 'yes', nested: { a: 'also', b: 'yeah' } }
         updateQuery = { $unset: { 'nested.a': true } }
         modified = model.modify(obj, updateQuery)
-        assert.deepEqual(modified, { yup: 'yes', nested: { b: 'yeah' } })
+        assert.deepStrictEqual(modified, { yup: 'yes', nested: { b: 'yeah' } })
 
         obj = { yup: 'yes', nested: { a: 'also', b: 'yeah' } }
         updateQuery = { $unset: { 'nested.a': true, 'nested.b': true } }
         modified = model.modify(obj, updateQuery)
-        assert.deepEqual(modified, { yup: 'yes', nested: {} })
+        assert.deepStrictEqual(modified, { yup: 'yes', nested: {} })
       })
 
       it('When unsetting nested fields, should not create an empty parent to nested field', function () {
         let obj = model.modify({ argh: true }, { $unset: { 'bad.worse': true } })
-        assert.deepEqual(obj, { argh: true })
+        assert.deepStrictEqual(obj, { argh: true })
 
         obj = model.modify({ argh: true, bad: { worse: 'oh' } }, { $unset: { 'bad.worse': true } })
-        assert.deepEqual(obj, { argh: true, bad: {} })
+        assert.deepStrictEqual(obj, { argh: true, bad: {} })
 
         obj = model.modify({ argh: true, bad: {} }, { $unset: { 'bad.worse': true } })
-        assert.deepEqual(obj, { argh: true, bad: {} })
+        assert.deepStrictEqual(obj, { argh: true, bad: {} })
       })
     }) // End of '$unset modifier'
 
@@ -456,18 +455,18 @@ describe('Model', function () {
         let modified
 
         modified = model.modify(obj, { $inc: { nay: 2 } })
-        _.isEqual(modified, { some: 'thing', nay: 42 }).should.equal(true)
+        assert.deepStrictEqual(modified, { some: 'thing', nay: 42 })
 
         // Incidentally, this tests that obj was not modified
         modified = model.modify(obj, { $inc: { inexistent: -6 } })
-        _.isEqual(modified, { some: 'thing', nay: 40, inexistent: -6 }).should.equal(true)
+        assert.deepStrictEqual(modified, { some: 'thing', nay: 40, inexistent: -6 })
       })
 
       it('Works recursively', function () {
         const obj = { some: 'thing', nay: { nope: 40 } }
 
         const modified = model.modify(obj, { $inc: { 'nay.nope': -2, 'blip.blop': 123 } })
-        _.isEqual(modified, { some: 'thing', nay: { nope: 38 }, blip: { blop: 123 } }).should.equal(true)
+        assert.deepStrictEqual(modified, { some: 'thing', nay: { nope: 38 }, blip: { blop: 123 } })
       })
     }) // End of '$inc modifier'
 
@@ -476,14 +475,14 @@ describe('Model', function () {
         const obj = { arr: ['hello'] }
 
         const modified = model.modify(obj, { $push: { arr: 'world' } })
-        assert.deepEqual(modified, { arr: ['hello', 'world'] })
+        assert.deepStrictEqual(modified, { arr: ['hello', 'world'] })
       })
 
       it('Can push an element to a non-existent field and will create the array', function () {
         const obj = {}
 
         const modified = model.modify(obj, { $push: { arr: 'world' } })
-        assert.deepEqual(modified, { arr: ['world'] })
+        assert.deepStrictEqual(modified, { arr: ['world'] })
       })
 
       it('Can push on nested fields', function () {
@@ -491,11 +490,11 @@ describe('Model', function () {
         let modified
 
         modified = model.modify(obj, { $push: { 'arr.nested': 'world' } })
-        assert.deepEqual(modified, { arr: { nested: ['hello', 'world'] } })
+        assert.deepStrictEqual(modified, { arr: { nested: ['hello', 'world'] } })
 
         obj = { arr: { a: 2 } }
         modified = model.modify(obj, { $push: { 'arr.nested': 'world' } })
-        assert.deepEqual(modified, { arr: { a: 2, nested: ['world'] } })
+        assert.deepStrictEqual(modified, { arr: { a: 2, nested: ['world'] } })
       })
 
       it('Throw if we try to push to a non-array', function () {
@@ -515,7 +514,7 @@ describe('Model', function () {
         const obj = { arr: ['hello'] }
 
         const modified = model.modify(obj, { $push: { arr: { $each: ['world', 'earth', 'everything'] } } })
-        assert.deepEqual(modified, { arr: ['hello', 'world', 'earth', 'everything'] });
+        assert.deepStrictEqual(modified, { arr: ['hello', 'world', 'earth', 'everything'] });
 
         (function () {
           model.modify(obj, { $push: { arr: { $each: 45 } } })
@@ -531,32 +530,32 @@ describe('Model', function () {
         let modified
 
         modified = model.modify(obj, { $push: { arr: { $each: ['world', 'earth', 'everything'], $slice: 1 } } })
-        assert.deepEqual(modified, { arr: ['hello'] })
+        assert.deepStrictEqual(modified, { arr: ['hello'] })
 
         modified = model.modify(obj, { $push: { arr: { $each: ['world', 'earth', 'everything'], $slice: -1 } } })
-        assert.deepEqual(modified, { arr: ['everything'] })
+        assert.deepStrictEqual(modified, { arr: ['everything'] })
 
         modified = model.modify(obj, { $push: { arr: { $each: ['world', 'earth', 'everything'], $slice: 0 } } })
-        assert.deepEqual(modified, { arr: [] })
+        assert.deepStrictEqual(modified, { arr: [] })
 
         modified = model.modify(obj, { $push: { arr: { $each: ['world', 'earth', 'everything'], $slice: 2 } } })
-        assert.deepEqual(modified, { arr: ['hello', 'world'] })
+        assert.deepStrictEqual(modified, { arr: ['hello', 'world'] })
 
         modified = model.modify(obj, { $push: { arr: { $each: ['world', 'earth', 'everything'], $slice: -2 } } })
-        assert.deepEqual(modified, { arr: ['earth', 'everything'] })
+        assert.deepStrictEqual(modified, { arr: ['earth', 'everything'] })
 
         modified = model.modify(obj, { $push: { arr: { $each: ['world', 'earth', 'everything'], $slice: -20 } } })
-        assert.deepEqual(modified, { arr: ['hello', 'world', 'earth', 'everything'] })
+        assert.deepStrictEqual(modified, { arr: ['hello', 'world', 'earth', 'everything'] })
 
         modified = model.modify(obj, { $push: { arr: { $each: ['world', 'earth', 'everything'], $slice: 20 } } })
-        assert.deepEqual(modified, { arr: ['hello', 'world', 'earth', 'everything'] })
+        assert.deepStrictEqual(modified, { arr: ['hello', 'world', 'earth', 'everything'] })
 
         modified = model.modify(obj, { $push: { arr: { $each: [], $slice: 1 } } })
-        assert.deepEqual(modified, { arr: ['hello'] })
+        assert.deepStrictEqual(modified, { arr: ['hello'] })
 
         // $each not specified, but $slice is
         modified = model.modify(obj, { $push: { arr: { $slice: 1 } } })
-        assert.deepEqual(modified, { arr: ['hello'] });
+        assert.deepStrictEqual(modified, { arr: ['hello'] });
 
         (function () {
           modified = model.modify(obj, { $push: { arr: { $slice: 1, unauthorized: true } } })
@@ -574,18 +573,18 @@ describe('Model', function () {
         let modified
 
         modified = model.modify(obj, { $addToSet: { arr: 'world' } })
-        assert.deepEqual(modified, { arr: ['hello', 'world'] })
+        assert.deepStrictEqual(modified, { arr: ['hello', 'world'] })
 
         obj = { arr: ['hello'] }
         modified = model.modify(obj, { $addToSet: { arr: 'hello' } })
-        assert.deepEqual(modified, { arr: ['hello'] })
+        assert.deepStrictEqual(modified, { arr: ['hello'] })
       })
 
       it('Can add an element to a non-existent set and will create the array', function () {
         const obj = { arr: [] }
 
         const modified = model.modify(obj, { $addToSet: { arr: 'world' } })
-        assert.deepEqual(modified, { arr: ['world'] })
+        assert.deepStrictEqual(modified, { arr: ['world'] })
       })
 
       it('Throw if we try to addToSet to a non-array', function () {
@@ -601,11 +600,11 @@ describe('Model', function () {
         let modified
 
         modified = model.modify(obj, { $addToSet: { arr: { b: 3 } } })
-        assert.deepEqual(modified, { arr: [{ b: 2 }, { b: 3 }] })
+        assert.deepStrictEqual(modified, { arr: [{ b: 2 }, { b: 3 }] })
 
         obj = { arr: [{ b: 2 }] }
         modified = model.modify(obj, { $addToSet: { arr: { b: 2 } } })
-        assert.deepEqual(modified, { arr: [{ b: 2 }] })
+        assert.deepStrictEqual(modified, { arr: [{ b: 2 }] })
       })
 
       it('Can use the $each modifier to add multiple values to a set at once', function () {
@@ -613,7 +612,7 @@ describe('Model', function () {
         let modified
 
         modified = model.modify(obj, { $addToSet: { arr: { $each: ['world', 'earth', 'hello', 'earth'] } } })
-        assert.deepEqual(modified, { arr: ['hello', 'world', 'earth'] });
+        assert.deepStrictEqual(modified, { arr: ['hello', 'world', 'earth'] });
 
         (function () {
           modified = model.modify(obj, { $addToSet: { arr: { $each: 45 } } })
@@ -650,18 +649,18 @@ describe('Model', function () {
 
         obj = { arr: [1, 4, 8] }
         modified = model.modify(obj, { $pop: { arr: 1 } })
-        assert.deepEqual(modified, { arr: [1, 4] })
+        assert.deepStrictEqual(modified, { arr: [1, 4] })
 
         obj = { arr: [1, 4, 8] }
         modified = model.modify(obj, { $pop: { arr: -1 } })
-        assert.deepEqual(modified, { arr: [4, 8] })
+        assert.deepStrictEqual(modified, { arr: [4, 8] })
 
         // Empty arrays are not changed
         obj = { arr: [] }
         modified = model.modify(obj, { $pop: { arr: 1 } })
-        assert.deepEqual(modified, { arr: [] })
+        assert.deepStrictEqual(modified, { arr: [] })
         modified = model.modify(obj, { $pop: { arr: -1 } })
-        assert.deepEqual(modified, { arr: [] })
+        assert.deepStrictEqual(modified, { arr: [] })
       })
     }) // End of '$pop modifier'
 
@@ -671,18 +670,18 @@ describe('Model', function () {
         let modified
 
         modified = model.modify(obj, { $pull: { arr: 'world' } })
-        assert.deepEqual(modified, { arr: ['hello'] })
+        assert.deepStrictEqual(modified, { arr: ['hello'] })
 
         obj = { arr: ['hello'] }
         modified = model.modify(obj, { $pull: { arr: 'world' } })
-        assert.deepEqual(modified, { arr: ['hello'] })
+        assert.deepStrictEqual(modified, { arr: ['hello'] })
       })
 
       it('Can remove multiple matching elements', function () {
         const obj = { arr: ['hello', 'world', 'hello', 'world'] }
 
         const modified = model.modify(obj, { $pull: { arr: 'world' } })
-        assert.deepEqual(modified, { arr: ['hello', 'hello'] })
+        assert.deepStrictEqual(modified, { arr: ['hello', 'hello'] })
       })
 
       it('Throw if we try to pull from a non-array', function () {
@@ -698,11 +697,11 @@ describe('Model', function () {
         let modified
 
         modified = model.modify(obj, { $pull: { arr: { b: 3 } } })
-        assert.deepEqual(modified, { arr: [{ b: 2 }] })
+        assert.deepStrictEqual(modified, { arr: [{ b: 2 }] })
 
         obj = { arr: [{ b: 2 }] }
         modified = model.modify(obj, { $pull: { arr: { b: 3 } } })
-        assert.deepEqual(modified, { arr: [{ b: 2 }] })
+        assert.deepStrictEqual(modified, { arr: [{ b: 2 }] })
       })
 
       it('Can use any kind of nedb query with $pull', function () {
@@ -710,11 +709,11 @@ describe('Model', function () {
         let modified
 
         modified = model.modify(obj, { $pull: { arr: { $gte: 5 } } })
-        assert.deepEqual(modified, { arr: [4, 2], other: 'yup' })
+        assert.deepStrictEqual(modified, { arr: [4, 2], other: 'yup' })
 
         obj = { arr: [{ b: 4 }, { b: 7 }, { b: 1 }], other: 'yeah' }
         modified = model.modify(obj, { $pull: { arr: { b: { $gte: 5 } } } })
-        assert.deepEqual(modified, { arr: [{ b: 4 }, { b: 1 }], other: 'yeah' })
+        assert.deepStrictEqual(modified, { arr: [{ b: 4 }, { b: 1 }], other: 'yeah' })
       })
     }) // End of '$pull modifier'
 
@@ -989,14 +988,14 @@ describe('Model', function () {
             number: 9
           }]
         }, 'planets.name')
-        assert.deepEqual(dv, ['Earth', 'Mars', 'Pluton'])
+        assert.deepStrictEqual(dv, ['Earth', 'Mars', 'Pluton'])
 
         // Nested array of subdocuments
         dv = model.getDotValue({
           nedb: true,
           data: { planets: [{ name: 'Earth', number: 3 }, { name: 'Mars', number: 2 }, { name: 'Pluton', number: 9 }] }
         }, 'data.planets.number')
-        assert.deepEqual(dv, [3, 2, 9])
+        assert.deepStrictEqual(dv, [3, 2, 9])
 
         // Nested array in a subdocument of an array (yay, inception!)
         // TODO: make sure MongoDB doesn't flatten the array (it wouldn't make sense)
@@ -1009,7 +1008,7 @@ describe('Model', function () {
             }]
           }
         }, 'data.planets.numbers')
-        assert.deepEqual(dv, [[1, 3], [7], [9, 5, 1]])
+        assert.deepStrictEqual(dv, [[1, 3], [7], [9, 5, 1]])
       })
 
       it('Can get a single value out of an array using its index', function () {
@@ -1022,7 +1021,7 @@ describe('Model', function () {
             number: 9
           }]
         }, 'planets.1')
-        assert.deepEqual(dv, { name: 'Mars', number: 2 })
+        assert.deepStrictEqual(dv, { name: 'Mars', number: 2 })
 
         // Out of bounds index
         dv = model.getDotValue({
@@ -1038,7 +1037,7 @@ describe('Model', function () {
           nedb: true,
           data: { planets: [{ name: 'Earth', number: 3 }, { name: 'Mars', number: 2 }, { name: 'Pluton', number: 9 }] }
         }, 'data.planets.2')
-        assert.deepEqual(dv, { name: 'Pluton', number: 9 })
+        assert.deepStrictEqual(dv, { name: 'Pluton', number: 9 })
 
         // Dot notation with index in the middle
         dv = model.getDotValue({

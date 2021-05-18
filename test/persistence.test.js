@@ -3,7 +3,6 @@ const chai = require('chai')
 const testDb = 'workspace/test.db'
 const fs = require('fs')
 const path = require('path')
-const _ = require('underscore')
 const async = require('async')
 const model = require('../lib/model')
 const Datastore = require('../lib/datastore')
@@ -51,9 +50,9 @@ describe('Persistence', function () {
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(3)
-    _.isEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] }).should.equal(true)
-    _.isEqual(treatedData[1], { _id: '2', hello: 'world' }).should.equal(true)
-    _.isEqual(treatedData[2], { _id: '3', nested: { today: now } }).should.equal(true)
+    assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
+    assert.deepStrictEqual(treatedData[1], { _id: '2', hello: 'world' })
+    assert.deepStrictEqual(treatedData[2], { _id: '3', nested: { today: now } })
   })
 
   it('Badly formatted lines have no impact on the treated data', function () {
@@ -65,8 +64,8 @@ describe('Persistence', function () {
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(2)
-    _.isEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] }).should.equal(true)
-    _.isEqual(treatedData[1], { _id: '3', nested: { today: now } }).should.equal(true)
+    assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
+    assert.deepStrictEqual(treatedData[1], { _id: '3', nested: { today: now } })
   })
 
   it('Well formatted lines that have no _id are not included in the data', function () {
@@ -78,8 +77,8 @@ describe('Persistence', function () {
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(2)
-    _.isEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] }).should.equal(true)
-    _.isEqual(treatedData[1], { _id: '2', hello: 'world' }).should.equal(true)
+    assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
+    assert.deepStrictEqual(treatedData[1], { _id: '2', hello: 'world' })
   })
 
   it('If two lines concern the same doc (= same _id), the last one is the good version', function () {
@@ -91,8 +90,8 @@ describe('Persistence', function () {
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(2)
-    _.isEqual(treatedData[0], { _id: '1', nested: { today: now } }).should.equal(true)
-    _.isEqual(treatedData[1], { _id: '2', hello: 'world' }).should.equal(true)
+    assert.deepStrictEqual(treatedData[0], { _id: '1', nested: { today: now } })
+    assert.deepStrictEqual(treatedData[1], { _id: '2', hello: 'world' })
   })
 
   it('If a doc contains $$deleted: true, that means we need to remove it from the data', function () {
@@ -105,8 +104,8 @@ describe('Persistence', function () {
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(2)
-    _.isEqual(treatedData[0], { _id: '2', hello: 'world' }).should.equal(true)
-    _.isEqual(treatedData[1], { _id: '3', today: now }).should.equal(true)
+    assert.deepStrictEqual(treatedData[0], { _id: '2', hello: 'world' })
+    assert.deepStrictEqual(treatedData[1], { _id: '3', today: now })
   })
 
   it('If a doc contains $$deleted: true, no error is thrown if the doc wasnt in the list before', function () {
@@ -118,8 +117,8 @@ describe('Persistence', function () {
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(2)
-    _.isEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] }).should.equal(true)
-    _.isEqual(treatedData[1], { _id: '3', today: now }).should.equal(true)
+    assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
+    assert.deepStrictEqual(treatedData[1], { _id: '3', today: now })
   })
 
   it('If a doc contains $$indexCreated, no error is thrown during treatRawData and we can get the index options', function () {
@@ -131,12 +130,12 @@ describe('Persistence', function () {
     const indexes = d.persistence.treatRawData(rawData).indexes
 
     Object.keys(indexes).length.should.equal(1)
-    assert.deepEqual(indexes.test, { fieldName: 'test', unique: true })
+    assert.deepStrictEqual(indexes.test, { fieldName: 'test', unique: true })
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(2)
-    _.isEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] }).should.equal(true)
-    _.isEqual(treatedData[1], { _id: '3', today: now }).should.equal(true)
+    assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
+    assert.deepStrictEqual(treatedData[1], { _id: '3', today: now })
   })
 
   it('Compact database on load', function (done) {
@@ -173,8 +172,8 @@ describe('Persistence', function () {
         assert.isNull(err)
         d.insert({ a: 2 }, function (err) {
           const data = d.getAllData()
-          const doc1 = _.find(data, function (doc) { return doc.a === 1 })
-          const doc2 = _.find(data, function (doc) { return doc.a === 2 })
+          const doc1 = data.find(function (doc) { return doc.a === 1 })
+          const doc2 = data.find(function (doc) { return doc.a === 2 })
           assert.isNull(err)
           data.length.should.equal(2)
           doc1.a.should.equal(1)
@@ -182,8 +181,8 @@ describe('Persistence', function () {
 
           d.loadDatabase(function (err) {
             const data = d.getAllData()
-            const doc1 = _.find(data, function (doc) { return doc.a === 1 })
-            const doc2 = _.find(data, function (doc) { return doc.a === 2 })
+            const doc1 = data.find(function (doc) { return doc.a === 1 })
+            const doc2 = data.find(function (doc) { return doc.a === 2 })
             assert.isNull(err)
             data.length.should.equal(2)
             doc1.a.should.equal(1)
@@ -202,8 +201,8 @@ describe('Persistence', function () {
         assert.isNull(err)
         d.insert({ a: 2 }, function (err) {
           const data = d.getAllData()
-          const doc1 = _.find(data, function (doc) { return doc.a === 1 })
-          const doc2 = _.find(data, function (doc) { return doc.a === 2 })
+          const doc1 = data.find(function (doc) { return doc.a === 1 })
+          const doc2 = data.find(function (doc) { return doc.a === 2 })
           assert.isNull(err)
           data.length.should.equal(2)
           doc1.a.should.equal(1)
@@ -229,8 +228,8 @@ describe('Persistence', function () {
         assert.isNull(err)
         d.insert({ a: 2 }, function (err) {
           const data = d.getAllData()
-          const doc1 = _.find(data, function (doc) { return doc.a === 1 })
-          const doc2 = _.find(data, function (doc) { return doc.a === 2 })
+          const doc1 = data.find(function (doc) { return doc.a === 1 })
+          const doc2 = data.find(function (doc) { return doc.a === 2 })
           assert.isNull(err)
           data.length.should.equal(2)
           doc1.a.should.equal(1)
@@ -240,9 +239,9 @@ describe('Persistence', function () {
             assert.isNull(err)
             d.loadDatabase(function (err) {
               const data = d.getAllData()
-              const doc1 = _.find(data, function (doc) { return doc.a === 1 })
-              const doc2 = _.find(data, function (doc) { return doc.a === 2 })
-              const doc3 = _.find(data, function (doc) { return doc.a === 3 })
+              const doc1 = data.find(function (doc) { return doc.a === 1 })
+              const doc2 = data.find(function (doc) { return doc.a === 2 })
+              const doc3 = data.find(function (doc) { return doc.a === 3 })
               assert.isNull(err)
               data.length.should.equal(1)
               doc3.a.should.equal(3)
@@ -422,7 +421,7 @@ describe('Persistence', function () {
               doc1.p.should.equal('Mars')
 
               idx = model.deserialize(idx)
-              assert.deepEqual(idx, { $$indexCreated: { fieldName: 'idefix' } })
+              assert.deepStrictEqual(idx, { $$indexCreated: { fieldName: 'idefix' } })
 
               done()
             })
@@ -464,7 +463,7 @@ describe('Persistence', function () {
               const _id = doc0._id
 
               idx = model.deserialize(idx)
-              assert.deepEqual(idx, { $$indexCreated: { fieldName: 'idefix' } })
+              assert.deepStrictEqual(idx, { $$indexCreated: { fieldName: 'idefix' } })
 
               d.persistence.persistCachedDatabase(function () {
                 const _data = fs.readFileSync(hookTestFilename, 'utf8')
@@ -481,7 +480,7 @@ describe('Persistence', function () {
                 doc0._id.should.equal(_id)
 
                 idx = model.deserialize(idx)
-                assert.deepEqual(idx, { $$indexCreated: { fieldName: 'idefix', unique: false, sparse: false } })
+                assert.deepStrictEqual(idx, { $$indexCreated: { fieldName: 'idefix', unique: false, sparse: false } })
 
                 done()
               })
@@ -787,8 +786,8 @@ describe('Persistence', function () {
           theDb.find({}, function (err, docs) {
             assert.isNull(err)
             docs.length.should.equal(2)
-            _.find(docs, function (item) { return item._id === doc1._id }).a.should.equal('hello')
-            _.find(docs, function (item) { return item._id === doc2._id }).a.should.equal('world')
+            docs.find(function (item) { return item._id === doc1._id }).a.should.equal('hello')
+            docs.find(function (item) { return item._id === doc2._id }).a.should.equal('world')
             return cb()
           })
         },
@@ -799,8 +798,8 @@ describe('Persistence', function () {
           theDb.find({}, function (err, docs) {
             assert.isNull(err)
             docs.length.should.equal(2)
-            _.find(docs, function (item) { return item._id === doc1._id }).a.should.equal('hello')
-            _.find(docs, function (item) { return item._id === doc2._id }).a.should.equal('world')
+            docs.find(function (item) { return item._id === doc1._id }).a.should.equal('hello')
+            docs.find(function (item) { return item._id === doc2._id }).a.should.equal('world')
             return cb()
           })
         },
@@ -817,8 +816,8 @@ describe('Persistence', function () {
           theDb2.find({}, function (err, docs) {
             assert.isNull(err)
             docs.length.should.equal(2)
-            _.find(docs, function (item) { return item._id === doc1._id }).a.should.equal('hello')
-            _.find(docs, function (item) { return item._id === doc2._id }).a.should.equal('world')
+            docs.find(function (item) { return item._id === doc1._id }).a.should.equal('hello')
+            docs.find(function (item) { return item._id === doc2._id }).a.should.equal('world')
             return cb()
           })
         },
@@ -872,9 +871,9 @@ describe('Persistence', function () {
           db.find({}, function (err, docs) {
             docs.length.should.equal(N)
             for (i = 0; i < N; i += 1) {
-              docI = _.find(docs, function (d) { return d._id === 'anid_' + i })
+              docI = docs.find(function (d) { return d._id === 'anid_' + i })
               assert.isDefined(docI)
-              assert.deepEqual({ hello: 'world', _id: 'anid_' + i }, docI)
+              assert.deepStrictEqual({ hello: 'world', _id: 'anid_' + i }, docI)
             }
             return done()
           })

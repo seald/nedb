@@ -36,8 +36,7 @@
   "dependencies": {
     "@seald-io/binary-search-tree": "^1.0.0",
     "async": "0.2.10",
-    "localforage": "^1.9.0",
-    "underscore": "^1.13.1"
+    "localforage": "^1.9.0"
   },
   "devDependencies": {
     "chai": "^4.3.4",

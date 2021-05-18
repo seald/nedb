@@ -13,7 +13,6 @@ module.exports = (config) => ({
 
   // list of files / patterns to load in the browser
   files: [
-    'node_modules/underscore/underscore-min.js',
     'node_modules/localforage/dist/localforage.min.js',
     'node_modules/async/lib/async.js',
     'browser-version/out/nedb.min.js',

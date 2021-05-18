@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-/* global chai, _, Nedb */
+/* global chai, Nedb */
 
 /**
  * Testing the browser version of NeDB
@@ -14,15 +14,15 @@ const assert = chai.assert
  * Given a docs array and an id, return the document whose id matches, or null if none is found
  */
 function findById (docs, id) {
-  return _.find(docs, function (doc) { return doc._id === id }) || null
+  return docs.find(function (doc) { return doc._id === id }) || null
 }
 
 describe('Basic CRUD functionality', function () {
   it('Able to create a database object in the browser', function () {
     const db = new Nedb()
 
-    assert.equal(db.inMemoryOnly, true)
-    assert.equal(db.persistence.inMemoryOnly, true)
+    assert.strictEqual(db.inMemoryOnly, true)
+    assert.strictEqual(db.persistence.inMemoryOnly, true)
   })
 
   it('Insertion and querying', function (done) {
@@ -36,18 +36,18 @@ describe('Basic CRUD functionality', function () {
           assert.isNull(err)
 
           db.find({ a: { $gt: 36 } }, function (err, docs) {
-            const doc2 = _.find(docs, function (doc) { return doc._id === newDoc2._id })
-            const doc3 = _.find(docs, function (doc) { return doc._id === newDoc3._id })
+            const doc2 = docs.find(function (doc) { return doc._id === newDoc2._id })
+            const doc3 = docs.find(function (doc) { return doc._id === newDoc3._id })
 
             assert.isNull(err)
-            assert.equal(docs.length, 2)
-            assert.equal(doc2.a, 40)
-            assert.equal(doc3.a, 400)
+            assert.strictEqual(docs.length, 2)
+            assert.strictEqual(doc2.a, 40)
+            assert.strictEqual(doc3.a, 400)
 
             db.find({ a: { $lt: 36 } }, function (err, docs) {
               assert.isNull(err)
-              assert.equal(docs.length, 1)
-              assert.equal(docs[0].a, 4)
+              assert.strictEqual(docs.length, 1)
+              assert.strictEqual(docs[0].a, 4)
               done()
             })
           })
@@ -72,17 +72,17 @@ describe('Basic CRUD functionality', function () {
 
               db.find({ planet: /ar/ }, function (err, docs) {
                 assert.isNull(err)
-                assert.equal(docs.length, 4)
-                assert.equal(_.find(docs, function (doc) { return doc._id === newDoc1._id }).planet, 'Earth')
-                assert.equal(_.find(docs, function (doc) { return doc._id === newDoc2._id }).planet, 'Mars')
-                assert.equal(_.find(docs, function (doc) { return doc._id === newDoc4._id }).planet, 'Eaaaaaarth')
-                assert.equal(_.find(docs, function (doc) { return doc._id === newDoc5._id }).planet, 'Maaaars')
+                assert.strictEqual(docs.length, 4)
+                assert.strictEqual(docs.find(doc => doc._id === newDoc1._id).planet, 'Earth')
+                assert.strictEqual(docs.find(doc => doc._id === newDoc2._id).planet, 'Mars')
+                assert.strictEqual(docs.find(doc => doc._id === newDoc4._id).planet, 'Eaaaaaarth')
+                assert.strictEqual(docs.find(doc => doc._id === newDoc5._id).planet, 'Maaaars')
 
                 db.find({ planet: /aa+r/ }, function (err, docs) {
                   assert.isNull(err)
-                  assert.equal(docs.length, 2)
-                  assert.equal(_.find(docs, function (doc) { return doc._id === newDoc4._id }).planet, 'Eaaaaaarth')
-                  assert.equal(_.find(docs, function (doc) { return doc._id === newDoc5._id }).planet, 'Maaaars')
+                  assert.strictEqual(docs.length, 2)
+                  assert.strictEqual(docs.find(doc => doc._id === newDoc4._id).planet, 'Eaaaaaarth')
+                  assert.strictEqual(docs.find(doc => doc._id === newDoc5._id).planet, 'Maaaars')
 
                   done()
                 })
@@ -104,48 +104,48 @@ describe('Basic CRUD functionality', function () {
         // Simple update
         db.update({ _id: newDoc2._id }, { $set: { planet: 'Saturn' } }, {}, function (err, nr) {
           assert.isNull(err)
-          assert.equal(nr, 1)
+          assert.strictEqual(nr, 1)
 
           // eslint-disable-next-line node/handle-callback-err
           db.find({}, function (err, docs) {
-            assert.equal(docs.length, 2)
-            assert.equal(findById(docs, newDoc1._id).planet, 'Eaaaaarth')
-            assert.equal(findById(docs, newDoc2._id).planet, 'Saturn')
+            assert.strictEqual(docs.length, 2)
+            assert.strictEqual(findById(docs, newDoc1._id).planet, 'Eaaaaarth')
+            assert.strictEqual(findById(docs, newDoc2._id).planet, 'Saturn')
 
             // Failing update
             db.update({ _id: 'unknown' }, { $inc: { count: 1 } }, {}, function (err, nr) {
               assert.isNull(err)
-              assert.equal(nr, 0)
+              assert.strictEqual(nr, 0)
 
               // eslint-disable-next-line node/handle-callback-err
               db.find({}, function (err, docs) {
-                assert.equal(docs.length, 2)
-                assert.equal(findById(docs, newDoc1._id).planet, 'Eaaaaarth')
-                assert.equal(findById(docs, newDoc2._id).planet, 'Saturn')
+                assert.strictEqual(docs.length, 2)
+                assert.strictEqual(findById(docs, newDoc1._id).planet, 'Eaaaaarth')
+                assert.strictEqual(findById(docs, newDoc2._id).planet, 'Saturn')
 
                 // Document replacement
                 db.update({ planet: 'Eaaaaarth' }, { planet: 'Uranus' }, { multi: false }, function (err, nr) {
                   assert.isNull(err)
-                  assert.equal(nr, 1)
+                  assert.strictEqual(nr, 1)
 
                   // eslint-disable-next-line node/handle-callback-err
                   db.find({}, function (err, docs) {
-                    assert.equal(docs.length, 2)
-                    assert.equal(findById(docs, newDoc1._id).planet, 'Uranus')
-                    assert.equal(findById(docs, newDoc2._id).planet, 'Saturn')
+                    assert.strictEqual(docs.length, 2)
+                    assert.strictEqual(findById(docs, newDoc1._id).planet, 'Uranus')
+                    assert.strictEqual(findById(docs, newDoc2._id).planet, 'Saturn')
 
                     // Multi update
                     db.update({}, { $inc: { count: 3 } }, { multi: true }, function (err, nr) {
                       assert.isNull(err)
-                      assert.equal(nr, 2)
+                      assert.strictEqual(nr, 2)
 
                       // eslint-disable-next-line node/handle-callback-err
                       db.find({}, function (err, docs) {
-                        assert.equal(docs.length, 2)
-                        assert.equal(findById(docs, newDoc1._id).planet, 'Uranus')
-                        assert.equal(findById(docs, newDoc1._id).count, 3)
-                        assert.equal(findById(docs, newDoc2._id).planet, 'Saturn')
-                        assert.equal(findById(docs, newDoc2._id).count, 3)
+                        assert.strictEqual(docs.length, 2)
+                        assert.strictEqual(findById(docs, newDoc1._id).planet, 'Uranus')
+                        assert.strictEqual(findById(docs, newDoc1._id).count, 3)
+                        assert.strictEqual(findById(docs, newDoc2._id).planet, 'Saturn')
+                        assert.strictEqual(findById(docs, newDoc2._id).count, 3)
 
                         done()
                       })
@@ -168,19 +168,19 @@ describe('Basic CRUD functionality', function () {
       // Pushing to an array
       db.update({}, { $push: { satellites: 'Phobos' } }, {}, function (err, nr) {
         assert.isNull(err)
-        assert.equal(nr, 1)
+        assert.strictEqual(nr, 1)
 
         // eslint-disable-next-line node/handle-callback-err
         db.findOne({}, function (err, doc) {
-          assert.deepEqual(doc, { planet: 'Earth', _id: newDoc1._id, satellites: ['Phobos'] })
+          assert.deepStrictEqual(doc, { planet: 'Earth', _id: newDoc1._id, satellites: ['Phobos'] })
 
           db.update({}, { $push: { satellites: 'Deimos' } }, {}, function (err, nr) {
             assert.isNull(err)
-            assert.equal(nr, 1)
+            assert.strictEqual(nr, 1)
 
             // eslint-disable-next-line node/handle-callback-err
             db.findOne({}, function (err, doc) {
-              assert.deepEqual(doc, { planet: 'Earth', _id: newDoc1._id, satellites: ['Phobos', 'Deimos'] })
+              assert.deepStrictEqual(doc, { planet: 'Earth', _id: newDoc1._id, satellites: ['Phobos', 'Deimos'] })
 
               done()
             })
@@ -196,15 +196,15 @@ describe('Basic CRUD functionality', function () {
     db.update({ a: 4 }, { $inc: { b: 1 } }, { upsert: true }, function (err, nr, upsert) {
       assert.isNull(err)
       // Return upserted document
-      assert.equal(upsert.a, 4)
-      assert.equal(upsert.b, 1)
-      assert.equal(nr, 1)
+      assert.strictEqual(upsert.a, 4)
+      assert.strictEqual(upsert.b, 1)
+      assert.strictEqual(nr, 1)
 
       // eslint-disable-next-line node/handle-callback-err
       db.find({}, function (err, docs) {
-        assert.equal(docs.length, 1)
-        assert.equal(docs[0].a, 4)
-        assert.equal(docs[0].b, 1)
+        assert.strictEqual(docs.length, 1)
+        assert.strictEqual(docs[0].a, 4)
+        assert.strictEqual(docs[0].b, 1)
 
         done()
       })
@@ -221,31 +221,31 @@ describe('Basic CRUD functionality', function () {
     // Multi remove
     db.remove({ a: { $in: [5, 7] } }, { multi: true }, function (err, nr) {
       assert.isNull(err)
-      assert.equal(nr, 2)
+      assert.strictEqual(nr, 2)
 
       // eslint-disable-next-line node/handle-callback-err
       db.find({}, function (err, docs) {
-        assert.equal(docs.length, 1)
-        assert.equal(docs[0].a, 2)
+        assert.strictEqual(docs.length, 1)
+        assert.strictEqual(docs[0].a, 2)
 
         // Remove with no match
         db.remove({ b: { $exists: true } }, { multi: true }, function (err, nr) {
           assert.isNull(err)
-          assert.equal(nr, 0)
+          assert.strictEqual(nr, 0)
 
           // eslint-disable-next-line node/handle-callback-err
           db.find({}, function (err, docs) {
-            assert.equal(docs.length, 1)
-            assert.equal(docs[0].a, 2)
+            assert.strictEqual(docs.length, 1)
+            assert.strictEqual(docs[0].a, 2)
 
             // Simple remove
             db.remove({ a: { $exists: true } }, { multi: true }, function (err, nr) {
               assert.isNull(err)
-              assert.equal(nr, 1)
+              assert.strictEqual(nr, 1)
 
               // eslint-disable-next-line node/handle-callback-err
               db.find({}, function (err, docs) {
-                assert.equal(docs.length, 0)
+                assert.strictEqual(docs.length, 0)
 
                 done()
               })
@@ -266,17 +266,17 @@ describe('Indexing', function () {
         db.insert({ a: 7 }, function () {
           // eslint-disable-next-line node/handle-callback-err
           db.getCandidates({ a: 6 }, function (err, candidates) {
-            assert.equal(candidates.length, 3)
-            assert.isDefined(_.find(candidates, function (doc) { return doc.a === 4 }))
-            assert.isDefined(_.find(candidates, function (doc) { return doc.a === 6 }))
-            assert.isDefined(_.find(candidates, function (doc) { return doc.a === 7 }))
+            assert.strictEqual(candidates.length, 3)
+            assert.isDefined(candidates.find(function (doc) { return doc.a === 4 }))
+            assert.isDefined(candidates.find(function (doc) { return doc.a === 6 }))
+            assert.isDefined(candidates.find(function (doc) { return doc.a === 7 }))
 
             db.ensureIndex({ fieldName: 'a' })
 
             // eslint-disable-next-line node/handle-callback-err
             db.getCandidates({ a: 6 }, function (err, candidates) {
-              assert.equal(candidates.length, 1)
-              assert.isDefined(_.find(candidates, function (doc) { return doc.a === 6 }))
+              assert.strictEqual(candidates.length, 1)
+              assert.isDefined(candidates.find(function (doc) { return doc.a === 6 }))
 
               done()
             })
@@ -298,7 +298,7 @@ describe('Indexing', function () {
         assert.isNull(err)
 
         db.insert({ u: 5 }, function (err) {
-          assert.equal(err.errorType, 'uniqueViolated')
+          assert.strictEqual(err.errorType, 'uniqueViolated')
 
           done()
         })

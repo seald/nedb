@@ -3,7 +3,6 @@ const chai = require('chai')
 const testDb = 'workspace/test.db'
 const fs = require('fs')
 const path = require('path')
-const _ = require('underscore')
 const async = require('async')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
@@ -67,11 +66,11 @@ describe('Cursor', function () {
           cursor.exec(function (err, docs) {
             assert.isNull(err)
             docs.length.should.equal(5)
-            _.filter(docs, function (doc) { return doc.age === 5 })[0].age.should.equal(5)
-            _.filter(docs, function (doc) { return doc.age === 57 })[0].age.should.equal(57)
-            _.filter(docs, function (doc) { return doc.age === 52 })[0].age.should.equal(52)
-            _.filter(docs, function (doc) { return doc.age === 23 })[0].age.should.equal(23)
-            _.filter(docs, function (doc) { return doc.age === 89 })[0].age.should.equal(89)
+            docs.filter(function (doc) { return doc.age === 5 })[0].age.should.equal(5)
+            docs.filter(function (doc) { return doc.age === 57 })[0].age.should.equal(57)
+            docs.filter(function (doc) { return doc.age === 52 })[0].age.should.equal(52)
+            docs.filter(function (doc) { return doc.age === 23 })[0].age.should.equal(23)
+            docs.filter(function (doc) { return doc.age === 89 })[0].age.should.equal(89)
             cb()
           })
         },
@@ -80,11 +79,11 @@ describe('Cursor', function () {
           cursor.exec(function (err, docs) {
             assert.isNull(err)
             docs.length.should.equal(5)
-            _.filter(docs, function (doc) { return doc.age === 5 })[0].age.should.equal(5)
-            _.filter(docs, function (doc) { return doc.age === 57 })[0].age.should.equal(57)
-            _.filter(docs, function (doc) { return doc.age === 52 })[0].age.should.equal(52)
-            _.filter(docs, function (doc) { return doc.age === 23 })[0].age.should.equal(23)
-            _.filter(docs, function (doc) { return doc.age === 89 })[0].age.should.equal(89)
+            docs.filter(function (doc) { return doc.age === 5 })[0].age.should.equal(5)
+            docs.filter(function (doc) { return doc.age === 57 })[0].age.should.equal(57)
+            docs.filter(function (doc) { return doc.age === 52 })[0].age.should.equal(52)
+            docs.filter(function (doc) { return doc.age === 23 })[0].age.should.equal(23)
+            docs.filter(function (doc) { return doc.age === 89 })[0].age.should.equal(89)
             cb()
           })
         },
@@ -93,9 +92,9 @@ describe('Cursor', function () {
           cursor.exec(function (err, docs) {
             assert.isNull(err)
             docs.length.should.equal(3)
-            _.filter(docs, function (doc) { return doc.age === 57 })[0].age.should.equal(57)
-            _.filter(docs, function (doc) { return doc.age === 52 })[0].age.should.equal(52)
-            _.filter(docs, function (doc) { return doc.age === 89 })[0].age.should.equal(89)
+            docs.filter(function (doc) { return doc.age === 57 })[0].age.should.equal(57)
+            docs.filter(function (doc) { return doc.age === 52 })[0].age.should.equal(52)
+            docs.filter(function (doc) { return doc.age === 89 })[0].age.should.equal(89)
             cb()
           })
         }
@@ -208,16 +207,16 @@ describe('Cursor', function () {
 
       // eslint-disable-next-line node/handle-callback-err
       db.find({}).sort({ name: 1 }).exec(function (err, docs) {
-        _.pluck(docs, 'name')[0].should.equal('zulu')
-        _.pluck(docs, 'name')[1].should.equal('alpha')
-        _.pluck(docs, 'name')[2].should.equal('charlie')
+        docs.map(x => x.name)[0].should.equal('zulu')
+        docs.map(x => x.name)[1].should.equal('alpha')
+        docs.map(x => x.name)[2].should.equal('charlie')
 
         delete db.compareStrings
         // eslint-disable-next-line node/handle-callback-err
         db.find({}).sort({ name: 1 }).exec(function (err, docs) {
-          _.pluck(docs, 'name')[0].should.equal('alpha')
-          _.pluck(docs, 'name')[1].should.equal('charlie')
-          _.pluck(docs, 'name')[2].should.equal('zulu')
+          docs.map(x => x.name)[0].should.equal('alpha')
+          docs.map(x => x.name)[1].should.equal('charlie')
+          docs.map(x => x.name)[2].should.equal('zulu')
 
           done()
         })
@@ -740,21 +739,21 @@ describe('Cursor', function () {
       cursor.exec(function (err, docs) {
         assert.isNull(err)
         docs.length.should.equal(5)
-        assert.deepEqual(docs[0], doc0)
-        assert.deepEqual(docs[1], doc3)
-        assert.deepEqual(docs[2], doc2)
-        assert.deepEqual(docs[3], doc1)
-        assert.deepEqual(docs[4], doc4)
+        assert.deepStrictEqual(docs[0], doc0)
+        assert.deepStrictEqual(docs[1], doc3)
+        assert.deepStrictEqual(docs[2], doc2)
+        assert.deepStrictEqual(docs[3], doc1)
+        assert.deepStrictEqual(docs[4], doc4)
 
         cursor.projection({})
         cursor.exec(function (err, docs) {
           assert.isNull(err)
           docs.length.should.equal(5)
-          assert.deepEqual(docs[0], doc0)
-          assert.deepEqual(docs[1], doc3)
-          assert.deepEqual(docs[2], doc2)
-          assert.deepEqual(docs[3], doc1)
-          assert.deepEqual(docs[4], doc4)
+          assert.deepStrictEqual(docs[0], doc0)
+          assert.deepStrictEqual(docs[1], doc3)
+          assert.deepStrictEqual(docs[2], doc2)
+          assert.deepStrictEqual(docs[3], doc1)
+          assert.deepStrictEqual(docs[4], doc4)
 
           done()
         })
@@ -769,21 +768,21 @@ describe('Cursor', function () {
         assert.isNull(err)
         docs.length.should.equal(5)
         // Takes the _id by default
-        assert.deepEqual(docs[0], { age: 5, name: 'Jo', _id: doc0._id })
-        assert.deepEqual(docs[1], { age: 23, name: 'LM', _id: doc3._id })
-        assert.deepEqual(docs[2], { age: 52, name: 'Grafitti', _id: doc2._id })
-        assert.deepEqual(docs[3], { age: 57, name: 'Louis', _id: doc1._id })
-        assert.deepEqual(docs[4], { age: 89, _id: doc4._id }) // No problems if one field to take doesn't exist
+        assert.deepStrictEqual(docs[0], { age: 5, name: 'Jo', _id: doc0._id })
+        assert.deepStrictEqual(docs[1], { age: 23, name: 'LM', _id: doc3._id })
+        assert.deepStrictEqual(docs[2], { age: 52, name: 'Grafitti', _id: doc2._id })
+        assert.deepStrictEqual(docs[3], { age: 57, name: 'Louis', _id: doc1._id })
+        assert.deepStrictEqual(docs[4], { age: 89, _id: doc4._id }) // No problems if one field to take doesn't exist
 
         cursor.projection({ age: 1, name: 1, _id: 0 })
         cursor.exec(function (err, docs) {
           assert.isNull(err)
           docs.length.should.equal(5)
-          assert.deepEqual(docs[0], { age: 5, name: 'Jo' })
-          assert.deepEqual(docs[1], { age: 23, name: 'LM' })
-          assert.deepEqual(docs[2], { age: 52, name: 'Grafitti' })
-          assert.deepEqual(docs[3], { age: 57, name: 'Louis' })
-          assert.deepEqual(docs[4], { age: 89 }) // No problems if one field to take doesn't exist
+          assert.deepStrictEqual(docs[0], { age: 5, name: 'Jo' })
+          assert.deepStrictEqual(docs[1], { age: 23, name: 'LM' })
+          assert.deepStrictEqual(docs[2], { age: 52, name: 'Grafitti' })
+          assert.deepStrictEqual(docs[3], { age: 57, name: 'Louis' })
+          assert.deepStrictEqual(docs[4], { age: 89 }) // No problems if one field to take doesn't exist
 
           done()
         })
@@ -798,21 +797,21 @@ describe('Cursor', function () {
         assert.isNull(err)
         docs.length.should.equal(5)
         // Takes the _id by default
-        assert.deepEqual(docs[0], { planet: 'B', _id: doc0._id, toys: { bebe: true, ballon: 'much' } })
-        assert.deepEqual(docs[1], { planet: 'S', _id: doc3._id })
-        assert.deepEqual(docs[2], { planet: 'C', _id: doc2._id, toys: { bebe: 'kind of' } })
-        assert.deepEqual(docs[3], { planet: 'R', _id: doc1._id, toys: { bebe: false, ballon: 'yeah' } })
-        assert.deepEqual(docs[4], { planet: 'Earth', _id: doc4._id })
+        assert.deepStrictEqual(docs[0], { planet: 'B', _id: doc0._id, toys: { bebe: true, ballon: 'much' } })
+        assert.deepStrictEqual(docs[1], { planet: 'S', _id: doc3._id })
+        assert.deepStrictEqual(docs[2], { planet: 'C', _id: doc2._id, toys: { bebe: 'kind of' } })
+        assert.deepStrictEqual(docs[3], { planet: 'R', _id: doc1._id, toys: { bebe: false, ballon: 'yeah' } })
+        assert.deepStrictEqual(docs[4], { planet: 'Earth', _id: doc4._id })
 
         cursor.projection({ age: 0, name: 0, _id: 0 })
         cursor.exec(function (err, docs) {
           assert.isNull(err)
           docs.length.should.equal(5)
-          assert.deepEqual(docs[0], { planet: 'B', toys: { bebe: true, ballon: 'much' } })
-          assert.deepEqual(docs[1], { planet: 'S' })
-          assert.deepEqual(docs[2], { planet: 'C', toys: { bebe: 'kind of' } })
-          assert.deepEqual(docs[3], { planet: 'R', toys: { bebe: false, ballon: 'yeah' } })
-          assert.deepEqual(docs[4], { planet: 'Earth' })
+          assert.deepStrictEqual(docs[0], { planet: 'B', toys: { bebe: true, ballon: 'much' } })
+          assert.deepStrictEqual(docs[1], { planet: 'S' })
+          assert.deepStrictEqual(docs[2], { planet: 'C', toys: { bebe: 'kind of' } })
+          assert.deepStrictEqual(docs[3], { planet: 'R', toys: { bebe: false, ballon: 'yeah' } })
+          assert.deepStrictEqual(docs[4], { planet: 'Earth' })
 
           done()
         })
@@ -830,20 +829,20 @@ describe('Cursor', function () {
         cursor.projection({ age: 1, _id: 0 })
         cursor.exec(function (err, docs) {
           assert.isNull(err)
-          assert.deepEqual(docs[0], { age: 5 })
-          assert.deepEqual(docs[1], { age: 23 })
-          assert.deepEqual(docs[2], { age: 52 })
-          assert.deepEqual(docs[3], { age: 57 })
-          assert.deepEqual(docs[4], { age: 89 })
+          assert.deepStrictEqual(docs[0], { age: 5 })
+          assert.deepStrictEqual(docs[1], { age: 23 })
+          assert.deepStrictEqual(docs[2], { age: 52 })
+          assert.deepStrictEqual(docs[3], { age: 57 })
+          assert.deepStrictEqual(docs[4], { age: 89 })
 
           cursor.projection({ age: 0, toys: 0, planet: 0, _id: 1 })
           cursor.exec(function (err, docs) {
             assert.isNull(err)
-            assert.deepEqual(docs[0], { name: 'Jo', _id: doc0._id })
-            assert.deepEqual(docs[1], { name: 'LM', _id: doc3._id })
-            assert.deepEqual(docs[2], { name: 'Grafitti', _id: doc2._id })
-            assert.deepEqual(docs[3], { name: 'Louis', _id: doc1._id })
-            assert.deepEqual(docs[4], { _id: doc4._id })
+            assert.deepStrictEqual(docs[0], { name: 'Jo', _id: doc0._id })
+            assert.deepStrictEqual(docs[1], { name: 'LM', _id: doc3._id })
+            assert.deepStrictEqual(docs[2], { name: 'Grafitti', _id: doc2._id })
+            assert.deepStrictEqual(docs[3], { name: 'Louis', _id: doc1._id })
+            assert.deepStrictEqual(docs[4], { _id: doc4._id })
 
             done()
           })
@@ -857,11 +856,11 @@ describe('Cursor', function () {
       cursor.projection({ name: 0, planet: 0, 'toys.bebe': 0, _id: 0 })
       // eslint-disable-next-line node/handle-callback-err
       cursor.exec(function (err, docs) {
-        assert.deepEqual(docs[0], { age: 5, toys: { ballon: 'much' } })
-        assert.deepEqual(docs[1], { age: 23 })
-        assert.deepEqual(docs[2], { age: 52, toys: {} })
-        assert.deepEqual(docs[3], { age: 57, toys: { ballon: 'yeah' } })
-        assert.deepEqual(docs[4], { age: 89 })
+        assert.deepStrictEqual(docs[0], { age: 5, toys: { ballon: 'much' } })
+        assert.deepStrictEqual(docs[1], { age: 23 })
+        assert.deepStrictEqual(docs[2], { age: 52, toys: {} })
+        assert.deepStrictEqual(docs[3], { age: 57, toys: { ballon: 'yeah' } })
+        assert.deepStrictEqual(docs[4], { age: 89 })
 
         done()
       })
@@ -873,11 +872,11 @@ describe('Cursor', function () {
       cursor.projection({ name: 1, 'toys.ballon': 1, _id: 0 })
       // eslint-disable-next-line node/handle-callback-err
       cursor.exec(function (err, docs) {
-        assert.deepEqual(docs[0], { name: 'Jo', toys: { ballon: 'much' } })
-        assert.deepEqual(docs[1], { name: 'LM' })
-        assert.deepEqual(docs[2], { name: 'Grafitti' })
-        assert.deepEqual(docs[3], { name: 'Louis', toys: { ballon: 'yeah' } })
-        assert.deepEqual(docs[4], {})
+        assert.deepStrictEqual(docs[0], { name: 'Jo', toys: { ballon: 'much' } })
+        assert.deepStrictEqual(docs[1], { name: 'LM' })
+        assert.deepStrictEqual(docs[2], { name: 'Grafitti' })
+        assert.deepStrictEqual(docs[3], { name: 'Louis', toys: { ballon: 'yeah' } })
+        assert.deepStrictEqual(docs[4], {})
 
         done()
       })
