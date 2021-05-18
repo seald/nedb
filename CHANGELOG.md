@@ -6,10 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.1] - 2021-05-18
-### Added
-- Update `homepage` & `repository` fields in the `package.json`
-
 ## [2.0.0] - 2021-05-18
 
 This version should be a drop-in replacement for `nedb@1.8.0` provided you use
@@ -17,7 +13,7 @@ modern browsers / versions of Node.js since ES6 features are now used (such
 as `class` and `const` / `let`).
 
 ### Changed
-
+- Update `homepage` & `repository` fields in the `package.json`
 - New maintainer [seald](https://github.com/seald/) and new package
   name [@seald-io/nedb](https://www.npmjs.com/package/@seald-io/nedb);
 - Added `lockfileVersion: 2` `package-lock.json`;
