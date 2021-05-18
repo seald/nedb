@@ -1,5 +1,7 @@
 stages:
+  - lint
   - test
+  - test-browser
   - deploy
 
 image: node:14
@@ -13,12 +15,18 @@ cache:
   paths:
     - .npm/
 
+lint:
+  stage: lint
+  script: npm run lint
+
 test:
   stage: test
-  script:
-    - npm run lint
-    - npm run test
-    - npm run test:browser
+  script: npm run test
+
+test-browser:
+  image: nexus-docker.tardis.seald.io/seald/docker-browser-testing:CHROME_88
+  stage: test-browser
+  script: npm run test:browser
 
 deploy:
   stage: deploy
