@@ -1,11 +1,12 @@
-const Datastore = require('../lib/datastore')
-const benchDb = 'workspace/insert.bench.db'
 const async = require('async')
-const commonUtilities = require('./commonUtilities')
-const ExecTime = require('exec-time')
-const profiler = new ExecTime('INSERT BENCH')
-const d = new Datastore(benchDb)
 const program = require('commander')
+const Datastore = require('../lib/datastore')
+const commonUtilities = require('./commonUtilities')
+const Profiler = require('./profiler')
+
+const profiler = new Profiler('INSERT BENCH')
+const benchDb = 'workspace/insert.bench.db'
+const d = new Datastore(benchDb)
 
 program
   .option('-n --number [number]', 'Size of the collection to test on', parseInt)

@@ -11,6 +11,8 @@ pids
 logs
 results
 
+.DS_Store
+
 npm-debug.log
 workspace
 node_modules
@@ -21,3 +23,6 @@ browser-version/node_modules
 *.swp
 *~
 *.swo
+
+browser-version/out
+test-results

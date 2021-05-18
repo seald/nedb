@@ -1,8 +1,9 @@
-const benchDb = 'workspace/remove.bench.db'
 const async = require('async')
-const ExecTime = require('exec-time')
-const profiler = new ExecTime('REMOVE BENCH')
 const commonUtilities = require('./commonUtilities')
+const Profiler = require('./profiler')
+
+const benchDb = 'workspace/remove.bench.db'
+const profiler = new Profiler('REMOVE BENCH')
 const config = commonUtilities.getConfiguration(benchDb)
 const d = config.d
 const n = config.n

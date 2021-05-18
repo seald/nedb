@@ -29,7 +29,7 @@ module.exports.getConfiguration = function (benchDb) {
 
   console.log('----------------------------')
   console.log('Test with ' + n + ' documents')
-  console.log(program.withIndex ? 'Use an index' : "Don't use an index")
+  console.log(program.withIndex ? 'Use an index' : 'Don\'t use an index')
   console.log(program.inMemory ? 'Use an in-memory datastore' : 'Use a persistent datastore')
   console.log('----------------------------')
 
@@ -75,7 +75,7 @@ function getRandomArray (n) {
   }
 
   return res
-};
+}
 module.exports.getRandomArray = getRandomArray
 
 /**
@@ -102,6 +102,7 @@ module.exports.insertDocs = function (d, n, profiler, cb) {
       })
     })
   }
+
   runFrom(0)
 }
 
@@ -128,6 +129,7 @@ module.exports.findDocs = function (d, n, profiler, cb) {
       })
     })
   }
+
   runFrom(0)
 }
 
@@ -164,6 +166,7 @@ module.exports.findDocsWithIn = function (d, n, profiler, cb) {
       })
     })
   }
+
   runFrom(0)
 }
 
@@ -190,6 +193,7 @@ module.exports.findOneDocs = function (d, n, profiler, cb) {
       })
     })
   }
+
   runFrom(0)
 }
 
@@ -218,6 +222,7 @@ module.exports.updateDocs = function (options, d, n, profiler, cb) {
       })
     })
   }
+
   runFrom(0)
 }
 
@@ -253,6 +258,7 @@ module.exports.removeDocs = function (options, d, n, profiler, cb) {
       })
     })
   }
+
   runFrom(0)
 }
 
@@ -276,5 +282,6 @@ module.exports.loadDatabase = function (d, n, profiler, cb) {
       })
     })
   }
+
   runFrom(0)
 }

@@ -1,8 +1,9 @@
-const benchDb = 'workspace/find.bench.db'
 const async = require('async')
-const ExecTime = require('exec-time')
-const profiler = new ExecTime('FIND BENCH')
 const commonUtilities = require('./commonUtilities')
+const Profiler = require('./profiler')
+
+const profiler = new Profiler('FIND BENCH')
+const benchDb = 'workspace/find.bench.db'
 const config = commonUtilities.getConfiguration(benchDb)
 const d = config.d
 const n = config.n
