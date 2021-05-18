@@ -5,14 +5,15 @@
 This module is a fork of [nedb](https://github.com/louischatriot/nedb)
 written by Louis Chatriot.
 
-Since the original maintainer doesn't support this package anymore, we forked
-it and maintain it for the needs of [Seald](https://www.seald.io).
+Since the original maintainer doesn't support this package anymore, we forked it
+and maintain it for the needs of [Seald](https://www.seald.io).
 
 **Embedded persistent or in memory database for Node.js, nw.js, Electron and
 browsers, 100% JavaScript, no binary dependency**. API is a subset of MongoDB's
 and it's [plenty fast](#speed).
 
 ## Installation, tests
+
 Module name on npm is `@seald-io/nedb`.
 
 ```
@@ -20,6 +21,7 @@ npm install @seald-io/nedb
 ```
 
 ## API
+
 It is a subset of MongoDB's API (the most used operations).
 
 * [Creating/loading a database](#creatingloading-a-database)
@@ -106,27 +108,26 @@ sequence, only after a successful `loadDatabase`.
 
 ```javascript
 // Type 1: In-memory only datastore (no need to load the database)
-var Datastore = require('nedb')
-  , db = new Datastore();
+const Datastore = require('@seald-io/nedb')
+const db = new Datastore()
 
 // Type 2: Persistent datastore with manual loading
-var Datastore = require('nedb')
-  , db = new Datastore({ filename: 'path/to/datafile' });
+const Datastore = require('@seald-io/nedb')
+const db = new Datastore({ filename: 'path/to/datafile' })
 db.loadDatabase(function (err) {    // Callback is optional
   // Now commands will be executed
-});
+})
 
 // Type 3: Persistent datastore with automatic loading
-var Datastore = require('nedb')
-  , db = new Datastore({ filename: 'path/to/datafile', autoload: true });
+const Datastore = require('@seald-io/nedb')
+const db = new Datastore({ filename: 'path/to/datafile', autoload: true });
 // You can issue commands right away
 
 // Type 4: Persistent datastore for a Node Webkit app called 'nwtest'
 // For example on Linux, the datafile will be ~/.config/nwtest/nedb-data/something.db
-var Datastore = require('nedb')
-  , path = require('path')
-  ,
-  db = new Datastore({ filename: path.join(require('nw.gui').App.dataPath, 'something.db') });
+const Datastore = require('@seald-io/nedb')
+const path = require('path')
+const db = new Datastore({ filename: path.join(require('nw.gui').App.dataPath, 'something.db') });
 
 // Of course you can create multiple datastores if you need several
 // collections. In this case it's usually a good idea to use autoload for all collections.
@@ -172,9 +173,9 @@ responsible for flushing the data). That guarantees that a server crash can
 never cause complete data loss, while preserving performance. The worst that can
 happen is a crash between two syncs, causing a loss of all data between the two
 syncs. Usually syncs are 30 seconds appart so that's at most 30 seconds of
-data. [This post by Antirez on Redis persistence](http://oldblog.antirez.com/post/redis-persistence-demystified.html) explains this in more details,
-NeDB being very close to Redis AOF persistence with `appendfsync` option set
-to `no`.
+data. [This post by Antirez on Redis persistence](http://oldblog.antirez.com/post/redis-persistence-demystified.html)
+explains this in more details, NeDB being very close to Redis AOF persistence
+with `appendfsync` option set to `no`.
 
 ### Inserting documents
 
@@ -191,20 +192,20 @@ Field names cannot begin by '$' or contain a '.'.
 
 ```javascript
 var doc = {
-  hello: 'world'
-  , n: 5
-  , today: new Date()
-  , nedbIsAwesome: true
-  , notthere: null
-  , notToBeSaved: undefined  // Will not be saved
-  , fruits: ['apple', 'orange', 'pear']
-  , infos: { name: 'nedb' }
-};
+  hello: 'world',
+  n: 5,
+  today: new Date(),
+  nedbIsAwesome: true,
+  notthere: null,
+  notToBeSaved: undefined,  // Will not be saved
+  fruits: ['apple', 'orange', 'pear'],
+  infos: { name: '@seald-io/nedb' }
+}
 
 db.insert(doc, function (err, newDoc) {   // Callback is optional
   // newDoc is the newly inserted document, including its _id
   // newDoc has no key called notToBeSaved since its value was undefined
-});
+})
 ```
 
 You can also bulk-insert an array of documents. This operation is atomic,
@@ -215,13 +216,13 @@ changes are rolled back.
 db.insert([{ a: 5 }, { a: 42 }], function (err, newDocs) {
   // Two documents were inserted in the database
   // newDocs is an array with these documents, augmented with their _id
-});
+})
 
 // If there is a unique constraint on field 'a', this will fail
 db.insert([{ a: 5 }, { a: 42 }, { a: 5 }], function (err) {
   // err is a 'uniqueViolated' error
   // The database was not modified
-});
+})
 ```
 
 ### Finding documents
@@ -259,51 +260,51 @@ to match a specific element of an array.
 db.find({ system: 'solar' }, function (err, docs) {
   // docs is an array containing documents Mars, Earth, Jupiter
   // If no document is found, docs is equal to []
-});
+})
 
 // Finding all planets whose name contain the substring 'ar' using a regular expression
 db.find({ planet: /ar/ }, function (err, docs) {
   // docs contains Mars and Earth
-});
+})
 
 // Finding all inhabited planets in the solar system
 db.find({ system: 'solar', inhabited: true }, function (err, docs) {
   // docs is an array containing document Earth only
-});
+})
 
 // Use the dot-notation to match fields in subdocuments
-db.find({ "humans.genders": 2 }, function (err, docs) {
+db.find({ 'humans.genders': 2 }, function (err, docs) {
   // docs contains Earth
-});
+})
 
 // Use the dot-notation to navigate arrays of subdocuments
-db.find({ "completeData.planets.name": "Mars" }, function (err, docs) {
+db.find({ 'completeData.planets.name': 'Mars' }, function (err, docs) {
   // docs contains document 5
-});
+})
 
-db.find({ "completeData.planets.name": "Jupiter" }, function (err, docs) {
+db.find({ 'completeData.planets.name': 'Jupiter' }, function (err, docs) {
   // docs is empty
-});
+})
 
-db.find({ "completeData.planets.0.name": "Earth" }, function (err, docs) {
+db.find({ 'completeData.planets.0.name': 'Earth' }, function (err, docs) {
   // docs contains document 5
-  // If we had tested against "Mars" docs would be empty because we are matching against a specific array element
-});
+  // If we had tested against 'Mars' docs would be empty because we are matching against a specific array element
+})
 
 // You can also deep-compare objects. Don't confuse this with dot-notation!
 db.find({ humans: { genders: 2 } }, function (err, docs) {
   // docs is empty, because { genders: 2 } is not equal to { genders: 2, eyes: true }
-});
+})
 
 // Find all documents in the collection
 db.find({}, function (err, docs) {
-});
+})
 
 // The same rules apply when you want to only find one document
 db.findOne({ _id: 'id1' }, function (err, doc) {
   // doc is the document Mars
   // If no document is found, doc is null
-});
+})
 ```
 
 #### Operators ($lt, $lte, $gt, $gte, $in, $nin, $ne, $stat, $regex)
@@ -325,9 +326,9 @@ operator:
 
 ```javascript
 // $lt, $lte, $gt and $gte work on numbers and strings
-db.find({ "humans.genders": { $gt: 5 } }, function (err, docs) {
+db.find({ 'humans.genders': { $gt: 5 } }, function (err, docs) {
   // docs contains Omicron Persei 8, whose humans have more than 5 genders (7).
-});
+})
 
 // When used with strings, lexicographical order is used
 db.find({ planet: { $gt: 'Mercury' } }, function (err, docs) {
@@ -337,12 +338,12 @@ db.find({ planet: { $gt: 'Mercury' } }, function (err, docs) {
 // Using $in. $nin is used in the same way
 db.find({ planet: { $in: ['Earth', 'Jupiter'] } }, function (err, docs) {
   // docs contains Earth and Jupiter
-});
+})
 
 // Using $stat
 db.find({ satellites: { $stat: true } }, function (err, docs) {
   // docs contains only Mars
-});
+})
 
 // Using $regex with another operator
 db.find({
@@ -352,7 +353,7 @@ db.find({
   }
 }, function (err, docs) {
   // docs only contains Mars because Earth was excluded from the match by $nin
-});
+})
 ```
 
 #### Array fields
@@ -388,7 +389,7 @@ db.find({
   }
 }, function (err, docs) {
   // docs contains documents with id 5 (completeData)
-});
+})
 
 db.find({
   completeData: {
@@ -401,7 +402,7 @@ db.find({
   }
 }, function (err, docs) {
   // docs is empty
-});
+})
 
 // You can use inside #elemMatch query any known document query operator
 db.find({
@@ -415,31 +416,31 @@ db.find({
   }
 }, function (err, docs) {
   // docs contains documents with id 5 (completeData)
-});
+})
 
 // Note: you can't use nested comparison functions, e.g. { $size: { $lt: 5 } } will throw an error
 db.find({ satellites: { $size: 2 } }, function (err, docs) {
   // docs contains Mars
-});
+})
 
 db.find({ satellites: { $size: 1 } }, function (err, docs) {
   // docs is empty
-});
+})
 
 // If a document's field is an array, matching it means matching any element of the array
 db.find({ satellites: 'Phobos' }, function (err, docs) {
   // docs contains Mars. Result would have been the same if query had been { satellites: 'Deimos' }
-});
+})
 
 // This also works for queries that use comparison operators
 db.find({ satellites: { $lt: 'Amos' } }, function (err, docs) {
   // docs is empty since Phobos and Deimos are after Amos in lexicographical order
-});
+})
 
 // This also works with the $in and $nin operator
 db.find({ satellites: { $in: ['Moon', 'Deimos'] } }, function (err, docs) {
   // docs contains Mars (the Earth document is not complete!)
-});
+})
 ```
 
 #### Logical operators $or, $and, $not, $where
@@ -449,20 +450,20 @@ You can combine queries using logical operators:
 * For `$or` and `$and`, the syntax is `{ $op: [query1, query2, ...] }`.
 * For `$not`, the syntax is `{ $not: query }`
 * For `$where`, the syntax
-  is `{ $where: function () { /* object is "this", return a boolean */ } }`
+  is `{ $where: function () { /* object is 'this', return a boolean */ } }`
 
 ```javascript
 db.find({ $or: [{ planet: 'Earth' }, { planet: 'Mars' }] }, function (err, docs) {
   // docs contains Earth and Mars
-});
+})
 
 db.find({ $not: { planet: 'Earth' } }, function (err, docs) {
   // docs contains Mars, Jupiter, Omicron Persei 8
-});
+})
 
 db.find({ $where: function () { return Object.keys(this) > 6; } }, function (err, docs) {
   // docs with more than 6 properties
-});
+})
 
 // You can mix normal queries, comparison queries and logical operators
 db.find({
@@ -470,7 +471,7 @@ db.find({
   inhabited: true
 }, function (err, docs) {
   // docs contains Earth
-});
+})
 
 ```
 
@@ -490,12 +491,12 @@ then execute it with `exec(callback)`.
 // No query used means all results are returned (before the Cursor modifiers)
 db.find({}).sort({ planet: 1 }).skip(1).limit(2).exec(function (err, docs) {
   // docs is [doc3, doc1]
-});
+})
 
 // You can sort in reverse order like this
 db.find({ system: 'solar' }).sort({ planet: -1 }).exec(function (err, docs) {
   // docs is [doc1, doc3, doc2]
-});
+})
 
 // You can sort on one field, then another, and so on like this:
 db.find({}).sort({ firstField: 1, secondField: -1 })
@@ -516,7 +517,7 @@ which you can choose to omit. You can project on nested documents.
 // Keeping only the given fields
 db.find({ planet: 'Mars' }, { planet: 1, system: 1 }, function (err, docs) {
   // docs is [{ planet: 'Mars', system: 'solar', _id: 'id1' }]
-});
+})
 
 // Keeping only the given fields but removing _id
 db.find({ planet: 'Mars' }, {
@@ -525,7 +526,7 @@ db.find({ planet: 'Mars' }, {
   _id: 0
 }, function (err, docs) {
   // docs is [{ planet: 'Mars', system: 'solar' }]
-});
+})
 
 // Omitting only the given fields and removing _id
 db.find({ planet: 'Mars' }, {
@@ -534,12 +535,12 @@ db.find({ planet: 'Mars' }, {
   _id: 0
 }, function (err, docs) {
   // docs is [{ inhabited: false, satellites: ['Phobos', 'Deimos'] }]
-});
+})
 
 // Failure: using both modes at the same time
 db.find({ planet: 'Mars' }, { planet: 0, system: 1 }, function (err, docs) {
   // err is the error message, docs is undefined
-});
+})
 
 // You can also use it in a Cursor way but this syntax is not compatible with MongoDB
 db.find({ planet: 'Mars' }).projection({
@@ -547,7 +548,7 @@ db.find({ planet: 'Mars' }).projection({
   system: 1
 }).exec(function (err, docs) {
   // docs is [{ planet: 'Mars', system: 'solar', _id: 'id1' }]
-});
+})
 
 // Project on a nested document
 db.findOne({ planet: 'Earth' }).projection({
@@ -555,7 +556,7 @@ db.findOne({ planet: 'Earth' }).projection({
   'humans.genders': 1
 }).exec(function (err, doc) {
   // doc is { planet: 'Earth', _id: 'id2', humans: { genders: 2 } }
-});
+})
 ```
 
 ### Counting documents
@@ -607,7 +608,8 @@ matching `query` according to the `update` rules:
 * `callback` (optional)
   signature: `(err, numAffected, affectedDocuments, upsert)`. **Warning**: the
   API was changed between v1.7.4 and v1.8. Please refer to
-  the [change log](https://github.com/louischatriot/nedb/wiki/Change-log" target="_blank) to see the change.
+  the [previous changelog](https://github.com/louischatriot/nedb/wiki/Change-log)
+  to see the change.
     * For an upsert, `affectedDocuments` contains the inserted document and
       the `upsert` flag is set to `true`.
     * For a standard update with `returnUpdatedDocs` flag set to `false`
@@ -621,7 +623,7 @@ matching `query` according to the `update` rules:
 **Note**: you can't change a document's _id.
 
 ```javascript
-// Let's use the same example collection as in the "finding document" part
+// Let's use the same example collection as in the 'finding document' part
 // { _id: 'id1', planet: 'Mars', system: 'solar', inhabited: false }
 // { _id: 'id2', planet: 'Earth', system: 'solar', inhabited: true }
 // { _id: 'id3', planet: 'Jupiter', system: 'solar', inhabited: false }
@@ -644,8 +646,8 @@ db.update({ system: 'solar' }, { $set: { system: 'solar system' } }, { multi: tr
 // Setting the value of a non-existing field in a subdocument by using the dot-notation
 db.update({ planet: 'Mars' }, {
   $set: {
-    "data.satellites": 2,
-    "data.red": true
+    'data.satellites': 2,
+    'data.red': true
   }
 }, {}, function () {
   // Mars document now is { _id: 'id1', system: 'solar', inhabited: false
@@ -657,7 +659,7 @@ db.update({ planet: 'Mars' }, {
     // Mars document now is { _id: 'id1', system: 'solar', inhabited: false
     //                      , data: { satellites: 3 }
     //                      }
-    // You lost the "data.red" field which is probably not the intended behavior
+    // You lost the 'data.red' field which is probably not the intended behavior
   });
 });
 
@@ -668,7 +670,10 @@ db.update({ planet: 'Mars' }, { $unset: { planet: true } }, {}, function () {
 });
 
 // Upserting a document
-db.update({ planet: 'Pluton' }, { planet: 'Pluton', inhabited: false }, { upsert: true }, function (err, numReplaced, upsert) {
+db.update({ planet: 'Pluton' }, {
+  planet: 'Pluton',
+  inhabited: false
+}, { upsert: true }, function (err, numReplaced, upsert) {
   // numReplaced = 1, upsert = { _id: 'id5', planet: 'Pluton', inhabited: false }
   // A new document { _id: 'id5', planet: 'Pluton', inhabited: false } has been added to the collection
 });
@@ -719,7 +724,14 @@ db.update({ _id: 'id6' }, { $push: { fruits: { $each: ['banana', 'orange'] } } }
 // A value of 0 will update the array to an empty array. A positive value n will keep only the n first elements
 // A negative value -n will keep only the last n elements.
 // If $slice is specified but not $each, $each is set to []
-db.update({ _id: 'id6' }, { $push: { fruits: { $each: ['banana'], $slice: 2 } } }, {}, function () {
+db.update({ _id: 'id6' }, {
+  $push: {
+    fruits: {
+      $each: ['banana'],
+      $slice: 2
+    }
+  }
+}, {}, function () {
   // Now the fruits array is ['apple', 'orange']
 });
 
@@ -825,9 +837,9 @@ db.ensureIndex({
 });
 
 // Format of the error message when the unique constraint is not met
-db.insert({ somefield: 'nedb' }, function (err) {
+db.insert({ somefield: '@seald-io/nedb' }, function (err) {
   // err is null
-  db.insert({ somefield: 'nedb' }, function (err) {
+  db.insert({ somefield: '@seald-io/nedb' }, function (err) {
     // err is { errorType: 'uniqueViolated'
     //        , key: 'name'
     //        , message: 'Unique constraint violated for key name' }
@@ -920,25 +932,20 @@ kind of datasets (20MB for 10,000 2KB documents).
 
 ## Use in other services
 
-* [connect-nedb-session](https://github.com/louischatriot/connect-nedb-session) is a session store for Connect and
-  Express, backed by nedb
-* If you mostly use NeDB for logging purposes and don't want the memory
-  footprint of your application to grow too large, you can
-  use [NeDB Logger](https://github.com/louischatriot/nedb-logger) to insert documents in a NeDB-readable database
-* If you've outgrown NeDB, switching to MongoDB won't be too hard as it is the
-  same API.
-  Use [this utility](https://github.com/louischatriot/nedb-to-mongodb) to transfer the data from a NeDB database to a MongoDB
-  collection
-* An ODM for
-  NeDB: [Camo](https://github.com/scottwrobinson/camo" target="_blank)
+* An ODM for NeDB: [follicle](https://github.com/seald/follicle)
 
-## Pull requests
+## Modernization
 
-**Important: I consider NeDB to be feature-complete, i.e. it does everything I
-think it should and nothing more. As a general rule I will not accept pull
-requests anymore, except for bugfixes (of course) or if I get convinced I
-overlook a strong usecase. Please make sure to open an issue before spending
-time on any PR.**
+This fork of NeDB will be incrementally updated to:
+- remove deprecated features;
+- use `async` functions and `Promises` instead of callbacks with `async@0.2.6`;
+- expose a `Promise`-based interface;
+- remove the `underscore` dependency;
+- add a way to change the `Storage` module by dependency injection, which will
+  pave the way to a cleaner browser version, and eventually other `Storage`
+  backends such as `react-native` to
+  replace [`react-native-local-mongodb`](https://github.com/antoniopresto/react-native-local-mongodb/)
+  which is discontinued.
 
 If you submit a pull request, thanks! There are a couple rules to follow though
 to make it manageable:
@@ -949,14 +956,12 @@ to make it manageable:
 * Likewise, if for one unique feature the pull request grows too large (more
   than 200 loc tests not included), please get in touch first.
 * Please stick to the current coding style. It's important that the code uses a
-  coherent style for readability.
-* Do not include sylistic improvements ("housekeeping"). If you think one part
+  coherent style for readability (this package uses [`standard`](https://standardjs.com/)).
+* Do not include stylistic improvements ('housekeeping'). If you think one part
   deserves lots of housekeeping, use a separate pull request so as not to
   pollute the code.
 * Don't forget tests for your new feature. Also don't forget to run the whole
   test suite before submitting to make sure you didn't introduce regressions.
-* Do not build the browser version in your branch, I'll take care of it once the
-  code is merged.
 * Update the readme accordingly.
 * Last but not least: keep in mind what NeDB's mindset is! The goal is not to be
   a replacement for MongoDB, but to have a pure JS database, easy to use, cross
@@ -981,7 +986,6 @@ bug reports that don't:
 * 50 lines max. If you need more, read the above point and rework your bug
   report. If you're **really** convinced you need more, please explain precisely
   in the issue.
-* The code should be Javascript, not Coffeescript.
 
 ## License
 

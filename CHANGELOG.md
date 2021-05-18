@@ -38,7 +38,7 @@ as `class` and `const` / `let`).
 - From now on, this package won't be published with `bower` as it became
   essentially useless.
 - Entries in the `browser` field of package.json don't include individual files,
-  only the bundled minified version, thos files are still published with the
+  only the bundled minified version, those files are still published with the
   package.
 
 ### Security
