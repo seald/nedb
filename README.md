@@ -13,11 +13,10 @@ browsers, 100% JavaScript, no binary dependency**. API is a subset of MongoDB's
 and it's [plenty fast](#speed).
 
 ## Installation, tests
-Module name on npm and bower is `@seald-io/nedb`.
+Module name on npm is `@seald-io/nedb`.
 
 ```
-npm install @seald-io/nedb --save    # Put latest version in your package.json
-npm test                   # You'll need the dev dependencies to launch tests
+npm install @seald-io/nedb
 ```
 
 ## API
