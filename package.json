@@ -28,10 +28,10 @@
     "datastore",
     "embedded"
   ],
-  "homepage": "https://github.com/louischatriot/nedb",
+  "homepage": "https://github.com/seald/nedb",
   "repository": {
     "type": "git",
-    "url": "git@github.com:louischatriot/nedb.git"
+    "url": "git@github.com:seald/nedb.git"
   },
   "dependencies": {
     "@seald-io/binary-search-tree": "^1.0.0",

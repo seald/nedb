@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2021-05-18
+### Added
+- Update `homepage` & `repository` fields in the `package.json`
+
 ## [2.0.0] - 2021-05-18
 
 This version should be a drop-in replacement for `nedb@1.8.0` provided you use
