@@ -8,6 +8,8 @@ image: node:14
 
 before_script:
   - echo "//registry.npmjs.org/:_authToken=${NPM_REGISTRY_TOKEN}" > .npmrc
+  - echo "@seald-io:registry=https://registry.npmjs.org/" >> .npmrc
+  - echo "@seald-io:always-auth=true" >> .npmrc
   - npm ci --cache .npm --prefer-offline
 
 cache:
