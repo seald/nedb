@@ -1,12 +1,21 @@
 {
-  "name": "nedb",
-  "version": "1.8.0",
+  "name": "@seald-io/nedb",
+  "version": "2.0.0",
   "author": {
-    "name": "Louis Chatriot",
-    "email": "louis.chatriot@gmail.com"
+    "name": "Timothée Rebours",
+    "email": "tim@seald.io",
+    "url": "https://www.seald.io/"
   },
   "contributors": [
-    "Louis Chatriot"
+    {
+      "name": "Louis Chatriot",
+      "email": "louis.chatriot@gmail.com"
+    },
+    {
+      "name": "Timothée Rebours",
+      "email": "tim@seald.io",
+      "url": "https://www.seald.io/"
+    }
   ],
   "description": "File-based embedded data store for node.js",
   "keywords": [
