@@ -32,6 +32,6 @@ deploy:
   stage: deploy
   script:
     - if (npx semver $CI_COMMIT_TAG --range '>0.0.0'); then NPM_TAG=latest; else NPM_TAG=beta; fi; # Using the fact that semver by default considers that pre-releases do not respect stable ranges
-    - npm publish --tag=$NPM_TAG
+    - npm publish --tag=$NPM_TAG --access public
   only:
     - tags
