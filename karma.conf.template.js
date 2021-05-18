@@ -1,7 +1,5 @@
 'use strict'
 
-const path = require('path')
-
 module.exports = (config) => ({
   // Increase timeout in case connection in CI is slow
   captureTimeout: 120000,

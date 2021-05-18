@@ -1,5 +1,4 @@
 'use strict'
-/* eslint-disable @typescript-eslint/no-var-requires */
 
 const template = require('./karma.conf.template.js')
 

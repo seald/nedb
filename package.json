@@ -60,6 +60,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "scripts": {
+    "lint": "standard",
     "test": "mocha --reporter spec --timeout 10000",
     "build:browser": "webpack && webpack --optimization-minimize",
     "pretest:browser": "npm run build:browser",
