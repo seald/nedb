@@ -1,6 +1,11 @@
 {
   "name": "@seald-io/nedb",
   "version": "2.0.0-0",
+  "files": [
+    "lib/**/*.js",
+    "browser-version/**/*.js",
+    "index.js"
+  ],
   "author": {
     "name": "Timothée Rebours",
     "email": "tim@seald.io",
@@ -64,7 +69,8 @@
     "test": "mocha --reporter spec --timeout 10000",
     "build:browser": "webpack && webpack --optimization-minimize",
     "pretest:browser": "npm run build:browser",
-    "test:browser": "xvfb-maybe karma start karma.conf.local.js"
+    "test:browser": "xvfb-maybe karma start karma.conf.local.js",
+    "prepublishOnly": "npm run build:browser"
   },
   "main": "index.js",
   "browser": "browser-version/out/nedb.min.js",
