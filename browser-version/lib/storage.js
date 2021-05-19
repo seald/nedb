@@ -13,7 +13,7 @@ const store = localforage.createInstance({
   storeName: 'nedbdata'
 })
 
-function exists (filename, cback) {
+const exists = (filename, cback) => {
   // eslint-disable-next-line node/handle-callback-err
   store.getItem(filename, (err, value) => {
     if (value !== null) return cback(true) // Even if value is undefined, localforage returns null
@@ -21,7 +21,7 @@ function exists (filename, cback) {
   })
 }
 
-function rename (filename, newFilename, callback) {
+const rename = (filename, newFilename, callback) => {
   // eslint-disable-next-line node/handle-callback-err
   store.getItem(filename, (err, value) => {
     if (value === null) store.removeItem(newFilename, () => callback())
@@ -33,13 +33,13 @@ function rename (filename, newFilename, callback) {
   })
 }
 
-function writeFile (filename, contents, options, callback) {
+const writeFile = (filename, contents, options, callback) => {
   // Options do not matter in browser setup
   if (typeof options === 'function') { callback = options }
   store.setItem(filename, contents, () => callback())
 }
 
-function appendFile (filename, toAppend, options, callback) {
+const appendFile = (filename, toAppend, options, callback) => {
   // Options do not matter in browser setup
   if (typeof options === 'function') { callback = options }
 
@@ -51,26 +51,22 @@ function appendFile (filename, toAppend, options, callback) {
   })
 }
 
-function readFile (filename, options, callback) {
+const readFile = (filename, options, callback) => {
   // Options do not matter in browser setup
   if (typeof options === 'function') { callback = options }
   // eslint-disable-next-line node/handle-callback-err
   store.getItem(filename, (err, contents) => callback(null, contents || ''))
 }
 
-function unlink (filename, callback) {
+const unlink = (filename, callback) => {
   store.removeItem(filename, () => callback())
 }
 
 // Nothing to do, no directories will be used on the browser
-function mkdir (dir, options, callback) {
-  return callback()
-}
+const mkdir = (dir, options, callback) => callback()
 
-// Nothing to do, no data corruption possible in the brower
-function ensureDatafileIntegrity (filename, callback) {
-  return callback(null)
-}
+// Nothing to do, no data corruption possible in the browser
+const ensureDatafileIntegrity = (filename, callback) => callback(null)
 
 // Interface
 module.exports.exists = exists
