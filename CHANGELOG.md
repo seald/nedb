@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2021-05-26
+### Fixed
+- the `browser` field of the `package.json` no longer points to the bundled
+  minified version for the browser, but switches the `storage.js` and
+  `customUtils.js` to their browser version, just like the original repository
+  used to do.
+
 ## [2.0.1] - 2021-05-19
 
 ### Changed
