@@ -72,7 +72,10 @@
     "prepublishOnly": "npm run build:browser"
   },
   "main": "index.js",
-  "browser": "browser-version/out/nedb.min.js",
+  "browser": {
+    "./lib/customUtils.js": "./browser-version/lib/customUtils.js",
+    "./lib/storage.js": "./browser-version/lib/storage.js"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public"
