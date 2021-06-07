@@ -20,7 +20,6 @@ module.exports = (env, argv) => {
       fallback: {
         fs: false,
         path: require.resolve('path-browserify'),
-        util: require.resolve('util/'),
         events: require.resolve('events/'),
         crypto: false
       }
