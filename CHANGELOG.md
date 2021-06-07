@@ -8,8 +8,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [2.0.3] - 2021-06-07
 ### Fixed
-- no longer use `util` module for type verification as it needed to be
-  polyfilled in the browser.
+- no longer use `util` module for type verification as it is needed in the
+  browser, which would need a polyfill.
   
 ## [2.0.2] - 2021-05-26
 ### Fixed
