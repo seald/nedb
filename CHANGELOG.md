@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.4] - 2021-07-12
+### Fixed
+- switch back to an AVLTree instead of a BinarySearchTree like the original nedb to fix [#1](https://github.com/seald/nedb/issues/1).
+- updated vulnerable dev dependency `ws`
+
 ## [2.0.3] - 2021-06-07
 ### Fixed
 - no longer use `util` module for type verification as it is needed in the
