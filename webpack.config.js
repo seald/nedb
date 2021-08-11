@@ -21,17 +21,13 @@ module.exports = (env, argv) => {
         fs: false,
         path: require.resolve('path-browserify'),
         events: require.resolve('events/'),
-        crypto: false,
-        // Following used by `byline` on server side only
-        stream: false,
-        util: require.resolve('util/'),
-        timers: false,
-        buffer: false
+        crypto: false
       }
     },
     plugins: [
       new webpack.NormalModuleReplacementPlugin(new RegExp(path.resolve(__dirname, 'lib/storage.js')), path.resolve(__dirname, 'browser-version/lib/storage.js')),
       new webpack.NormalModuleReplacementPlugin(new RegExp(path.resolve(__dirname, 'lib/customUtils.js')), path.resolve(__dirname, 'browser-version/lib/customUtils.js')),
+      new webpack.NormalModuleReplacementPlugin(new RegExp('byline'), path.resolve(__dirname, 'browser-version/lib/byline.js')),
       new webpack.ProvidePlugin({
         process: 'process/browser',
         Buffer: ['buffer', 'Buffer'],
