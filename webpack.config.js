@@ -21,7 +21,12 @@ module.exports = (env, argv) => {
         fs: false,
         path: require.resolve('path-browserify'),
         events: require.resolve('events/'),
-        crypto: false
+        crypto: false,
+        // Following used by `byline` on server side only
+        stream: false,
+        util: require.resolve('util/'),
+        timers: false,
+        buffer: false
       }
     },
     plugins: [
