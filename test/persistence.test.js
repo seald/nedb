@@ -102,7 +102,7 @@ describe('Persistence', function () {
 
     d.persistence.treatRawStream(stream, function (err, result) {
       console.log(err)
-      var treatedData = result.data
+      const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
       treatedData.length.should.equal(2)
       assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
@@ -135,7 +135,7 @@ describe('Persistence', function () {
     stream.push(null)
 
     d.persistence.treatRawStream(stream, function (err, result) {
-      var treatedData = result.data
+      const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
       treatedData.length.should.equal(2)
       assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
@@ -168,7 +168,7 @@ describe('Persistence', function () {
     stream.push(null)
 
     d.persistence.treatRawStream(stream, function (err, result) {
-      var treatedData = result.data
+      const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
       treatedData.length.should.equal(2)
       assert.deepStrictEqual(treatedData[0], { _id: '1', nested: { today: now } })
@@ -203,7 +203,7 @@ describe('Persistence', function () {
     stream.push(null)
 
     d.persistence.treatRawStream(stream, function (err, result) {
-      var treatedData = result.data
+      const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
       treatedData.length.should.equal(2)
       assert.deepStrictEqual(treatedData[0], { _id: '2', hello: 'world' })
@@ -236,7 +236,7 @@ describe('Persistence', function () {
     stream.push(null)
 
     d.persistence.treatRawStream(stream, function (err, result) {
-      var treatedData = result.data
+      const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
       treatedData.length.should.equal(2)
       assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
@@ -273,10 +273,10 @@ describe('Persistence', function () {
     stream.push(null)
 
     d.persistence.treatRawStream(stream, function (err, result) {
-      var treatedData = result.data
-      var indexes = result.indexes
+      const treatedData = result.data
+      const indexes = result.indexes
       Object.keys(indexes).length.should.equal(1)
-      assert.deepEqual(indexes.test, { fieldName: "test", unique: true })
+      assert.deepEqual(indexes.test, { fieldName: 'test', unique: true })
 
       treatedData.sort(function (a, b) { return a._id - b._id })
       treatedData.length.should.equal(2)
