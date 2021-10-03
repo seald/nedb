@@ -102,6 +102,7 @@ describe('Persistence', function () {
     stream.push(null)
 
     d.persistence.treatRawStream(stream, function (err, result) {
+      assert.isNotNull(err)
       const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
       treatedData.length.should.equal(2)
