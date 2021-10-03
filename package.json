@@ -36,7 +36,6 @@
   "dependencies": {
     "@seald-io/binary-search-tree": "^1.0.2",
     "async": "0.2.10",
-    "byline": "^5.0.0",
     "localforage": "^1.9.0"
   },
   "devDependencies": {
