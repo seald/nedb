@@ -20,6 +20,11 @@
       "name": "Timothée Rebours",
       "email": "tim@seald.io",
       "url": "https://www.seald.io/"
+    },
+    {
+      "name": "Eliot Akira",
+      "email": "me@eliotakira.com",
+      "url": "https://eliotakira.com/"
     }
   ],
   "description": "File-based embedded data store for node.js",
