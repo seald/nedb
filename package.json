@@ -39,6 +39,7 @@
     "localforage": "^1.9.0"
   },
   "devDependencies": {
+    "@types/nedb": "1.8.12",
     "chai": "^4.3.4",
     "commander": "^7.2.0",
     "events": "^3.3.0",
