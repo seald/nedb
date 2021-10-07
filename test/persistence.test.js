@@ -282,7 +282,7 @@ describe('Persistence', function () {
       const treatedData = result.data
       const indexes = result.indexes
       Object.keys(indexes).length.should.equal(1)
-      assert.deepEqual(indexes.test, { fieldName: 'test', unique: true })
+      assert.deepStrictEqual(indexes.test, { fieldName: 'test', unique: true })
 
       treatedData.sort(function (a, b) { return a._id - b._id })
       treatedData.length.should.equal(2)
