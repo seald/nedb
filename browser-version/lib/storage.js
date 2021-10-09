@@ -68,11 +68,15 @@ const mkdir = (dir, options, callback) => callback()
 // Nothing to do, no data corruption possible in the browser
 const ensureDatafileIntegrity = (filename, callback) => callback(null)
 
+const crashSafeWriteFileLines = (filename, lines, callback) => {
+  writeFile(filename, lines.join('\n'), callback)
+}
+
 // Interface
 module.exports.exists = exists
 module.exports.rename = rename
 module.exports.writeFile = writeFile
-module.exports.crashSafeWriteFile = writeFile // No need for a crash safe function in the browser
+module.exports.crashSafeWriteFileLines = crashSafeWriteFileLines
 module.exports.appendFile = appendFile
 module.exports.readFile = readFile
 module.exports.unlink = unlink
