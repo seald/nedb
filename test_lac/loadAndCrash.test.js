@@ -117,10 +117,10 @@ fs.writeFile = function (path, data, options, callback_) {
 fs.createWriteStream = function (path) {
   let content = ''
   return {
-    write(data) {
+    write (data) {
       content += data
     },
-    close(callback) {
+    close (callback) {
       fs.writeFile(path, content, callback)
     }
   }
