@@ -69,6 +69,7 @@ const mkdir = (dir, options, callback) => callback()
 const ensureDatafileIntegrity = (filename, callback) => callback(null)
 
 const crashSafeWriteFileLines = (filename, lines, callback) => {
+  lines.push('') // Add final new line
   writeFile(filename, lines.join('\n'), callback)
 }
 
