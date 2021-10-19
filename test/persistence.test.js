@@ -1037,6 +1037,7 @@ describe('Persistence', function () {
 
     // Not run on Windows as there is no clean way to set maximum file descriptors. Not an issue as the code itself is tested.
     it('Cannot cause EMFILE errors by opening too many file descriptors', function (done) {
+      this.timeout(5000)
       if (process.platform === 'win32' || process.platform === 'win64') { return done() }
       execFile('test_lac/openFdsLaunch.sh', function (err, stdout, stderr) {
         if (err) { return done(err) }
