@@ -431,15 +431,29 @@ describe('Database', function () {
     it('If the callback throws an uncaught exception, do not catch it inside findOne, this is userspace concern', function (done) {
       let tryCount = 0
       const currentUncaughtExceptionHandlers = process.listeners('uncaughtException')
+      const currentUnhandledRejectionHandlers = process.listeners('unhandledRejection')
+
       let i
 
       process.removeAllListeners('uncaughtException')
+      process.removeAllListeners('unhandledRejection')
 
       process.on('uncaughtException', function MINE (ex) {
         process.removeAllListeners('uncaughtException')
 
         for (i = 0; i < currentUncaughtExceptionHandlers.length; i += 1) {
           process.on('uncaughtException', currentUncaughtExceptionHandlers[i])
+        }
+
+        ex.message.should.equal('SOME EXCEPTION')
+        done()
+      })
+
+      process.on('unhandledRejection', function MINE (ex) {
+        process.removeAllListeners('unhandledRejection')
+
+        for (i = 0; i < currentUnhandledRejectionHandlers.length; i += 1) {
+          process.on('unhandledRejection', currentUnhandledRejectionHandlers[i])
         }
 
         ex.message.should.equal('SOME EXCEPTION')

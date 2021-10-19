@@ -14,11 +14,17 @@ chai.should()
 // We prevent Mocha from catching the exception we throw on purpose by remembering all current handlers, remove them and register them back after test ends
 function testThrowInCallback (d, done) {
   const currentUncaughtExceptionHandlers = process.listeners('uncaughtException')
+  const currentUnhandledRejectionHandlers = process.listeners('unhandledRejection')
 
   process.removeAllListeners('uncaughtException')
+  process.removeAllListeners('unhandledRejection')
 
   // eslint-disable-next-line node/handle-callback-err
   process.on('uncaughtException', function (err) {
+    // Do nothing with the error which is only there to test we stay on track
+  })
+
+  process.on('unhandledRejection', function MINE (ex) {
     // Do nothing with the error which is only there to test we stay on track
   })
 
@@ -28,8 +34,12 @@ function testThrowInCallback (d, done) {
       // eslint-disable-next-line node/handle-callback-err
       d.insert({ bar: 1 }, function (err) {
         process.removeAllListeners('uncaughtException')
+        process.removeAllListeners('unhandledRejection')
         for (let i = 0; i < currentUncaughtExceptionHandlers.length; i += 1) {
           process.on('uncaughtException', currentUncaughtExceptionHandlers[i])
+        }
+        for (let i = 0; i < currentUnhandledRejectionHandlers.length; i += 1) {
+          process.on('unhandledRejection', currentUnhandledRejectionHandlers[i])
         }
 
         done()
