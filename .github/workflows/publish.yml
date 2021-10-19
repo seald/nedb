@@ -1,0 +1,22 @@
+name: Publish Package
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
+      - run: npm run prepublishOnly
+      - id: get_npm_label
+        run: if (npx semver ${{ github.event.release.tag_name }} --range '>0.0.0'); then echo ::set-output name=NPM_LABEL::latest; else echo ::set-output name=NPM_LABEL::beta; fi; # Using the fact that semver by default considers that pre-releases do not respect stable ranges
+      - run: npm publish --tag=${NPM_LABEL} --access public
+        env:
+          NPM_LABEL: ${{ steps.get_npm_label.outputs.NPM_LABEL }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
