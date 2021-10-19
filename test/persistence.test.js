@@ -9,6 +9,7 @@ const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
 const storage = require('../lib/storage')
 const { execFile, fork } = require('child_process')
+const Readable = require('stream').Readable
 
 const { assert } = chai
 chai.should()
@@ -55,6 +56,28 @@ describe('Persistence', function () {
     assert.deepStrictEqual(treatedData[2], { _id: '3', nested: { today: now } })
   })
 
+  it('Every line represents a document (with stream)', function (done) {
+    const now = new Date()
+    const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
+      model.serialize({ _id: '2', hello: 'world' }) + '\n' +
+      model.serialize({ _id: '3', nested: { today: now } })
+    const stream = new Readable()
+
+    stream.push(rawData)
+    stream.push(null)
+
+    d.persistence.treatRawStream(stream, function (err, result) {
+      assert.isNull(err)
+      const treatedData = result.data
+      treatedData.sort(function (a, b) { return a._id - b._id })
+      treatedData.length.should.equal(3)
+      assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
+      assert.deepStrictEqual(treatedData[1], { _id: '2', hello: 'world' })
+      assert.deepStrictEqual(treatedData[2], { _id: '3', nested: { today: now } })
+      done()
+    })
+  })
+
   it('Badly formatted lines have no impact on the treated data', function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
@@ -66,6 +89,27 @@ describe('Persistence', function () {
     treatedData.length.should.equal(2)
     assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
     assert.deepStrictEqual(treatedData[1], { _id: '3', nested: { today: now } })
+  })
+
+  it('Badly formatted lines have no impact on the treated data (with stream)', function (done) {
+    const now = new Date()
+    const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
+      'garbage\n' +
+      model.serialize({ _id: '3', nested: { today: now } })
+    const stream = new Readable()
+
+    stream.push(rawData)
+    stream.push(null)
+
+    d.persistence.treatRawStream(stream, function (err, result) {
+      assert.isNull(err)
+      const treatedData = result.data
+      treatedData.sort(function (a, b) { return a._id - b._id })
+      treatedData.length.should.equal(2)
+      assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
+      assert.deepStrictEqual(treatedData[1], { _id: '3', nested: { today: now } })
+      done()
+    })
   })
 
   it('Well formatted lines that have no _id are not included in the data', function () {
@@ -81,6 +125,27 @@ describe('Persistence', function () {
     assert.deepStrictEqual(treatedData[1], { _id: '2', hello: 'world' })
   })
 
+  it('Well formatted lines that have no _id are not included in the data (with stream)', function (done) {
+    const now = new Date()
+    const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
+      model.serialize({ _id: '2', hello: 'world' }) + '\n' +
+      model.serialize({ nested: { today: now } })
+    const stream = new Readable()
+
+    stream.push(rawData)
+    stream.push(null)
+
+    d.persistence.treatRawStream(stream, function (err, result) {
+      assert.isNull(err)
+      const treatedData = result.data
+      treatedData.sort(function (a, b) { return a._id - b._id })
+      treatedData.length.should.equal(2)
+      assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
+      assert.deepStrictEqual(treatedData[1], { _id: '2', hello: 'world' })
+      done()
+    })
+  })
+
   it('If two lines concern the same doc (= same _id), the last one is the good version', function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
@@ -92,6 +157,27 @@ describe('Persistence', function () {
     treatedData.length.should.equal(2)
     assert.deepStrictEqual(treatedData[0], { _id: '1', nested: { today: now } })
     assert.deepStrictEqual(treatedData[1], { _id: '2', hello: 'world' })
+  })
+
+  it('If two lines concern the same doc (= same _id), the last one is the good version (with stream)', function (done) {
+    const now = new Date()
+    const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
+      model.serialize({ _id: '2', hello: 'world' }) + '\n' +
+      model.serialize({ _id: '1', nested: { today: now } })
+    const stream = new Readable()
+
+    stream.push(rawData)
+    stream.push(null)
+
+    d.persistence.treatRawStream(stream, function (err, result) {
+      assert.isNull(err)
+      const treatedData = result.data
+      treatedData.sort(function (a, b) { return a._id - b._id })
+      treatedData.length.should.equal(2)
+      assert.deepStrictEqual(treatedData[0], { _id: '1', nested: { today: now } })
+      assert.deepStrictEqual(treatedData[1], { _id: '2', hello: 'world' })
+      done()
+    })
   })
 
   it('If a doc contains $$deleted: true, that means we need to remove it from the data', function () {
@@ -108,6 +194,28 @@ describe('Persistence', function () {
     assert.deepStrictEqual(treatedData[1], { _id: '3', today: now })
   })
 
+  it('If a doc contains $$deleted: true, that means we need to remove it from the data (with stream)', function (done) {
+    const now = new Date()
+    const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
+      model.serialize({ _id: '2', hello: 'world' }) + '\n' +
+      model.serialize({ _id: '1', $$deleted: true }) + '\n' +
+      model.serialize({ _id: '3', today: now })
+    const stream = new Readable()
+
+    stream.push(rawData)
+    stream.push(null)
+
+    d.persistence.treatRawStream(stream, function (err, result) {
+      assert.isNull(err)
+      const treatedData = result.data
+      treatedData.sort(function (a, b) { return a._id - b._id })
+      treatedData.length.should.equal(2)
+      assert.deepStrictEqual(treatedData[0], { _id: '2', hello: 'world' })
+      assert.deepStrictEqual(treatedData[1], { _id: '3', today: now })
+      done()
+    })
+  })
+
   it('If a doc contains $$deleted: true, no error is thrown if the doc wasnt in the list before', function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
@@ -119,6 +227,27 @@ describe('Persistence', function () {
     treatedData.length.should.equal(2)
     assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
     assert.deepStrictEqual(treatedData[1], { _id: '3', today: now })
+  })
+
+  it('If a doc contains $$deleted: true, no error is thrown if the doc wasnt in the list before (with stream)', function (done) {
+    const now = new Date()
+    const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
+      model.serialize({ _id: '2', $$deleted: true }) + '\n' +
+      model.serialize({ _id: '3', today: now })
+    const stream = new Readable()
+
+    stream.push(rawData)
+    stream.push(null)
+
+    d.persistence.treatRawStream(stream, function (err, result) {
+      assert.isNull(err)
+      const treatedData = result.data
+      treatedData.sort(function (a, b) { return a._id - b._id })
+      treatedData.length.should.equal(2)
+      assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
+      assert.deepStrictEqual(treatedData[1], { _id: '3', today: now })
+      done()
+    })
   })
 
   it('If a doc contains $$indexCreated, no error is thrown during treatRawData and we can get the index options', function () {
@@ -136,6 +265,31 @@ describe('Persistence', function () {
     treatedData.length.should.equal(2)
     assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
     assert.deepStrictEqual(treatedData[1], { _id: '3', today: now })
+  })
+
+  it('If a doc contains $$indexCreated, no error is thrown during treatRawData and we can get the index options (with stream)', function (done) {
+    const now = new Date()
+    const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
+      model.serialize({ $$indexCreated: { fieldName: 'test', unique: true } }) + '\n' +
+      model.serialize({ _id: '3', today: now })
+    const stream = new Readable()
+
+    stream.push(rawData)
+    stream.push(null)
+
+    d.persistence.treatRawStream(stream, function (err, result) {
+      assert.isNull(err)
+      const treatedData = result.data
+      const indexes = result.indexes
+      Object.keys(indexes).length.should.equal(1)
+      assert.deepStrictEqual(indexes.test, { fieldName: 'test', unique: true })
+
+      treatedData.sort(function (a, b) { return a._id - b._id })
+      treatedData.length.should.equal(2)
+      assert.deepStrictEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
+      assert.deepStrictEqual(treatedData[1], { _id: '3', today: now })
+      done()
+    })
   })
 
   it('Compact database on load', function (done) {

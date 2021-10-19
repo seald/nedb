@@ -114,6 +114,18 @@ fs.writeFile = function (path, data, options, callback_) {
   }
 }
 
+fs.createWriteStream = function (path) {
+  let content = ''
+  return {
+    write (data) {
+      content += data
+    },
+    close (callback) {
+      fs.writeFile(path, content, callback)
+    }
+  }
+}
+
 // End of fs modification
 const Nedb = require('../lib/datastore.js')
 const db = new Nedb({ filename: 'workspace/lac.db' })

@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0-2] - 2021-10-14
+### Changed
+- properly streaming writing the database file
+
+## [2.1.0-1] - 2021-10-07
+### Changed
+- fixed package.json browser field for byline.js
+- last minute improvements on [PR](https://github.com/seald/nedb/pull/5)
+
+## [2.1.0-0] - 2021-10-05
+Thank [@eliot-akira](https://github.com/eliot-akira) for the amazing work on this.
+### Changed
+- [implement file streaming of the database](https://github.com/seald/nedb/pull/5) like [a PR on the original repo](https://github.com/louischatriot/nedb/pull/463) did;
+- internalize [`byline`](https://github.com/jahewson/node-byline) package because it is unmaintained.
+
 ## [2.0.4] - 2021-07-12
 ### Fixed
 - switch back to an AVLTree instead of a BinarySearchTree like the original nedb to fix [#1](https://github.com/seald/nedb/issues/1).
