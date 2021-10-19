@@ -17,7 +17,7 @@ db = new Datastore({ filename: 'path/to/datafile' })
 db.loadDatabase()
 
 // Type 3: Persistent datastore with automatic loading
-db = new Datastore({ filename: 'path/to/datafile', autoload: true })
+db = new Datastore({ filename: 'path/to/datafile_2', autoload: true })
 // You can issue commands right away
 
 // Type 4: Persistent datastore for a Node Webkit app called 'nwtest'
