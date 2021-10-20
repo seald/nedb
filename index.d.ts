@@ -83,7 +83,7 @@ declare namespace Nedb {
     filename?: string;
     timestampData?: boolean;
     inMemoryOnly?: boolean;
-    nodeWebkitAppName?: boolean;
+    nodeWebkitAppName?: string;
     autoload?: boolean;
     onload?(error: Error | null): any;
     beforeDeserialization?(line: string): string;
