@@ -4,8 +4,10 @@
   "files": [
     "lib/**/*.js",
     "browser-version/**/*.js",
-    "index.js"
+    "index.js",
+    "index.d.ts"
   ],
+  "types": "index.d.ts",
   "author": {
     "name": "Timothée Rebours",
     "email": "tim@seald.io",
@@ -63,6 +65,8 @@
     "standard": "^16.0.3",
     "terser-webpack-plugin": "^5.1.2",
     "timers-browserify": "^2.0.12",
+    "ts-node": "^10.3.0",
+    "typescript": "^4.4.4",
     "webpack": "^5.37.0",
     "webpack-cli": "^4.7.0",
     "xvfb-maybe": "^0.2.1"
@@ -73,6 +77,7 @@
     "build:browser": "webpack && webpack --optimization-minimize",
     "pretest:browser": "npm run build:browser",
     "test:browser": "xvfb-maybe karma start karma.conf.local.js",
+    "test:typings": "ts-node ./typings-tests.ts",
     "prepublishOnly": "npm run build:browser"
   },
   "main": "index.js",
@@ -87,7 +92,8 @@
   },
   "standard": {
     "ignore": [
-      "browser-version/out"
+      "browser-version/out",
+      "**/*.ts"
     ]
   }
 }

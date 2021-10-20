@@ -3,13 +3,24 @@ name: Tests
 on: [push, pull_request]
 
 jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Node.js 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:typings
+
   node-tests:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [12.x, 14.x, 16.x]
-
     steps:
       - uses: actions/checkout@v2
       - name: Install Node.js ${{ matrix.node-version }}
@@ -18,7 +29,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - run: npm ci
-      - run: npm run lint
       - run: npm run test
 
   browser-tests:
@@ -34,5 +44,4 @@ jobs:
       - name: Install Chrome Stable
         uses: browser-actions/setup-chrome@latest
       - run: npm ci
-      - run: npm run lint
       - run: npm run test:browser
