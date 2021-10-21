@@ -29,12 +29,10 @@ describe('Cursor', function () {
           })
         })
       },
-      function (cb) {
-        d.loadDatabase(function (err) {
-          assert.isNull(err)
-          d.getAllData().length.should.equal(0)
-          return cb()
-        })
+      async function (cb) {
+        await d.loadDatabaseAsync()
+        d.getAllData().length.should.equal(0)
+        cb()
       }
     ], done)
   })
