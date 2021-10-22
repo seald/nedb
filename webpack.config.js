@@ -32,7 +32,8 @@ module.exports = (env, argv) => {
         process: 'process/browser',
         Buffer: ['buffer', 'Buffer'],
         setImmediate: ['timers-browserify', 'setImmediate'],
-        clearImmediate: ['timers-browserify', 'clearImmediate']
+        clearImmediate: ['timers-browserify', 'clearImmediate'],
+        util: 'util'
       })
     ],
     entry: {

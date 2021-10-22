@@ -7,6 +7,7 @@
  * This version is the browser version
  */
 const localforage = require('localforage')
+const { callbackify } = require('util')
 
 // Configure localforage to display NeDB name for now. Would be a good idea to let user use his own app name
 const store = localforage.createInstance({
@@ -14,73 +15,118 @@ const store = localforage.createInstance({
   storeName: 'nedbdata'
 })
 
-const exists = (filename, cback) => {
-  // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, value) => {
-    if (value !== null) return cback(true) // Even if value is undefined, localforage returns null
-    else return cback(false)
-  })
+const existsAsync = async filename => {
+  try {
+    const value = await store.getItem(filename)
+    if (value !== null) return true // Even if value is undefined, localforage returns null
+    return false
+  } catch (error) {
+    return false
+  }
 }
 
-const rename = (filename, newFilename, callback) => {
-  // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, value) => {
-    if (value === null) store.removeItem(newFilename, () => callback())
+const exists = callbackify(existsAsync)
+
+const renameAsync = async (filename, newFilename) => {
+  try {
+    const value = await store.getItem(filename)
+    if (value === null) await store.removeItem(newFilename)
     else {
-      store.setItem(newFilename, value, () => {
-        store.removeItem(filename, () => callback())
-      })
+      await store.setItem(newFilename, value)
+      await store.removeItem(filename)
     }
-  })
+  } catch (err) {
+    console.warn('An error happened while renaming, skip')
+  }
 }
 
-const writeFile = (filename, contents, options, callback) => {
+const rename = callbackify(renameAsync)
+
+const writeFileAsync = async (filename, contents, options) => {
   // Options do not matter in browser setup
-  if (typeof options === 'function') { callback = options }
-  store.setItem(filename, contents, () => callback())
+  try {
+    await store.setItem(filename, contents)
+  } catch (error) {
+    console.warn('An error happened while writing, skip')
+  }
 }
 
-const appendFile = (filename, toAppend, options, callback) => {
+const writeFile = callbackify(writeFileAsync)
+
+const appendFileAsync = async (filename, toAppend, options) => {
   // Options do not matter in browser setup
-  if (typeof options === 'function') { callback = options }
-
-  // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, contents) => {
-    contents = contents || ''
-    contents += toAppend
-    store.setItem(filename, contents, () => callback())
-  })
+  try {
+    const contents = (await store.getItem(filename)) || ''
+    await store.setItem(filename, contents + toAppend)
+  } catch (error) {
+    console.warn('An error happened appending to file writing, skip')
+  }
 }
 
-const readFile = (filename, options, callback) => {
-  // Options do not matter in browser setup
-  if (typeof options === 'function') { callback = options }
-  // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, contents) => callback(null, contents || ''))
+const appendFile = callbackify(appendFileAsync)
+
+const readFileAsync = async (filename, options) => {
+  try {
+    return (await store.getItem(filename)) || ''
+  } catch (error) {
+    console.warn('An error happened while reading, skip')
+    return ''
+  }
 }
 
-const unlink = (filename, callback) => {
-  store.removeItem(filename, () => callback())
+const readFile = callbackify(readFileAsync)
+
+const unlinkAsync = async filename => {
+  try {
+    await store.removeItem(filename)
+  } catch (error) {
+    console.warn('An error happened while unlinking, skip')
+  }
 }
+
+const unlink = callbackify(unlinkAsync)
 
 // Nothing to do, no directories will be used on the browser
-const mkdir = (dir, options, callback) => callback()
+const mkdirAsync = (dir, options) => Promise.resolve()
+
+const mkdir = callbackify(mkdirAsync)
 
 // Nothing to do, no data corruption possible in the browser
-const ensureDatafileIntegrity = (filename, callback) => callback(null)
+const ensureDatafileIntegrityAsync = (filename) => Promise.resolve()
 
-const crashSafeWriteFileLines = (filename, lines, callback) => {
+const ensureDatafileIntegrity = callbackify(ensureDatafileIntegrityAsync)
+
+const crashSafeWriteFileLinesAsync = async (filename, lines) => {
   lines.push('') // Add final new line
-  writeFile(filename, lines.join('\n'), callback)
+  await writeFileAsync(filename, lines.join('\n'))
 }
+
+const crashSafeWriteFileLines = callbackify(crashSafeWriteFileLinesAsync)
 
 // Interface
 module.exports.exists = exists
+module.exports.existsAsync = existsAsync
+
 module.exports.rename = rename
+module.exports.renameAsync = renameAsync
+
 module.exports.writeFile = writeFile
+module.exports.writeFileAsync = writeFileAsync
+
 module.exports.crashSafeWriteFileLines = crashSafeWriteFileLines
+module.exports.crashSafeWriteFileLinesAsync = crashSafeWriteFileLinesAsync
+
 module.exports.appendFile = appendFile
+module.exports.appendFileAsync = appendFileAsync
+
 module.exports.readFile = readFile
+module.exports.readFileAsync = readFileAsync
+
 module.exports.unlink = unlink
+module.exports.unlinkAsync = unlinkAsync
+
 module.exports.mkdir = mkdir
+module.exports.mkdirAsync = mkdirAsync
+
 module.exports.ensureDatafileIntegrity = ensureDatafileIntegrity
+module.exports.ensureDatafileIntegrityAsync = ensureDatafileIntegrityAsync
