@@ -42,7 +42,7 @@ module.exports = (env, argv) => {
     },
     output: {
       path: path.join(__dirname, 'browser-version/out'),
-      filename: `[name]${minimize ? '.min' : ''}.js`,
+      filename: pathData => `${pathData.chunk.name.toLowerCase()}${minimize ? '.min' : ''}.js`,
       libraryTarget: 'window',
       library: '[name]'
     }

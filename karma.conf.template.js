@@ -14,7 +14,7 @@ module.exports = (config) => ({
   // list of files / patterns to load in the browser
   files: [
     'node_modules/localforage/dist/localforage.min.js',
-    'browser-version/out/testUtils.min.js',
+    'browser-version/out/testutils.min.js',
     'browser-version/out/nedb.min.js',
     'test/browser/nedb-browser.spec.js',
     'test/browser/load.spec.js'
