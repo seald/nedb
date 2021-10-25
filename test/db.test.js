@@ -3,7 +3,7 @@ const chai = require('chai')
 const testDb = 'workspace/test.db'
 const fs = require('fs')
 const path = require('path')
-const async = require('async')
+const { apply, each, waterfall } = require('./utils.test.js')
 const model = require('../lib/model')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
@@ -20,7 +20,7 @@ describe('Database', function () {
     d.filename.should.equal(testDb)
     d.inMemoryOnly.should.equal(false)
 
-    async.waterfall([
+    waterfall([
       function (cb) {
         Persistence.ensureDirectoryExists(path.dirname(testDb), function () {
           fs.access(testDb, fs.constants.FS_OK, function (err) {
@@ -697,7 +697,7 @@ describe('Database', function () {
 
   describe('Find', function () {
     it('Can find all documents if an empty query is used', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -722,7 +722,7 @@ describe('Database', function () {
     })
 
     it('Can find all documents matching a basic query', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -751,7 +751,7 @@ describe('Database', function () {
     })
 
     it('Can find one document matching a basic query and return null if none is found', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -1025,7 +1025,7 @@ describe('Database', function () {
 
   describe('Count', function () {
     it('Count all documents if an empty query is used', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -1046,7 +1046,7 @@ describe('Database', function () {
     })
 
     it('Count all documents matching a basic query', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -1115,7 +1115,7 @@ describe('Database', function () {
 
   describe('Update', function () {
     it('If the query doesn\'t match anything, database is not modified', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -1212,7 +1212,7 @@ describe('Database', function () {
       }
 
       // Actually launch the tests
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err, doc1) {
@@ -1234,11 +1234,11 @@ describe('Database', function () {
             return cb()
           })
         },
-        async.apply(testPostUpdateState),
+        apply(testPostUpdateState),
         function (cb) {
           d.loadDatabase(function (err) { cb(err) })
         },
-        async.apply(testPostUpdateState)
+        apply(testPostUpdateState)
       ], done)
     })
 
@@ -1274,7 +1274,7 @@ describe('Database', function () {
       }
 
       // Actually launch the test
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err, doc1) {
@@ -1296,11 +1296,11 @@ describe('Database', function () {
             return cb()
           })
         },
-        async.apply(testPostUpdateState),
+        apply(testPostUpdateState),
         function (cb) {
           d.loadDatabase(function (err) { return cb(err) })
         },
-        async.apply(testPostUpdateState) // The persisted state has been updated
+        apply(testPostUpdateState) // The persisted state has been updated
       ], done)
     })
 
@@ -1895,7 +1895,7 @@ describe('Database', function () {
       }
 
       // Actually launch the test
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err, doc1) {
@@ -1915,11 +1915,11 @@ describe('Database', function () {
             return cb()
           })
         },
-        async.apply(testPostUpdateState),
+        apply(testPostUpdateState),
         function (cb) {
           d.loadDatabase(function (err) { return cb(err) })
         },
-        async.apply(testPostUpdateState)
+        apply(testPostUpdateState)
       ], done)
     })
 
@@ -1934,7 +1934,7 @@ describe('Database', function () {
 
               // Remove two docs simultaneously
               const toRemove = ['Mars', 'Saturn']
-              async.each(toRemove, function (planet, cb) {
+              each(toRemove, function (planet, cb) {
                 d.remove({ planet: planet }, function (err) { return cb(err) })
                 // eslint-disable-next-line node/handle-callback-err
               }, function (err) {

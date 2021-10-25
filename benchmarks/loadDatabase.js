@@ -1,4 +1,4 @@
-const async = require('async')
+const { apply, waterfall } = require('../test/utils.test.js')
 const program = require('commander')
 const Datastore = require('../lib/datastore')
 const commonUtilities = require('./commonUtilities')
@@ -20,14 +20,14 @@ console.log('Test with ' + n + ' documents')
 console.log(program.withIndex ? 'Use an index' : "Don't use an index")
 console.log('----------------------------')
 
-async.waterfall([
-  async.apply(commonUtilities.prepareDb, benchDb),
+waterfall([
+  apply(commonUtilities.prepareDb, benchDb),
   function (cb) {
     d.loadDatabase(cb)
   },
   function (cb) { profiler.beginProfiling(); return cb() },
-  async.apply(commonUtilities.insertDocs, d, n, profiler),
-  async.apply(commonUtilities.loadDatabase, d, n, profiler)
+  apply(commonUtilities.insertDocs, d, n, profiler),
+  apply(commonUtilities.loadDatabase, d, n, profiler)
 ], function (err) {
   profiler.step('Benchmark finished')
 

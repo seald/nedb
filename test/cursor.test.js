@@ -3,7 +3,7 @@ const chai = require('chai')
 const testDb = 'workspace/test.db'
 const fs = require('fs')
 const path = require('path')
-const async = require('async')
+const { each, waterfall } = require('./utils.test.js')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
 const Cursor = require('../lib/cursor')
@@ -19,7 +19,7 @@ describe('Cursor', function () {
     d.filename.should.equal(testDb)
     d.inMemoryOnly.should.equal(false)
 
-    async.waterfall([
+    waterfall([
       function (cb) {
         Persistence.ensureDirectoryExists(path.dirname(testDb), function () {
           fs.access(testDb, fs.constants.F_OK, function (err) {
@@ -58,7 +58,7 @@ describe('Cursor', function () {
     })
 
     it('Without query, an empty query or a simple query and no skip or limit', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           const cursor = new Cursor(d)
           cursor.exec(function (err, docs) {
@@ -100,7 +100,7 @@ describe('Cursor', function () {
     })
 
     it('With an empty collection', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           d.remove({}, { multi: true }, function (err) { return cb(err) })
         },
@@ -222,7 +222,7 @@ describe('Cursor', function () {
     })
 
     it('With an empty collection', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           d.remove({}, { multi: true }, function (err) { return cb(err) })
         },
@@ -240,7 +240,7 @@ describe('Cursor', function () {
 
     it('Ability to chain sorting and exec', function (done) {
       let i
-      async.waterfall([
+      waterfall([
         function (cb) {
           const cursor = new Cursor(d)
           cursor.sort({ age: 1 }).exec(function (err, docs) {
@@ -267,7 +267,7 @@ describe('Cursor', function () {
     })
 
     it('Using limit and sort', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           const cursor = new Cursor(d)
           cursor.sort({ age: 1 }).limit(3).exec(function (err, docs) {
@@ -293,7 +293,7 @@ describe('Cursor', function () {
     })
 
     it('Using a limit higher than total number of docs shouldnt cause an error', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           const cursor = new Cursor(d)
           cursor.sort({ age: 1 }).limit(7).exec(function (err, docs) {
@@ -311,7 +311,7 @@ describe('Cursor', function () {
     })
 
     it('Using limit and skip with sort', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           const cursor = new Cursor(d)
           cursor.sort({ age: 1 }).limit(1).skip(2).exec(function (err, docs) {
@@ -346,7 +346,7 @@ describe('Cursor', function () {
     })
 
     it('Using too big a limit and a skip with sort', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           const cursor = new Cursor(d)
           cursor.sort({ age: 1 }).limit(8).skip(2).exec(function (err, docs) {
@@ -362,7 +362,7 @@ describe('Cursor', function () {
     })
 
     it('Using too big a skip with sort should return no result', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           const cursor = new Cursor(d)
           cursor.sort({ age: 1 }).skip(5).exec(function (err, docs) {
@@ -399,7 +399,7 @@ describe('Cursor', function () {
     })
 
     it('Sorting strings', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           d.remove({}, { multi: true }, function (err) {
             if (err) { return cb(err) }
@@ -443,7 +443,7 @@ describe('Cursor', function () {
       let doc2
       let doc3
 
-      async.waterfall([
+      waterfall([
         function (cb) {
           d.remove({}, { multi: true }, function (err) {
             if (err) { return cb(err) }
@@ -489,7 +489,7 @@ describe('Cursor', function () {
     })
 
     it('Sorting when some fields are undefined', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           d.remove({}, { multi: true }, function (err) {
             if (err) { return cb(err) }
@@ -537,7 +537,7 @@ describe('Cursor', function () {
     })
 
     it('Sorting when all fields are undefined', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           d.remove({}, { multi: true }, function (err) {
             if (err) { return cb(err) }
@@ -571,7 +571,7 @@ describe('Cursor', function () {
     })
 
     it('Multiple consecutive sorts', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           d.remove({}, { multi: true }, function (err) {
             if (err) { return cb(err) }
@@ -655,7 +655,7 @@ describe('Cursor', function () {
       const companies = ['acme', 'milkman', 'zoinks']
       const entities = []
 
-      async.waterfall([
+      waterfall([
         function (cb) {
           d.remove({}, { multi: true }, function (err) {
             if (err) { return cb(err) }
@@ -672,7 +672,7 @@ describe('Cursor', function () {
               }
             }
 
-            async.each(entities, function (entity, callback) {
+            each(entities, function (entity, callback) {
               d.insert(entity, function () {
                 callback()
               })

@@ -1,3 +1,4 @@
+const { apply, waterfall } = require('../test/utils.test.js')
 const util = require('util')
 
 function formatTime (time, precision) {
