@@ -10,7 +10,7 @@
 
 import { EventEmitter } from 'events';
 
-export default Nedb;
+export = Nedb;
 
 declare class Nedb<G = any> extends EventEmitter {
   constructor(pathOrOptions?: string | Nedb.DataStoreOptions);
