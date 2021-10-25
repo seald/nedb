@@ -1,5 +1,5 @@
 const fs = require('fs')
-const async = require('async')
+const { waterfall, whilst } = require('../test/utils.test.js')
 const Nedb = require('../lib/datastore')
 const db = new Nedb({ filename: './workspace/openfds.db', autoload: true })
 const N = 64
@@ -7,7 +7,7 @@ let i
 let fds
 
 function multipleOpen (filename, N, callback) {
-  async.whilst(function () { return i < N }
+  whilst(function () { return i < N }
     , function (cb) {
       fs.open(filename, 'r', function (err, fd) {
         i += 1
@@ -18,7 +18,7 @@ function multipleOpen (filename, N, callback) {
     , callback)
 }
 
-async.waterfall([
+waterfall([
   // Check that ulimit has been set to the correct value
   function (cb) {
     i = 0
@@ -46,7 +46,7 @@ async.waterfall([
         if (err) { console.log(err) }
 
         i = 0
-        async.whilst(function () { return i < 2 * N + 1 }
+        whilst(function () { return i < 2 * N + 1 }
           , function (cb) {
             db.persistence.persistCachedDatabase(function (err) {
               if (err) { return cb(err) }
@@ -61,4 +61,4 @@ async.waterfall([
       })
     })
   }
-])
+], () => {})

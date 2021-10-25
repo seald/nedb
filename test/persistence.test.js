@@ -3,7 +3,7 @@ const chai = require('chai')
 const testDb = 'workspace/test.db'
 const fs = require('fs')
 const path = require('path')
-const async = require('async')
+const { apply, waterfall } = require('./utils.test.js')
 const model = require('../lib/model')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
@@ -22,7 +22,7 @@ describe('Persistence', function () {
     d.filename.should.equal(testDb)
     d.inMemoryOnly.should.equal(false)
 
-    async.waterfall([
+    waterfall([
       function (cb) {
         Persistence.ensureDirectoryExists(path.dirname(testDb), function () {
           fs.access(testDb, fs.constants.FS_OK, function (err) {
@@ -911,9 +911,9 @@ describe('Persistence', function () {
       const dbFile = 'workspace/test2.db'
       let theDb, theDb2, doc1, doc2
 
-      async.waterfall([
-        async.apply(storage.ensureFileDoesntExist, dbFile),
-        async.apply(storage.ensureFileDoesntExist, dbFile + '~'),
+      waterfall([
+        apply(storage.ensureFileDoesntExist, dbFile),
+        apply(storage.ensureFileDoesntExist, dbFile + '~'),
         function (cb) {
           theDb = new Datastore({ filename: dbFile })
           theDb.loadDatabase(cb)

@@ -48,7 +48,6 @@
     "@react-native-async-storage/async-storage": "^1.15.9",
     "@types/jest": "^27.0.2",
     "browser-resolve": "^2.0.0",
-    "async": "0.2.10",
     "chai": "^4.3.4",
     "commander": "^7.2.0",
     "events": "^3.3.0",
