@@ -72,7 +72,7 @@ describe.skip('Load tests', function () {
     db.remove({}, { multi: true }, err => done(err))
   })
 
-  it('Inserts', function (done) {
+  it.skip('Inserts', function (done) {
     testUtils.waterfall([
       // Slow and gets slower with database size
       testUtils.apply(someInserts, '#1', N), // N=5000, 141s
@@ -82,7 +82,7 @@ describe.skip('Load tests', function () {
     ], done)
   })
 
-  it('Localstorage', function (done) {
+  it.skip('Localstorage', function (done) {
     testUtils.waterfall([
       // Slow and gets slower really fast with database size, then outright crashes
       testUtils.apply(someLS, '#1', N), // N=4000, 2.5s
@@ -92,7 +92,7 @@ describe.skip('Load tests', function () {
     ], done)
   })
 
-  it('Localstorage Diff', function (done) {
+  it.skip('Localstorage Diff', function (done) {
     testUtils.waterfall([
       // Much faster and more consistent
       testUtils.apply(someLSDiff, '#1', N), // N=50000, 0.7s
@@ -102,7 +102,7 @@ describe.skip('Load tests', function () {
     ], done)
   })
 
-  it('LocalForage', function (done) {
+  it.skip('LocalForage', function (done) {
     testUtils.waterfall([
       // Slow and gets slower with database size
       cb => { localforage.setItem('loadTestLF', '', err => cb(err)) },
@@ -113,7 +113,7 @@ describe.skip('Load tests', function () {
     ], done)
   })
 
-  it('LocalForage diff', function (done) {
+  it.skip('LocalForage diff', function (done) {
     testUtils.waterfall([
       // Quite fast and speed doesn't change with database size (tested with N=10000 and N=50000, still no slow-down)
       testUtils.apply(someLFDiff, '#1', N), // N=5000, 18s
