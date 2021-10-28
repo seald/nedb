@@ -39,7 +39,7 @@ module.exports = (env, argv) => {
       Nedb: path.join(__dirname, 'lib', 'datastore.js')
     },
     output: {
-      path: path.join(__dirname, 'platform-specific/out'),
+      path: path.join(__dirname, 'browser-version/out'),
       filename: minimize ? 'nedb.min.js' : 'nedb.js',
       libraryTarget: 'window',
       library: '[name]'
