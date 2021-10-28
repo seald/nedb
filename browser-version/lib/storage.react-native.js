@@ -6,7 +6,8 @@
  *
  * This version is the react-native version
  */
-const AsyncStorage = require('@react-native-async-storage/async-storage')
+const AsyncStorage = require('@react-native-async-storage/async-storage').default
+
 const exists = (filename, cback) => {
   // eslint-disable-next-line node/handle-callback-err
   AsyncStorage.getItem(filename, (err, value) => {

@@ -1,7 +1,7 @@
 /* eslint-env jest */
 // Forked from https://github.com/antoniopresto/react-native-local-mongodb/blob/93acbc8a9aaca86aed1d632855cd8b984501147b/test/persistence.test.js
 const { promisify } = require('util')
-const AsyncStorage = require('@react-native-async-storage/async-storage')
+const AsyncStorage = require('@react-native-async-storage/async-storage').default
 const DataStore = require('../../')
 
 const getDb = async () => {
