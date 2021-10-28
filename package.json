@@ -3,7 +3,7 @@
   "version": "2.1.0",
   "files": [
     "lib/**/*.js",
-    "platform-specific/**/*.js",
+    "browser-version/**/*.js",
     "index.js",
     "index.d.ts"
   ],
