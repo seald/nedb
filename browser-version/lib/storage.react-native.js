@@ -3,6 +3,7 @@
  * For a Node.js/Node Webkit database it's the file system
  * For a browser-side database it's localforage, which uses the best backend available (IndexedDB then WebSQL then localStorage)
  * For a react-native database, we use @react-native-async-storage/async-storage
+ *
  * This version is the react-native version
  */
 const AsyncStorage = require('@react-native-async-storage/async-storage')
@@ -31,13 +32,13 @@ const rename = (filename, newFilename, callback) => {
 }
 
 const writeFile = (filename, contents, options, callback) => {
-  // Options do not matter in browser setup
+  // Options do not matter in a react-native setup
   if (typeof options === 'function') { callback = options }
   AsyncStorage.setItem(filename, contents, callback)
 }
 
 const appendFile = (filename, toAppend, options, callback) => {
-  // Options do not matter in browser setup
+  // Options do not matter in a react-native setup
   if (typeof options === 'function') { callback = options }
 
   // eslint-disable-next-line node/handle-callback-err
@@ -49,7 +50,7 @@ const appendFile = (filename, toAppend, options, callback) => {
 }
 
 const readFile = (filename, options, callback) => {
-  // Options do not matter in browser setup
+  // Options do not matter in a react-native setup
   if (typeof options === 'function') { callback = options }
   // eslint-disable-next-line node/handle-callback-err
   AsyncStorage.getItem(filename, (err, contents) => {
@@ -61,10 +62,10 @@ const unlink = (filename, callback) => {
   AsyncStorage.removeItem(filename, callback)
 }
 
-// Nothing to do, no directories will be used on the browser
+// Nothing to do, no directories will be used on react-native
 const mkdir = (dir, options, callback) => callback()
 
-// Nothing to do, no data corruption possible in the browser
+// Nothing to do, no data corruption possible on react-native
 const ensureDatafileIntegrity = (filename, callback) => callback(null)
 
 const crashSafeWriteFileLines = (filename, lines, callback) => {

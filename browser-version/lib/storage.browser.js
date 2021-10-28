@@ -2,6 +2,7 @@
  * Way data is stored for this database
  * For a Node.js/Node Webkit database it's the file system
  * For a browser-side database it's localforage, which uses the best backend available (IndexedDB then WebSQL then localStorage)
+ * For a react-native database, we use @react-native-async-storage/async-storage
  *
  * This version is the browser version
  */

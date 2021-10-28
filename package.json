@@ -3,7 +3,7 @@
   "version": "2.1.0",
   "files": [
     "lib/**/*.js",
-    "browser-version/**/*.js",
+    "platform-specific/**/*.js",
     "index.js",
     "index.d.ts"
   ],
@@ -89,13 +89,13 @@
   "main": "index.js",
   "browser": {
     "./lib/customUtils.js": "./browser-version/lib/customUtils.js",
-    "./lib/storage.js": "./browser-version/lib/storage.js",
+    "./lib/storage.js": "./browser-version/lib/storage.browser.js",
     "./lib/byline.js": "./browser-version/lib/byline.js"
   },
   "react-native": {
-    "./lib/customUtils.js": "./react-native-version/lib/customUtils.js",
-    "./lib/storage.js": "./react-native-version/lib/storage.js",
-    "./lib/byline.js": "./react-native-version/lib/byline.js"
+    "./lib/customUtils.js": "./browser-version/lib/customUtils.js",
+    "./lib/storage.js": "./browser-version/lib/storage.react-native.js",
+    "./lib/byline.js": "./browser-version/lib/byline.js"
   },
   "license": "MIT",
   "publishConfig": {

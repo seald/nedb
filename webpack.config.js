@@ -25,7 +25,7 @@ module.exports = (env, argv) => {
       }
     },
     plugins: [
-      new webpack.NormalModuleReplacementPlugin(new RegExp(path.resolve(__dirname, 'lib/storage.js')), path.resolve(__dirname, 'browser-version/lib/storage.js')),
+      new webpack.NormalModuleReplacementPlugin(new RegExp(path.resolve(__dirname, 'lib/storage.js')), path.resolve(__dirname, 'browser-version/lib/storage.browser.js')),
       new webpack.NormalModuleReplacementPlugin(new RegExp(path.resolve(__dirname, 'lib/customUtils.js')), path.resolve(__dirname, 'browser-version/lib/customUtils.js')),
       new webpack.NormalModuleReplacementPlugin(/byline/, path.resolve(__dirname, 'browser-version/lib/byline.js')),
       new webpack.ProvidePlugin({
@@ -39,7 +39,7 @@ module.exports = (env, argv) => {
       Nedb: path.join(__dirname, 'lib', 'datastore.js')
     },
     output: {
-      path: path.join(__dirname, 'browser-version/out'),
+      path: path.join(__dirname, 'platform-specific/out'),
       filename: minimize ? 'nedb.min.js' : 'nedb.js',
       libraryTarget: 'window',
       library: '[name]'
