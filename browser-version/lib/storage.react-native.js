@@ -2,70 +2,71 @@
  * Way data is stored for this database
  * For a Node.js/Node Webkit database it's the file system
  * For a browser-side database it's localforage, which uses the best backend available (IndexedDB then WebSQL then localStorage)
+ * For a react-native database, we use @react-native-async-storage/async-storage
  *
- * This version is the browser version
+ * This version is the react-native version
  */
-const localforage = require('localforage')
-
-// Configure localforage to display NeDB name for now. Would be a good idea to let user use his own app name
-const store = localforage.createInstance({
-  name: 'NeDB',
-  storeName: 'nedbdata'
-})
+const AsyncStorage = require('@react-native-async-storage/async-storage').default
 
 const exists = (filename, cback) => {
   // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, value) => {
-    if (value !== null) return cback(true) // Even if value is undefined, localforage returns null
-    else return cback(false)
+  AsyncStorage.getItem(filename, (err, value) => {
+    if (value !== null) {
+      return cback(true)
+    } else {
+      return cback(false)
+    }
   })
 }
 
 const rename = (filename, newFilename, callback) => {
   // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, value) => {
-    if (value === null) store.removeItem(newFilename, () => callback())
-    else {
-      store.setItem(newFilename, value, () => {
-        store.removeItem(filename, () => callback())
+  AsyncStorage.getItem(filename, (err, value) => {
+    if (value === null) {
+      this.storage.removeItem(newFilename, callback)
+    } else {
+      this.storage.setItem(newFilename, value, () => {
+        this.storage.removeItem(filename, callback)
       })
     }
   })
 }
 
 const writeFile = (filename, contents, options, callback) => {
-  // Options do not matter in browser setup
+  // Options do not matter in a react-native setup
   if (typeof options === 'function') { callback = options }
-  store.setItem(filename, contents, () => callback())
+  AsyncStorage.setItem(filename, contents, callback)
 }
 
 const appendFile = (filename, toAppend, options, callback) => {
-  // Options do not matter in browser setup
+  // Options do not matter in a react-native setup
   if (typeof options === 'function') { callback = options }
 
   // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, contents) => {
+  AsyncStorage.getItem(filename, (err, contents) => {
     contents = contents || ''
     contents += toAppend
-    store.setItem(filename, contents, () => callback())
+    AsyncStorage.setItem(filename, contents, callback)
   })
 }
 
 const readFile = (filename, options, callback) => {
-  // Options do not matter in browser setup
+  // Options do not matter in a react-native setup
   if (typeof options === 'function') { callback = options }
   // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, contents) => callback(null, contents || ''))
+  AsyncStorage.getItem(filename, (err, contents) => {
+    return callback(null, contents || '')
+  })
 }
 
 const unlink = (filename, callback) => {
-  store.removeItem(filename, () => callback())
+  AsyncStorage.removeItem(filename, callback)
 }
 
-// Nothing to do, no directories will be used on the browser
+// Nothing to do, no directories will be used on react-native
 const mkdir = (dir, options, callback) => callback()
 
-// Nothing to do, no data corruption possible in the browser
+// Nothing to do, no data corruption possible on react-native
 const ensureDatafileIntegrity = (filename, callback) => callback(null)
 
 const crashSafeWriteFileLines = (filename, lines, callback) => {

@@ -1,6 +1,6 @@
 {
   "name": "@seald-io/nedb",
-  "version": "2.1.0",
+  "version": "2.2.0-1",
   "files": [
     "lib/**/*.js",
     "browser-version/**/*.js",
@@ -46,9 +46,13 @@
     "localforage": "^1.9.0"
   },
   "devDependencies": {
+    "@react-native-async-storage/async-storage": "^1.15.9",
+    "@types/jest": "^27.0.2",
+    "browser-resolve": "^2.0.0",
     "chai": "^4.3.4",
     "commander": "^7.2.0",
     "events": "^3.3.0",
+    "jest": "^27.3.1",
     "jquery": "^3.6.0",
     "karma": "^6.3.2",
     "karma-chai": "^0.1.0",
@@ -65,6 +69,7 @@
     "standard": "^16.0.3",
     "terser-webpack-plugin": "^5.1.2",
     "timers-browserify": "^2.0.12",
+    "ts-jest": "^27.0.7",
     "ts-node": "^10.3.0",
     "typescript": "^4.4.4",
     "webpack": "^5.37.0",
@@ -77,13 +82,19 @@
     "build:browser": "webpack && webpack --optimization-minimize",
     "pretest:browser": "npm run build:browser",
     "test:browser": "xvfb-maybe karma start karma.conf.local.js",
+    "test:react-native": "jest test/react-native",
     "test:typings": "ts-node ./typings-tests.ts",
     "prepublishOnly": "npm run build:browser"
   },
   "main": "index.js",
   "browser": {
     "./lib/customUtils.js": "./browser-version/lib/customUtils.js",
-    "./lib/storage.js": "./browser-version/lib/storage.js",
+    "./lib/storage.js": "./browser-version/lib/storage.browser.js",
+    "./lib/byline.js": "./browser-version/lib/byline.js"
+  },
+  "react-native": {
+    "./lib/customUtils.js": "./browser-version/lib/customUtils.js",
+    "./lib/storage.js": "./browser-version/lib/storage.react-native.js",
     "./lib/byline.js": "./browser-version/lib/byline.js"
   },
   "license": "MIT",
@@ -95,5 +106,10 @@
       "browser-version/out",
       "**/*.ts"
     ]
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "resolver": "<rootDir>/test/react-native/resolver.js"
   }
 }
