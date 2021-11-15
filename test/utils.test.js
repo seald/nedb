@@ -27,7 +27,12 @@ const whilstAsync = async (test, fn) => {
 
 const whilst = callbackify(whilstAsync)
 
+const wait = delay => new Promise(resolve => {
+  setTimeout(resolve, delay)
+})
+
 module.exports.whilst = whilst
 module.exports.apply = apply
 module.exports.waterfall = waterfall
 module.exports.each = each
+module.exports.wait = wait
