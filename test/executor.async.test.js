@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 const testDb = 'workspace/test.db'
-const { promises: fs, constants: fsConstants } = require('fs')
+const { promises: fs } = require('fs')
 const assert = require('assert').strict
 const path = require('path')
 const Datastore = require('../lib/datastore')
