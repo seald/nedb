@@ -6,6 +6,7 @@ const path = require('path')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
 const Cursor = require('../lib/cursor')
+const { exists } = require('./utils.test.js')
 
 describe('Cursor Async', function () {
   let d
@@ -15,10 +16,7 @@ describe('Cursor Async', function () {
     assert.equal(d.filename, testDb)
     assert.equal(d.inMemoryOnly, false)
     await Persistence.ensureDirectoryExistsAsync(path.dirname(testDb))
-    try {
-      await fs.access(testDb, fsConstants.FS_OK)
-      await fs.unlink(testDb)
-    } catch (err) {}
+    if (await exists(testDb)) await fs.unlink(testDb)
     await d.loadDatabaseAsync()
     assert.equal(d.getAllData().length, 0)
   })

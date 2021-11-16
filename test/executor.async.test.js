@@ -5,6 +5,7 @@ const assert = require('assert').strict
 const path = require('path')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
+const { exists } = require('./utils.test.js')
 
 // Test that operations are executed in the right order
 // We prevent Mocha from catching the exception we throw on purpose by remembering all current handlers, remove them and register them back after test ends
@@ -53,10 +54,7 @@ describe('Executor async', function () {
       assert.equal(d.filename, testDb)
       assert.equal(d.inMemoryOnly, false)
       await Persistence.ensureDirectoryExistsAsync(path.dirname(testDb))
-      try {
-        await fs.access(testDb, fsConstants.FS_OK)
-        await fs.unlink(testDb)
-      } catch (err) {}
+      if (await exists(testDb)) await fs.unlink(testDb)
       await d.loadDatabaseAsync()
       assert.equal(d.getAllData().length, 0)
     })
