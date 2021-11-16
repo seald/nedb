@@ -1,4 +1,5 @@
 const { callbackify, promisify } = require('util')
+const { promises: fs, constants: fsConstants } = require('fs')
 
 const waterfallAsync = async tasks => {
   for (const task of tasks) {
@@ -30,9 +31,11 @@ const whilst = callbackify(whilstAsync)
 const wait = delay => new Promise(resolve => {
   setTimeout(resolve, delay)
 })
+const exists = path => fs.access(path, fsConstants.FS_OK).then(() => true, () => false)
 
 module.exports.whilst = whilst
 module.exports.apply = apply
 module.exports.waterfall = waterfall
 module.exports.each = each
 module.exports.wait = wait
+module.exports.exists = exists

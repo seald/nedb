@@ -1,12 +1,13 @@
 /* eslint-env mocha */
 const testDb = 'workspace/test.db'
-const { promises: fs, constants: fsConstants } = require('fs')
+const { promises: fs } = require('fs')
 const path = require('path')
 const assert = require('assert').strict
 const model = require('../lib/model')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
 const { wait } = require('./utils.test')
+const { exists } = require('./utils.test.js')
 const reloadTimeUpperBound = 60 // In ms, an upper bound for the reload time used to check createdAt and updatedAt
 
 describe('Database async', function () {
@@ -17,10 +18,7 @@ describe('Database async', function () {
     assert.equal(d.filename, testDb)
     assert.equal(d.inMemoryOnly, false)
     await Persistence.ensureDirectoryExistsAsync(path.dirname(testDb))
-    try {
-      await fs.access(testDb, fsConstants.FS_OK)
-      await fs.unlink(testDb)
-    } catch (err) {}
+    if (await exists(testDb)) await fs.unlink(testDb)
     await d.loadDatabaseAsync()
     assert.equal(d.getAllData().length, 0)
   })
@@ -1865,10 +1863,7 @@ describe('Database async', function () {
       it('Indexes are persisted to a separate file and recreated upon reload', async () => {
         const persDb = 'workspace/persistIndexes.db'
         let db
-        try {
-          await fs.access(persDb, fsConstants.FS_OK)
-          await fs.writeFile(persDb, '', 'utf8')
-        } catch (error) {}
+        if (await exists(persDb)) await fs.unlink(persDb)
         db = new Datastore({ filename: persDb, autoload: true })
 
         assert.equal(Object.keys(db.indexes).length, 1)
@@ -1910,10 +1905,8 @@ describe('Database async', function () {
         const persDb = 'workspace/persistIndexes.db'
         let db
 
-        try {
-          await fs.access(persDb, fsConstants.FS_OK)
-          await fs.writeFile(persDb, '', 'utf8')
-        } catch (error) {}
+        if (await exists(persDb)) await fs.unlink(persDb)
+
         db = new Datastore({ filename: persDb, autoload: true })
 
         assert.equal(Object.keys(db.indexes).length, 1)
@@ -1977,10 +1970,8 @@ describe('Database async', function () {
         const persDb = 'workspace/persistIndexes.db'
         let db
 
-        try {
-          await fs.access(persDb, fsConstants.FS_OK)
-          await fs.writeFile(persDb, '', 'utf8')
-        } catch (error) {}
+        if (await exists(persDb)) await fs.unlink(persDb)
+
         db = new Datastore({ filename: persDb, autoload: true })
 
         assert.equal(Object.keys(db.indexes).length, 1)
