@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 const testDb = 'workspace/test.db'
-const fs = require('fs').promises
-const fsConstants = require('fs').constants
+const { promises: fs, constants: fsConstants } = require('fs')
 const path = require('path')
 const assert = require('assert').strict
 const model = require('../lib/model')
@@ -10,7 +9,7 @@ const Persistence = require('../lib/persistence')
 const { wait } = require('./utils.test')
 const reloadTimeUpperBound = 60 // In ms, an upper bound for the reload time used to check createdAt and updatedAt
 
-describe.only('Database async', function () {
+describe('Database async', function () {
   let d
 
   beforeEach(async () => {
