@@ -12,9 +12,9 @@ and maintain it for the needs of [Seald](https://www.seald.io).
 browsers, 100% JavaScript, no binary dependency**. API is a subset of MongoDB's
 and it's [plenty fast](#speed).
 
-## Installation, tests
+## Installation
 
-Module name on npm is `@seald-io/nedb`.
+Module name on npm is [`@seald-io/nedb`](https://www.npmjs.com/package/@seald-io/nedb).
 
 ```
 npm install @seald-io/nedb
