@@ -760,7 +760,7 @@ describe('Database async', function () {
         affectedDocuments: affectedDocumentsEmpty
       } = await d.updateAsync({ impossible: 'db is empty anyway' }, { newDoc: true }, {})
       assert.equal(numAffectedEmpty, 0)
-      assert.equal(affectedDocumentsEmpty, undefined)
+      assert.equal(affectedDocumentsEmpty, null)
 
       const docsEmpty = await d.findAsync({})
       assert.equal(docsEmpty.length, 0) // Default option for upsert is false
@@ -1095,8 +1095,8 @@ describe('Database async', function () {
       // returnUpdatedDocs set to false
       const { numAffected, affectedDocuments, upsert } = await d.updateAsync({ a: 1 }, { $set: { b: 20 } }, {})
       assert.equal(numAffected, 1)
-      assert.equal(affectedDocuments, undefined)
-      assert.equal(upsert, undefined)
+      assert.equal(affectedDocuments, null)
+      assert.equal(upsert, false)
 
       // returnUpdatedDocs set to true
       const {
@@ -1107,7 +1107,7 @@ describe('Database async', function () {
       assert.equal(numAffected2, 1)
       assert.equal(affectedDocuments2.a, 1)
       assert.equal(affectedDocuments2.b, 21)
-      assert.equal(upsert2, undefined)
+      assert.equal(upsert2, false)
     })
 
     it('Regular update, multi true', async () => {
@@ -1121,8 +1121,8 @@ describe('Database async', function () {
         upsert
       } = await d.updateAsync({}, { $set: { b: 20 } }, { multi: true })
       assert.equal(numAffected, 2)
-      assert.equal(affectedDocuments, undefined)
-      assert.equal(upsert, undefined)
+      assert.equal(affectedDocuments, null)
+      assert.equal(upsert, false)
 
       // returnUpdatedDocs set to true
       const {
@@ -1135,7 +1135,7 @@ describe('Database async', function () {
       })
       assert.equal(numAffected2, 2)
       assert.equal(affectedDocuments2.length, 2)
-      assert.equal(upsert2, undefined)
+      assert.equal(upsert2, false)
     })
 
     it('Upsert', async () => {
@@ -1145,8 +1145,8 @@ describe('Database async', function () {
       // Upsert flag not set
       const { numAffected, affectedDocuments, upsert } = await d.updateAsync({ a: 3 }, { $set: { b: 20 } }, {})
       assert.equal(numAffected, 0)
-      assert.equal(affectedDocuments, undefined)
-      assert.equal(upsert, undefined)
+      assert.equal(affectedDocuments, null)
+      assert.equal(upsert, false)
 
       // Upsert flag set
       const {

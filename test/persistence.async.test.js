@@ -65,7 +65,7 @@ describe('Persistence async', function () {
       model.serialize({ _id: '3', nested: { today: now } })
     const treatedData = d.persistence.treatRawData(rawData).data
 
-    treatedData.sort(function (a, b) { return a._id - b._id })
+    treatedData.sort((a, b) => a._id - b._id)
     assert.equal(treatedData.length, 2)
     assert.deepEqual(treatedData[0], { _id: '1', a: 2, ages: [1, 5, 12] })
     assert.deepEqual(treatedData[1], { _id: '3', nested: { today: now } })

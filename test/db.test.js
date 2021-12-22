@@ -1293,10 +1293,10 @@ describe('Database', function () {
 
     describe('Upserts', function () {
       it('Can perform upserts if needed', function (done) {
-        d.update({ impossible: 'db is empty anyway' }, { newDoc: true }, {}, function (err, nr, upsert) {
+        d.update({ impossible: 'db is empty anyway' }, { newDoc: true }, {}, function (err, nr, affectedDocuments) {
           assert.isNull(err)
           nr.should.equal(0)
-          assert.isUndefined(upsert)
+          assert.isNull(affectedDocuments)
 
           // eslint-disable-next-line node/handle-callback-err
           d.find({}, function (err, docs) {
@@ -1791,8 +1791,8 @@ describe('Database', function () {
         d.update({ a: 1 }, { $set: { b: 20 } }, {}, function (err, numAffected, affectedDocuments, upsert) {
           assert.isNull(err)
           numAffected.should.equal(1)
-          assert.isUndefined(affectedDocuments)
-          assert.isUndefined(upsert)
+          assert.isNull(affectedDocuments)
+          assert.isFalse(upsert)
 
           // returnUpdatedDocs set to true
           d.update({ a: 1 }, { $set: { b: 21 } }, { returnUpdatedDocs: true }, function (err, numAffected, affectedDocuments, upsert) {
@@ -1800,7 +1800,7 @@ describe('Database', function () {
             numAffected.should.equal(1)
             affectedDocuments.a.should.equal(1)
             affectedDocuments.b.should.equal(21)
-            assert.isUndefined(upsert)
+            assert.isFalse(upsert)
 
             done()
           })
@@ -1815,8 +1815,8 @@ describe('Database', function () {
         d.update({}, { $set: { b: 20 } }, { multi: true }, function (err, numAffected, affectedDocuments, upsert) {
           assert.isNull(err)
           numAffected.should.equal(2)
-          assert.isUndefined(affectedDocuments)
-          assert.isUndefined(upsert)
+          assert.isNull(affectedDocuments)
+          assert.isFalse(upsert)
 
           // returnUpdatedDocs set to true
           d.update({}, { $set: { b: 21 } }, {
@@ -1826,7 +1826,7 @@ describe('Database', function () {
             assert.isNull(err)
             numAffected.should.equal(2)
             affectedDocuments.length.should.equal(2)
-            assert.isUndefined(upsert)
+            assert.isFalse(upsert)
 
             done()
           })
@@ -1841,8 +1841,8 @@ describe('Database', function () {
         d.update({ a: 3 }, { $set: { b: 20 } }, {}, function (err, numAffected, affectedDocuments, upsert) {
           assert.isNull(err)
           numAffected.should.equal(0)
-          assert.isUndefined(affectedDocuments)
-          assert.isUndefined(upsert)
+          assert.isNull(affectedDocuments)
+          assert.isFalse(upsert)
 
           // Upsert flag set
           d.update({ a: 3 }, { $set: { b: 21 } }, { upsert: true }, function (err, numAffected, affectedDocuments, upsert) {
