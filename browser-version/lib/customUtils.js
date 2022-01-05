@@ -6,6 +6,8 @@
  * Taken from the crypto-browserify module
  * https://github.com/dominictarr/crypto-browserify
  * NOTE: Math.random() does not guarantee "cryptographic quality" but we actually don't need it
+ * @param {number} size in bytes
+ * @return {array<number>}
  */
 const randomBytes = size => {
   const bytes = new Array(size)
@@ -21,6 +23,8 @@ const randomBytes = size => {
 /**
  * Taken from the base64-js module
  * https://github.com/beatgammit/base64-js/
+ * @param {array} uint8
+ * @return {string}
  */
 const byteArrayToBase64 = uint8 => {
   const lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
@@ -60,6 +64,8 @@ const byteArrayToBase64 = uint8 => {
  * that's not an issue here
  * The probability of a collision is extremely small (need 3*10^12 documents to have one chance in a million of a collision)
  * See http://en.wikipedia.org/wiki/Birthday_problem
+ * @param {number} len
+ * @return {string}
  */
 const uid = len => byteArrayToBase64(randomBytes(Math.ceil(Math.max(8, len * 2)))).replace(/[+/]/g, '').slice(0, len)
 
