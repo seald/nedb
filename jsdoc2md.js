@@ -22,9 +22,9 @@ fs.mkdirSync(outputDir) // make docs dir
 const templateData = jsdoc2md.getTemplateDataSync(getJsdocDataOptions)
 
 /* reduce templateData to an array of class names */
-const classNames = templateData.filter(({kind}) => kind === 'class').map(({name}) => name)
+const classNames = templateData.filter(({ kind }) => kind === 'class').map(({ name }) => name)
 
-const moduleNames = templateData.filter(({kind}) => kind === 'module').map(({name}) => name)
+const moduleNames = templateData.filter(({ kind }) => kind === 'module').map(({ name }) => name)
 
 /* create a documentation file for each class */
 for (const className of classNames) {
