@@ -88,7 +88,7 @@
     "test:typings": "ts-node ./typings-tests.ts",
     "prepublishOnly": "npm run build:browser",
     "generateDocs:markdown": "node jsdoc2md.js",
-    "generateDocs:html": "jsdoc -c jsdoc.conf.js -d docs-html --readme README.md lib/*.js browser-version/lib/*.js"
+    "generateDocs:html": "jsdoc -c jsdoc.conf.js -d docs-html --readme README.md"
   },
   "main": "index.js",
   "browser": {

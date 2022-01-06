@@ -1,10 +1,10 @@
 /**
  * Way data is stored for this database
- * For a Node.js/Node Webkit database it's the file system
- * For a browser-side database it's localforage which chooses the best option depending on user browser (IndexedDB then WebSQL then localStorage)
  *
- * This version is the browser version
+ * This version is the browser version and uses [localforage]{@link https://github.com/localForage/localForage} which chooses the best option depending on user browser (IndexedDB then WebSQL then localStorage).
  * @module storageBrowser
+ * @see module:storage
+ * @see module:storageReactNative
  */
 
 const localforage = require('localforage')
@@ -17,11 +17,14 @@ const store = localforage.createInstance({
 })
 
 /**
- * Returns Promise<true> if file exists
+ * Returns Promise<true> if file exists.
+ *
+ * Async version of {@link module:storageBrowser.exists}.
  * @param {string} file
  * @return {Promise<boolean>}
  * @async
  * @alias module:storageBrowser.existsAsync
+ * @see module:storageBrowser.exists
  */
 const existsAsync = async file => {
   try {
@@ -39,7 +42,7 @@ const existsAsync = async file => {
  */
 
 /**
- * Callback returns true if file exists
+ * Callback returns true if file exists.
  * @function
  * @param {string} file
  * @param {module:storageBrowser~existsCallback} cb
@@ -48,12 +51,13 @@ const existsAsync = async file => {
 const exists = callbackify(existsAsync)
 
 /**
- * Moves the item from one path to another
+ * Async version of {@link module:storageBrowser.rename}.
  * @param {string} oldPath
  * @param {string} newPath
  * @return {Promise<void>}
  * @alias module:storageBrowser.renameAsync
  * @async
+ * @see module:storageBrowser.rename
  */
 const renameAsync = async (oldPath, newPath) => {
   try {
@@ -80,13 +84,14 @@ const renameAsync = async (oldPath, newPath) => {
 const rename = callbackify(renameAsync)
 
 /**
- * Saves the item at given path
+ * Async version of {@link module:storageBrowser.writeFile}.
  * @param {string} file
  * @param {string} data
  * @param {object} [options]
  * @return {Promise<void>}
  * @alias module:storageBrowser.writeFileAsync
  * @async
+ * @see module:storageBrowser.writeFile
  */
 const writeFileAsync = async (file, data, options) => {
   // Options do not matter in browser setup
@@ -109,7 +114,7 @@ const writeFileAsync = async (file, data, options) => {
 const writeFile = callbackify(writeFileAsync)
 
 /**
- * Append to the item at given path
+ * Async version of {@link module:storageBrowser.appendFile}.
  * @function
  * @param {string} filename
  * @param {string} toAppend
@@ -117,6 +122,7 @@ const writeFile = callbackify(writeFileAsync)
  * @return {Promise<void>}
  * @alias module:storageBrowser.appendFileAsync
  * @async
+ * @see module:storageBrowser.appendFile
  */
 const appendFileAsync = async (filename, toAppend, options) => {
   // Options do not matter in browser setup
@@ -140,13 +146,14 @@ const appendFileAsync = async (filename, toAppend, options) => {
 const appendFile = callbackify(appendFileAsync)
 
 /**
- * Read data at given path
+ * Async version of {@link module:storageBrowser.readFile}.
  * @function
  * @param {string} filename
  * @param {object} [options]
  * @return {Promise<Buffer>}
  * @alias module:storageBrowser.readFileAsync
  * @async
+ * @see module:storageBrowser.readFile
  */
 const readFileAsync = async (filename, options) => {
   try {
@@ -167,12 +174,13 @@ const readFileAsync = async (filename, options) => {
 const readFile = callbackify(readFileAsync)
 
 /**
- * Remove the data at given path
+ * Async version of {@link module:storageBrowser.unlink}.
  * @function
  * @param {string} filename
  * @return {Promise<void>}
  * @async
  * @alias module:storageBrowser.unlinkAsync
+ * @see module:storageBrowser.unlink
  */
 const unlinkAsync = async filename => {
   try {
@@ -192,7 +200,7 @@ const unlinkAsync = async filename => {
 const unlink = callbackify(unlinkAsync)
 
 /**
- * Shim for storage.mkdirAsync, nothing to do, no directories will be used on the browser
+ * Shim for {@link module:storage.mkdirAsync}, nothing to do, no directories will be used on the browser.
  * @function
  * @param {string} path
  * @param {object} [options]
@@ -202,7 +210,7 @@ const unlink = callbackify(unlinkAsync)
  */
 const mkdirAsync = (path, options) => Promise.resolve()
 /**
- * Shim for storage.mkdir, nothing to do, no directories will be used on the browser
+ * Shim for {@link module:storage.mkdir}, nothing to do, no directories will be used on the browser.
  * @function
  * @param {string} path
  * @param {object} options
@@ -212,8 +220,7 @@ const mkdirAsync = (path, options) => Promise.resolve()
 const mkdir = callbackify(mkdirAsync)
 
 /**
- * Ensure the datafile contains all the data, even if there was a crash during a full file write
- * Nothing to do, no data corruption possible in the browser
+ * Shim for {@link module:storage.ensureDatafileIntegrityAsync}, nothing to do, no data corruption possible in the browser.
  * @param {string} filename
  * @return {Promise<void>}
  * @alias module:storageBrowser.ensureDatafileIntegrityAsync
@@ -221,8 +228,7 @@ const mkdir = callbackify(mkdirAsync)
 const ensureDatafileIntegrityAsync = (filename) => Promise.resolve()
 
 /**
- * Ensure the datafile contains all the data, even if there was a crash during a full file write
- * Nothing to do, no data corruption possible in the browser
+ * Shim for {@link module:storage.ensureDatafileIntegrity}, nothing to do, no data corruption possible in the browser.
  * @function
  * @param {string} filename
  * @param {NoParamCallback} callback signature: err
@@ -231,11 +237,12 @@ const ensureDatafileIntegrityAsync = (filename) => Promise.resolve()
 const ensureDatafileIntegrity = callbackify(ensureDatafileIntegrityAsync)
 
 /**
- * Fully write or rewrite the datafile, immune to crashes during the write operation (data will not be lost)
+ * Async version of {@link module:storageBrowser.crashSafeWriteFileLines}.
  * @param {string} filename
  * @param {string[]} lines
  * @return {Promise<void>}
  * @alias module:storageBrowser.crashSafeWriteFileLinesAsync
+ * @see module:storageBrowser.crashSafeWriteFileLines
  */
 const crashSafeWriteFileLinesAsync = async (filename, lines) => {
   lines.push('') // Add final new line
