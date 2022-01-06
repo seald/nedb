@@ -1,5 +1,7 @@
 /**
- * Specific customUtils for the browser, where we don't have access to the Crypto and Buffer modules
+ * Utility functions that need to be reimplemented for each environment.
+ * This is the version for the browser & React-Native
+ * @module customUtilsBrowser
  */
 
 /**
@@ -66,6 +68,7 @@ const byteArrayToBase64 = uint8 => {
  * See http://en.wikipedia.org/wiki/Birthday_problem
  * @param {number} len
  * @return {string}
+ * @alias module:customUtilsNode.uid
  */
 const uid = len => byteArrayToBase64(randomBytes(Math.ceil(Math.max(8, len * 2)))).replace(/[+/]/g, '').slice(0, len)
 
