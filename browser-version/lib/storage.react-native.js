@@ -1,21 +1,22 @@
 /**
  * Way data is stored for this database
- * For a Node.js/Node Webkit database it's the file system
- * For a browser-side database it's localforage, which uses the best backend available (IndexedDB then WebSQL then localStorage)
- * For a react-native database, we use @react-native-async-storage/async-storage
  *
- * This version is the react-native version
+ * This version is the React-Native version and uses [@react-native-async-storage/async-storage]{@link https://github.com/react-native-async-storage/async-storage}.
  * @module storageReactNative
+ * @see module:storageBrowser
+ * @see module:storageReactNative
  */
+
 const AsyncStorage = require('@react-native-async-storage/async-storage').default
 const { callbackify } = require('util') // TODO: util is not a dependency, this would fail if util is not polyfilled
 
 /**
- * Returns Promise<true> if file exists
+ * Async version of {@link module:storageReactNative.exists}.
  * @param {string} file
  * @return {Promise<boolean>}
  * @async
  * @alias module:storageReactNative.existsAsync
+ * @see module:storageReactNative.exists
  */
 const existsAsync = async file => {
   try {
@@ -41,12 +42,13 @@ const existsAsync = async file => {
 const exists = callbackify(existsAsync)
 
 /**
- * Moves the item from one path to another
+ * Async version of {@link module:storageReactNative.rename}.
  * @param {string} oldPath
  * @param {string} newPath
  * @return {Promise<void>}
  * @alias module:storageReactNative.renameAsync
  * @async
+ * @see module:storageReactNative.rename
  */
 const renameAsync = async (oldPath, newPath) => {
   try {
@@ -73,13 +75,14 @@ const renameAsync = async (oldPath, newPath) => {
 const rename = callbackify(renameAsync)
 
 /**
- * Saves the item at given path
+ * Async version of {@link module:storageReactNative.writeFile}.
  * @param {string} file
  * @param {string} data
  * @param {object} [options]
  * @return {Promise<void>}
  * @alias module:storageReactNative.writeFileAsync
  * @async
+ * @see module:storageReactNative.writeFile
  */
 const writeFileAsync = async (file, data, options) => {
   // Options do not matter in browser setup
@@ -102,7 +105,7 @@ const writeFileAsync = async (file, data, options) => {
 const writeFile = callbackify(writeFileAsync)
 
 /**
- * Append to the item at given path
+ * Async version of {@link module:storageReactNative.appendFile}.
  * @function
  * @param {string} filename
  * @param {string} toAppend
@@ -110,6 +113,7 @@ const writeFile = callbackify(writeFileAsync)
  * @return {Promise<void>}
  * @alias module:storageReactNative.appendFileAsync
  * @async
+ * @see module:storageReactNative.appendFile
  */
 const appendFileAsync = async (filename, toAppend, options) => {
   // Options do not matter in browser setup
@@ -133,13 +137,14 @@ const appendFileAsync = async (filename, toAppend, options) => {
 const appendFile = callbackify(appendFileAsync)
 
 /**
- * Read data at given path
+ * Async version of {@link module:storageReactNative.readFile}.
  * @function
  * @param {string} filename
  * @param {object} [options]
  * @return {Promise<string>}
  * @alias module:storageReactNative.readFileAsync
  * @async
+ * @see module:storageReactNative.readFile
  */
 const readFileAsync = async (filename, options) => {
   try {
@@ -161,12 +166,13 @@ const readFileAsync = async (filename, options) => {
 const readFile = callbackify(readFileAsync)
 
 /**
- * Remove the data at given path
+ * Async version of {@link module:storageReactNative.unlink}.
  * @function
  * @param {string} filename
  * @return {Promise<void>}
  * @async
  * @alias module:storageReactNative.unlinkAsync
+ * @see module:storageReactNative.unlink
  */
 const unlinkAsync = async filename => {
   try {
@@ -186,7 +192,7 @@ const unlinkAsync = async filename => {
 const unlink = callbackify(unlinkAsync)
 
 /**
- * Shim for storage.mkdirAsync, nothing to do, no directories will be used on the browser
+ * Shim for {@link module:storage.mkdirAsync}, nothing to do, no directories will be used on the browser.
  * @function
  * @param {string} dir
  * @param {object} [options]
@@ -197,7 +203,7 @@ const unlink = callbackify(unlinkAsync)
 const mkdirAsync = (dir, options) => Promise.resolve()
 
 /**
- * Shim for storage.mkdir, nothing to do, no directories will be used on the browser
+ * Shim for {@link module:storage.mkdir}, nothing to do, no directories will be used on the browser.
  * @function
  * @param {string} path
  * @param {object} options
@@ -207,8 +213,7 @@ const mkdirAsync = (dir, options) => Promise.resolve()
 const mkdir = callbackify(mkdirAsync)
 
 /**
- * Ensure the datafile contains all the data, even if there was a crash during a full file write
- * Nothing to do, no data corruption possible in the browser
+ * Shim for {@link module:storage.ensureDatafileIntegrityAsync}, nothing to do, no data corruption possible in the browser.
  * @param {string} filename
  * @return {Promise<void>}
  * @alias module:storageReactNative.ensureDatafileIntegrityAsync
@@ -216,8 +221,7 @@ const mkdir = callbackify(mkdirAsync)
 const ensureDatafileIntegrityAsync = (filename) => Promise.resolve()
 
 /**
- * Ensure the datafile contains all the data, even if there was a crash during a full file write
- * Nothing to do, no data corruption possible in the browser
+ * Shim for {@link module:storage.ensureDatafileIntegrity}, nothing to do, no data corruption possible in the browser.
  * @function
  * @param {string} filename
  * @param {NoParamCallback} callback signature: err
@@ -226,11 +230,12 @@ const ensureDatafileIntegrityAsync = (filename) => Promise.resolve()
 const ensureDatafileIntegrity = callbackify(ensureDatafileIntegrityAsync)
 
 /**
- * Fully write or rewrite the datafile, immune to crashes during the write operation (data will not be lost)
+ * Async version of {@link module:storageReactNative.crashSafeWriteFileLines}.
  * @param {string} filename
  * @param {string[]} lines
  * @return {Promise<void>}
  * @alias module:storageReactNative.crashSafeWriteFileLinesAsync
+ * @see module:storageReactNative.crashSafeWriteFileLines
  */
 const crashSafeWriteFileLinesAsync = async (filename, lines) => {
   lines.push('') // Add final new line
