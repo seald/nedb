@@ -53,6 +53,8 @@
     "events": "^3.3.0",
     "jest": "^27.3.1",
     "jquery": "^3.6.0",
+    "jsdoc": "^3.6.7",
+    "jsdoc-to-markdown": "^7.1.0",
     "karma": "^6.3.2",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
@@ -84,7 +86,9 @@
     "test:browser": "xvfb-maybe karma start karma.conf.local.js",
     "test:react-native": "jest test/react-native",
     "test:typings": "ts-node ./typings-tests.ts",
-    "prepublishOnly": "npm run build:browser"
+    "prepublishOnly": "npm run build:browser",
+    "generateDocs:markdown": "node jsdoc2md.js",
+    "generateDocs:html": "jsdoc -c jsdoc.conf.js -d docs-html --readme README.md lib/*.js browser-version/lib/*.js"
   },
   "main": "index.js",
   "browser": {
