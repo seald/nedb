@@ -434,14 +434,12 @@ interpreted as the callback.</p>
 
 - query [<code>query</code>](#query) - <p>is the same kind of finding query you use with <code>find</code> and <code>findOne</code></p>
 - update [<code>document</code>](#document) | <code>\*</code> - <p>specifies how the documents should be modified. It is either a new document or a
-set of modifiers (you cannot use both together, it doesn't make sense!):</p>
-<ul>
-<li>A new document will replace the matched docs</li>
-<li>The modifiers create the fields they need to modify if they don't exist, and you can apply them to subdocs.
-Available field modifiers are <code>$set</code> to change a field's value, <code>$unset</code> to delete a field, <code>$inc</code> to increment a
-field's value and <code>$min</code>/<code>$max</code> to change field's value, only if provided value is less/greater than current
-value. To work on arrays, you have <code>$push</code>, <code>$pop</code>, <code>$addToSet</code>, <code>$pull</code>, and the special <code>$each</code> and <code>$slice</code>.</li>
-</ul>
+set of modifiers (you cannot use both together, it doesn't make sense!). Using a new document will replace the
+matched docs. Using a set of modifiers will create the fields they need to modify if they don't exist, and you can
+apply them to subdocs. Available field modifiers are <code>$set</code> to change a field's value, <code>$unset</code> to delete a field,
+<code>$inc</code> to increment a field's value and <code>$min</code>/<code>$max</code> to change field's value, only if provided value is
+less/greater than current value. To work on arrays, you have <code>$push</code>, <code>$pop</code>, <code>$addToSet</code>, <code>$pull</code>, and the special
+<code>$each</code> and <code>$slice</code>.</p>
 - [options|] <code>Object</code> | [<code>updateCallback</code>](#Datastore..updateCallback) - <p>Optional options</p>
     - [.multi] <code>boolean</code> <code> = false</code> - <p>If true, can update multiple documents</p>
     - [.upsert] <code>boolean</code> <code> = false</code> - <p>If true, can insert a new document corresponding to the <code>update</code> rules if
@@ -464,14 +462,12 @@ if the update did not actually modify them.</p>
 
 - query [<code>query</code>](#query) - <p>is the same kind of finding query you use with <code>find</code> and <code>findOne</code></p>
 - update [<code>document</code>](#document) | <code>\*</code> - <p>specifies how the documents should be modified. It is either a new document or a
-set of modifiers (you cannot use both together, it doesn't make sense!):</p>
-<ul>
-<li>A new document will replace the matched docs</li>
-<li>The modifiers create the fields they need to modify if they don't exist, and you can apply them to subdocs.
-Available field modifiers are <code>$set</code> to change a field's value, <code>$unset</code> to delete a field, <code>$inc</code> to increment a
-field's value and <code>$min</code>/<code>$max</code> to change field's value, only if provided value is less/greater than current
-value. To work on arrays, you have <code>$push</code>, <code>$pop</code>, <code>$addToSet</code>, <code>$pull</code>, and the special <code>$each</code> and <code>$slice</code>.</li>
-</ul>
+set of modifiers (you cannot use both together, it doesn't make sense!). Using a new document will replace the
+matched docs. Using a set of modifiers will create the fields they need to modify if they don't exist, and you can
+apply them to subdocs. Available field modifiers are <code>$set</code> to change a field's value, <code>$unset</code> to delete a field,
+<code>$inc</code> to increment a field's value and <code>$min</code>/<code>$max</code> to change field's value, only if provided value is
+less/greater than current value. To work on arrays, you have <code>$push</code>, <code>$pop</code>, <code>$addToSet</code>, <code>$pull</code>, and the special
+<code>$each</code> and <code>$slice</code>.</p>
 - [options] <code>Object</code> <code> = {}</code> - <p>Optional options</p>
     - [.multi] <code>boolean</code> <code> = false</code> - <p>If true, can update multiple documents</p>
     - [.upsert] <code>boolean</code> <code> = false</code> - <p>If true, can insert a new document corresponding to the <code>update</code> rules if
