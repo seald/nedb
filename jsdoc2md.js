@@ -29,6 +29,7 @@ const templateData = jsdoc2md.getTemplateDataSync(getJsdocDataOptions)
 const classNames = templateData
   .filter(({ kind, access }) => kind === 'class' && access !== 'private')
   .map(({ name }) => name)
+  .filter(name => name !== 'LineStream') // it is a module that exports a class, dirty hack to hardcode this, but it works
 
 const moduleNames = templateData
   .filter(({ kind, access }) => kind === 'module' && access !== 'private')
