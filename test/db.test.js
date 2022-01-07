@@ -2253,6 +2253,7 @@ describe('Database', function () {
 
         fs.writeFile(testDb, rawData, 'utf8', function () {
           d.loadDatabase(function (err) {
+            err.should.not.equal(null)
             err.errorType.should.equal('uniqueViolated')
             err.key.should.equal('1')
             d.getAllData().length.should.equal(0)

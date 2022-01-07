@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 - Added an async interface for all functions
 - The JSDoc is now much more exhaustive
+- Added markdown documentation generated from the JSDoc
 
 ### Changed
 - All the functions are now async at the core, and a fully retro-compatible callback-ified version is exposed.
