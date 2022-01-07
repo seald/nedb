@@ -20,10 +20,9 @@ The probability of a collision is extremely small (need 3*10^12 documents to hav
 See http://en.wikipedia.org/wiki/Birthday_problem</p>
 
 **Kind**: static method of [<code>customUtilsNode</code>](#module_customUtilsNode)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| len | <code>number</code> | 
+- len <code>number</code>
 
 <a name="module_customUtilsNode.uid"></a>
 
@@ -36,8 +35,7 @@ The probability of a collision is extremely small (need 3*10^12 documents to hav
 See http://en.wikipedia.org/wiki/Birthday_problem</p>
 
 **Kind**: static method of [<code>customUtilsNode</code>](#module_customUtilsNode)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| len | <code>number</code> | 
+- len <code>number</code>
 

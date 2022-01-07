@@ -29,13 +29,12 @@ fields to be undefined</p>
 All methods on an index guarantee that either the whole operation was successful and the index changed
 or the operation was unsuccessful and an error is thrown while the index is unchanged</p>
 
+**Params**
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| options | <code>object</code> |  |  |
-| options.fieldName | <code>string</code> |  | <p>On which field should the index apply (can use dot notation to index on sub fields)</p> |
-| [options.unique] | <code>boolean</code> | <code>false</code> | <p>Enforces a unique constraint</p> |
-| [options.sparse] | <code>boolean</code> | <code>false</code> | <p>Allows a sparse index (we can have documents for which fieldName is <code>undefined</code>)</p> |
+- options <code>object</code>
+    - .fieldName <code>string</code> - <p>On which field should the index apply (can use dot notation to index on sub fields)</p>
+    - [.unique] <code>boolean</code> <code> = false</code> - <p>Enforces a unique constraint</p>
+    - [.sparse] <code>boolean</code> <code> = false</code> - <p>Allows a sparse index (we can have documents for which fieldName is <code>undefined</code>)</p>
 
 <a name="Index+fieldName"></a>
 
@@ -73,10 +72,10 @@ or the operation was unsuccessful and an error is thrown while the index is unch
 <p>Reset an index</p>
 
 **Kind**: instance method of [<code>Index</code>](#Index)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| [newData] | [<code>document</code>](#document) \| [<code>?Array.&lt;document&gt;</code>](#document) | <p>Data to initialize the index with. If an error is thrown during insertion, the index is not modified.</p> |
+- [newData] [<code>document</code>](#document) | [<code>?Array.&lt;document&gt;</code>](#document) - <p>Data to initialize the index with. If an error is thrown during
+insertion, the index is not modified.</p>
 
 <a name="Index+insert"></a>
 
@@ -86,10 +85,9 @@ If an array is passed, we insert all its elements (if one insertion fails the in
 O(log(n))</p>
 
 **Kind**: instance method of [<code>Index</code>](#Index)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| doc | [<code>document</code>](#document) \| [<code>Array.&lt;document&gt;</code>](#document) | <p>The document, or array of documents, to insert.</p> |
+- doc [<code>document</code>](#document) | [<code>Array.&lt;document&gt;</code>](#document) - <p>The document, or array of documents, to insert.</p>
 
 <a name="Index+remove"></a>
 
@@ -100,10 +98,9 @@ The remove operation is safe with regards to the 'unique' constraint
 O(log(n))</p>
 
 **Kind**: instance method of [<code>Index</code>](#Index)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| doc | [<code>Array.&lt;document&gt;</code>](#document) \| [<code>document</code>](#document) | <p>The document, or Array of documents, to remove.</p> |
+- doc [<code>Array.&lt;document&gt;</code>](#document) | [<code>document</code>](#document) - <p>The document, or Array of documents, to remove.</p>
 
 <a name="Index+update"></a>
 
@@ -113,11 +110,12 @@ If a constraint is violated, changes are rolled back and an error thrown
 Naive implementation, still in O(log(n))</p>
 
 **Kind**: instance method of [<code>Index</code>](#Index)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| oldDoc | [<code>document</code>](#document) \| <code>Array.&lt;{oldDoc: document, newDoc: document}&gt;</code> | <p>Document to update, or an <code>Array</code> of <code>{oldDoc, newDoc}</code> pairs.</p> |
-| [newDoc] | [<code>document</code>](#document) | <p>Document to replace the oldDoc with. If the first argument is an <code>Array</code> of <code>{oldDoc, newDoc}</code> pairs, this second argument is ignored.</p> |
+- oldDoc [<code>document</code>](#document) | <code>Array.&lt;{oldDoc: document, newDoc: document}&gt;</code> - <p>Document to update, or an <code>Array</code> of
+<code>{oldDoc, newDoc}</code> pairs.</p>
+- [newDoc] [<code>document</code>](#document) - <p>Document to replace the oldDoc with. If the first argument is an <code>Array</code> of
+<code>{oldDoc, newDoc}</code> pairs, this second argument is ignored.</p>
 
 <a name="Index+revertUpdate"></a>
 
@@ -125,11 +123,10 @@ Naive implementation, still in O(log(n))</p>
 <p>Revert an update</p>
 
 **Kind**: instance method of [<code>Index</code>](#Index)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| oldDoc | [<code>document</code>](#document) \| <code>Array.&lt;{oldDoc: document, newDoc: document}&gt;</code> | <p>Document to revert to, or an <code>Array</code> of <code>{oldDoc, newDoc}</code> pairs.</p> |
-| [newDoc] | [<code>document</code>](#document) | <p>Document to revert from. If the first argument is an Array of {oldDoc, newDoc}, this second argument is ignored.</p> |
+- oldDoc [<code>document</code>](#document) | <code>Array.&lt;{oldDoc: document, newDoc: document}&gt;</code> - <p>Document to revert to, or an <code>Array</code> of <code>{oldDoc, newDoc}</code> pairs.</p>
+- [newDoc] [<code>document</code>](#document) - <p>Document to revert from. If the first argument is an Array of {oldDoc, newDoc}, this second argument is ignored.</p>
 
 <a name="Index+getMatching"></a>
 
@@ -137,10 +134,9 @@ Naive implementation, still in O(log(n))</p>
 <p>Get all documents in index whose key match value (if it is a Thing) or one of the elements of value (if it is an array of Things)</p>
 
 **Kind**: instance method of [<code>Index</code>](#Index)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| value | <code>Array.&lt;\*&gt;</code> \| <code>\*</code> | <p>Value to match the key against</p> |
+- value <code>Array.&lt;\*&gt;</code> | <code>\*</code> - <p>Value to match the key against</p>
 
 <a name="Index+getBetweenBounds"></a>
 
@@ -149,14 +145,13 @@ Naive implementation, still in O(log(n))</p>
 Documents are sorted by key</p>
 
 **Kind**: instance method of [<code>Index</code>](#Index)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| query | <code>object</code> | <p>An object with at least one matcher among $gt, $gte, $lt, $lte.</p> |
-| [query.$gt] | <code>\*</code> | <p>Greater than matcher.</p> |
-| [query.$gte] | <code>\*</code> | <p>Greater than or equal matcher.</p> |
-| [query.$lt] | <code>\*</code> | <p>Lower than matcher.</p> |
-| [query.$lte] | <code>\*</code> | <p>Lower than or equal matcher.</p> |
+- query <code>object</code> - <p>An object with at least one matcher among $gt, $gte, $lt, $lte.</p>
+    - [.$gt] <code>\*</code> - <p>Greater than matcher.</p>
+    - [.$gte] <code>\*</code> - <p>Greater than or equal matcher.</p>
+    - [.$lt] <code>\*</code> - <p>Lower than matcher.</p>
+    - [.$lte] <code>\*</code> - <p>Lower than or equal matcher.</p>
 
 <a name="Index+getAll"></a>
 

@@ -17,10 +17,9 @@ https://github.com/dominictarr/crypto-browserify
 NOTE: Math.random() does not guarantee &quot;cryptographic quality&quot; but we actually don't need it</p>
 
 **Kind**: inner method of [<code>customUtilsBrowser</code>](#module_customUtilsBrowser)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| size | <code>number</code> | <p>in bytes</p> |
+- size <code>number</code> - <p>in bytes</p>
 
 <a name="module_customUtilsBrowser..byteArrayToBase64"></a>
 
@@ -29,8 +28,7 @@ NOTE: Math.random() does not guarantee &quot;cryptographic quality&quot; but we 
 https://github.com/beatgammit/base64-js/</p>
 
 **Kind**: inner method of [<code>customUtilsBrowser</code>](#module_customUtilsBrowser)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| uint8 | <code>array</code> | 
+- uint8 <code>array</code>
 

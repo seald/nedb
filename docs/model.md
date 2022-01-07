@@ -32,10 +32,9 @@ Querying, update</p>
 Works by applying the above checkKey function to all fields recursively</p>
 
 **Kind**: static method of [<code>model</code>](#module_model)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| obj | [<code>document</code>](#document) \| [<code>Array.&lt;document&gt;</code>](#document) | 
+- obj [<code>document</code>](#document) | [<code>Array.&lt;document&gt;</code>](#document)
 
 <a name="module_model.serialize"></a>
 
@@ -48,10 +47,9 @@ Accepted primitive types: Number, String, Boolean, Date, null
 Accepted secondary types: Objects, Arrays</p>
 
 **Kind**: static method of [<code>model</code>](#module_model)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| obj | [<code>document</code>](#document) | 
+- obj [<code>document</code>](#document)
 
 <a name="module_model.deserialize"></a>
 
@@ -60,10 +58,9 @@ Accepted secondary types: Objects, Arrays</p>
 Return the object itself</p>
 
 **Kind**: static method of [<code>model</code>](#module_model)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| rawData | <code>string</code> | 
+- rawData <code>string</code>
 
 <a name="module_model.compareThings"></a>
 
@@ -76,12 +73,11 @@ If two objects dont have the same type, the (arbitrary) type hierarchy is: undef
 Return -1 if a &lt; b, 1 if a &gt; b and 0 if a = b (note that equality here is NOT the same as defined in areThingsEqual!)</p>
 
 **Kind**: static method of [<code>model</code>](#module_model)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| a | <code>\*</code> |  |
-| b | <code>\*</code> |  |
-| [_compareStrings] | [<code>compareStrings</code>](#compareStrings) | <p>String comparing function, returning -1, 0 or 1, overriding default string comparison (useful for languages with accented letters)</p> |
+- a <code>\*</code>
+- b <code>\*</code>
+- [_compareStrings] [<code>compareStrings</code>](#compareStrings) - <p>String comparing function, returning -1, 0 or 1, overriding default string comparison (useful for languages with accented letters)</p>
 
 <a name="module_model.modify"></a>
 
@@ -89,11 +85,10 @@ Return -1 if a &lt; b, 1 if a &gt; b and 0 if a = b (note that equality here is 
 <p>Modify a DB object according to an update query</p>
 
 **Kind**: static method of [<code>model</code>](#module_model)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| obj | [<code>document</code>](#document) | 
-| updateQuery | [<code>query</code>](#query) | 
+- obj [<code>document</code>](#document)
+- updateQuery [<code>query</code>](#query)
 
 <a name="module_model.getDotValue"></a>
 
@@ -101,11 +96,10 @@ Return -1 if a &lt; b, 1 if a &gt; b and 0 if a = b (note that equality here is 
 <p>Get a value from object with dot notation</p>
 
 **Kind**: static method of [<code>model</code>](#module_model)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| obj | <code>object</code> | 
-| field | <code>string</code> | 
+- obj <code>object</code>
+- field <code>string</code>
 
 <a name="module_model.areThingsEqual"></a>
 
@@ -116,11 +110,10 @@ In the case of object, we check deep equality
 Returns true if they are, false otherwise</p>
 
 **Kind**: static method of [<code>model</code>](#module_model)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| a | <code>\*</code> | 
+- a <code>\*</code>
+- a <code>\*</code>
 
 <a name="module_model.match"></a>
 
@@ -128,11 +121,10 @@ Returns true if they are, false otherwise</p>
 <p>Tell if a given document matches a query</p>
 
 **Kind**: static method of [<code>model</code>](#module_model)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| obj | [<code>document</code>](#document) | <p>Document to check</p> |
-| query | [<code>query</code>](#query) |  |
+- obj [<code>document</code>](#document) - <p>Document to check</p>
+- query [<code>query</code>](#query)
 
 <a name="module_model..modifierFunctions"></a>
 
@@ -189,29 +181,26 @@ Returns true if they are, false otherwise</p>
 
 ### model~modifierFunction : <code>function</code>
 **Kind**: inner typedef of [<code>model</code>](#module_model)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| obj | <code>Object</code> | <p>The model to modify</p> |
-| field | <code>String</code> | <p>Can contain dots, in that case that means we will set a subfield recursively</p> |
-| value | [<code>document</code>](#document) |  |
+- obj <code>Object</code> - <p>The model to modify</p>
+- field <code>String</code> - <p>Can contain dots, in that case that means we will set a subfield recursively</p>
+- value [<code>document</code>](#document)
 
 <a name="module_model..comparisonOperator"></a>
 
 ### model~comparisonOperator ⇒ <code>boolean</code>
 **Kind**: inner typedef of [<code>model</code>](#module_model)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| a | <code>\*</code> | <p>Value in the object</p> |
-| b | <code>\*</code> | <p>Value in the query</p> |
+- a <code>\*</code> - <p>Value in the object</p>
+- b <code>\*</code> - <p>Value in the query</p>
 
 <a name="module_model..whereCallback"></a>
 
 ### model~whereCallback ⇒ <code>boolean</code>
 **Kind**: inner typedef of [<code>model</code>](#module_model)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| obj | [<code>document</code>](#document) | 
+- obj [<code>document</code>](#document)
 
