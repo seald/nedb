@@ -1,11 +1,13 @@
 <a name="module_storageReactNative"></a>
 
 ## storageReactNative
-<p>Way data is stored for this database
-For a Node.js/Node Webkit database it's the file system
-For a browser-side database it's localforage, which uses the best backend available (IndexedDB then WebSQL then localStorage)
-For a react-native database, we use @react-native-async-storage/async-storage</p>
-<p>This version is the react-native version</p>
+<p>Way data is stored for this database</p>
+<p>This version is the React-Native version and uses [@react-native-async-storage/async-storage](https://github.com/react-native-async-storage/async-storage).</p>
+
+**See**
+
+- module:storageBrowser
+- module:storageReactNative
 
 
 * [storageReactNative](#module_storageReactNative)
@@ -34,13 +36,13 @@ For a react-native database, we use @react-native-async-storage/async-storage</p
 <a name="module_storageReactNative.existsAsync"></a>
 
 ### storageReactNative.existsAsync(file) ⇒ <code>Promise.&lt;boolean&gt;</code>
-<p>Returns Promise<true> if file exists</p>
+<p>Async version of [exists](#module_storageReactNative.exists).</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**See**: module:storageReactNative.exists  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| file | <code>string</code> | 
+- file <code>string</code>
 
 <a name="module_storageReactNative.exists"></a>
 
@@ -48,23 +50,22 @@ For a react-native database, we use @react-native-async-storage/async-storage</p
 <p>Callback returns true if file exists</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| file | <code>string</code> | 
-| cb | [<code>existsCallback</code>](#module_storageReactNative..existsCallback) | 
+- file <code>string</code>
+- cb [<code>existsCallback</code>](#module_storageReactNative..existsCallback)
 
 <a name="module_storageReactNative.renameAsync"></a>
 
 ### storageReactNative.renameAsync(oldPath, newPath) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Moves the item from one path to another</p>
+<p>Async version of [rename](#module_storageReactNative.rename).</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**See**: module:storageReactNative.rename  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| oldPath | <code>string</code> | 
-| newPath | <code>string</code> | 
+- oldPath <code>string</code>
+- newPath <code>string</code>
 
 <a name="module_storageReactNative.rename"></a>
 
@@ -72,25 +73,24 @@ For a react-native database, we use @react-native-async-storage/async-storage</p
 <p>Moves the item from one path to another</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| oldPath | <code>string</code> | 
-| newPath | <code>string</code> | 
-| c | [<code>NoParamCallback</code>](#NoParamCallback) | 
+- oldPath <code>string</code>
+- newPath <code>string</code>
+- c [<code>NoParamCallback</code>](#NoParamCallback)
 
 <a name="module_storageReactNative.writeFileAsync"></a>
 
 ### storageReactNative.writeFileAsync(file, data, [options]) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Saves the item at given path</p>
+<p>Async version of [writeFile](#module_storageReactNative.writeFile).</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**See**: module:storageReactNative.writeFile  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| file | <code>string</code> | 
-| data | <code>string</code> | 
-| [options] | <code>object</code> | 
+- file <code>string</code>
+- data <code>string</code>
+- [options] <code>object</code>
 
 <a name="module_storageReactNative.writeFile"></a>
 
@@ -98,26 +98,25 @@ For a react-native database, we use @react-native-async-storage/async-storage</p
 <p>Saves the item at given path</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| path | <code>string</code> | 
-| data | <code>string</code> | 
-| options | <code>object</code> | 
-| callback | <code>function</code> | 
+- path <code>string</code>
+- data <code>string</code>
+- options <code>object</code>
+- callback <code>function</code>
 
 <a name="module_storageReactNative.appendFileAsync"></a>
 
 ### storageReactNative.appendFileAsync(filename, toAppend, [options]) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Append to the item at given path</p>
+<p>Async version of [appendFile](#module_storageReactNative.appendFile).</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**See**: module:storageReactNative.appendFile  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
-| toAppend | <code>string</code> | 
-| [options] | <code>object</code> | 
+- filename <code>string</code>
+- toAppend <code>string</code>
+- [options] <code>object</code>
 
 <a name="module_storageReactNative.appendFile"></a>
 
@@ -125,25 +124,24 @@ For a react-native database, we use @react-native-async-storage/async-storage</p
 <p>Append to the item at given path</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
-| toAppend | <code>string</code> | 
-| [options] | <code>object</code> | 
-| callback | <code>function</code> | 
+- filename <code>string</code>
+- toAppend <code>string</code>
+- [options] <code>object</code>
+- callback <code>function</code>
 
 <a name="module_storageReactNative.readFileAsync"></a>
 
 ### storageReactNative.readFileAsync(filename, [options]) ⇒ <code>Promise.&lt;string&gt;</code>
-<p>Read data at given path</p>
+<p>Async version of [readFile](#module_storageReactNative.readFile).</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**See**: module:storageReactNative.readFile  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
-| [options] | <code>object</code> | 
+- filename <code>string</code>
+- [options] <code>object</code>
 
 <a name="module_storageReactNative.readFile"></a>
 
@@ -151,23 +149,22 @@ For a react-native database, we use @react-native-async-storage/async-storage</p
 <p>Read data at given path</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
-| options | <code>object</code> | 
-| callback | <code>function</code> | 
+- filename <code>string</code>
+- options <code>object</code>
+- callback <code>function</code>
 
 <a name="module_storageReactNative.unlinkAsync"></a>
 
 ### storageReactNative.unlinkAsync(filename) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Remove the data at given path</p>
+<p>Async version of [unlink](#module_storageReactNative.unlink).</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**See**: module:storageReactNative.unlink  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
+- filename <code>string</code>
 
 <a name="module_storageReactNative.unlink"></a>
 
@@ -175,73 +172,66 @@ For a react-native database, we use @react-native-async-storage/async-storage</p
 <p>Remove the data at given path</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| path | <code>string</code> | 
-| callback | <code>function</code> | 
+- path <code>string</code>
+- callback <code>function</code>
 
 <a name="module_storageReactNative.mkdirAsync"></a>
 
 ### storageReactNative.mkdirAsync(dir, [options]) ⇒ <code>Promise.&lt;(void\|string)&gt;</code>
-<p>Shim for storage.mkdirAsync, nothing to do, no directories will be used on the browser</p>
+<p>Shim for [mkdirAsync](#module_storage.mkdirAsync), nothing to do, no directories will be used on the browser.</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| dir | <code>string</code> | 
-| [options] | <code>object</code> | 
+- dir <code>string</code>
+- [options] <code>object</code>
 
 <a name="module_storageReactNative.mkdir"></a>
 
 ### storageReactNative.mkdir(path, options, callback)
-<p>Shim for storage.mkdir, nothing to do, no directories will be used on the browser</p>
+<p>Shim for [mkdir](#module_storage.mkdir), nothing to do, no directories will be used on the browser.</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| path | <code>string</code> | 
-| options | <code>object</code> | 
-| callback | <code>function</code> | 
+- path <code>string</code>
+- options <code>object</code>
+- callback <code>function</code>
 
 <a name="module_storageReactNative.ensureDatafileIntegrityAsync"></a>
 
 ### storageReactNative.ensureDatafileIntegrityAsync(filename) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Ensure the datafile contains all the data, even if there was a crash during a full file write
-Nothing to do, no data corruption possible in the browser</p>
+<p>Shim for [ensureDatafileIntegrityAsync](#module_storage.ensureDatafileIntegrityAsync), nothing to do, no data corruption possible in the browser.</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
+- filename <code>string</code>
 
 <a name="module_storageReactNative.ensureDatafileIntegrity"></a>
 
 ### storageReactNative.ensureDatafileIntegrity(filename, callback)
-<p>Ensure the datafile contains all the data, even if there was a crash during a full file write
-Nothing to do, no data corruption possible in the browser</p>
+<p>Shim for [ensureDatafileIntegrity](#module_storage.ensureDatafileIntegrity), nothing to do, no data corruption possible in the browser.</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| filename | <code>string</code> |  |
-| callback | [<code>NoParamCallback</code>](#NoParamCallback) | <p>signature: err</p> |
+- filename <code>string</code>
+- callback [<code>NoParamCallback</code>](#NoParamCallback) - <p>signature: err</p>
 
 <a name="module_storageReactNative.crashSafeWriteFileLinesAsync"></a>
 
 ### storageReactNative.crashSafeWriteFileLinesAsync(filename, lines) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Fully write or rewrite the datafile, immune to crashes during the write operation (data will not be lost)</p>
+<p>Async version of [crashSafeWriteFileLines](#module_storageReactNative.crashSafeWriteFileLines).</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**See**: module:storageReactNative.crashSafeWriteFileLines  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
-| lines | <code>Array.&lt;string&gt;</code> | 
+- filename <code>string</code>
+- lines <code>Array.&lt;string&gt;</code>
 
 <a name="module_storageReactNative.crashSafeWriteFileLines"></a>
 
@@ -249,19 +239,17 @@ Nothing to do, no data corruption possible in the browser</p>
 <p>Fully write or rewrite the datafile, immune to crashes during the write operation (data will not be lost)</p>
 
 **Kind**: static method of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| filename | <code>string</code> |  |
-| lines | <code>Array.&lt;string&gt;</code> |  |
-| [callback] | [<code>NoParamCallback</code>](#NoParamCallback) | <p>Optional callback, signature: err</p> |
+- filename <code>string</code>
+- lines <code>Array.&lt;string&gt;</code>
+- [callback] [<code>NoParamCallback</code>](#NoParamCallback) - <p>Optional callback, signature: err</p>
 
 <a name="module_storageReactNative..existsCallback"></a>
 
 ### storageReactNative~existsCallback : <code>function</code>
 **Kind**: inner typedef of [<code>storageReactNative</code>](#module_storageReactNative)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| exists | <code>boolean</code> | 
+- exists <code>boolean</code>
 

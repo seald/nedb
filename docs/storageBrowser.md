@@ -1,10 +1,13 @@
 <a name="module_storageBrowser"></a>
 
 ## storageBrowser
-<p>Way data is stored for this database
-For a Node.js/Node Webkit database it's the file system
-For a browser-side database it's localforage which chooses the best option depending on user browser (IndexedDB then WebSQL then localStorage)</p>
-<p>This version is the browser version</p>
+<p>Way data is stored for this database</p>
+<p>This version is the browser version and uses [localforage](https://github.com/localForage/localForage) which chooses the best option depending on user browser (IndexedDB then WebSQL then localStorage).</p>
+
+**See**
+
+- module:storage
+- module:storageReactNative
 
 
 * [storageBrowser](#module_storageBrowser)
@@ -33,37 +36,37 @@ For a browser-side database it's localforage which chooses the best option depen
 <a name="module_storageBrowser.existsAsync"></a>
 
 ### storageBrowser.existsAsync(file) ⇒ <code>Promise.&lt;boolean&gt;</code>
-<p>Returns Promise<true> if file exists</p>
+<p>Returns Promise<true> if file exists.</p>
+<p>Async version of [exists](#module_storageBrowser.exists).</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**See**: module:storageBrowser.exists  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| file | <code>string</code> | 
+- file <code>string</code>
 
 <a name="module_storageBrowser.exists"></a>
 
 ### storageBrowser.exists(file, cb)
-<p>Callback returns true if file exists</p>
+<p>Callback returns true if file exists.</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| file | <code>string</code> | 
-| cb | [<code>existsCallback</code>](#module_storageBrowser..existsCallback) | 
+- file <code>string</code>
+- cb [<code>existsCallback</code>](#module_storageBrowser..existsCallback)
 
 <a name="module_storageBrowser.renameAsync"></a>
 
 ### storageBrowser.renameAsync(oldPath, newPath) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Moves the item from one path to another</p>
+<p>Async version of [rename](#module_storageBrowser.rename).</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**See**: module:storageBrowser.rename  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| oldPath | <code>string</code> | 
-| newPath | <code>string</code> | 
+- oldPath <code>string</code>
+- newPath <code>string</code>
 
 <a name="module_storageBrowser.rename"></a>
 
@@ -71,25 +74,24 @@ For a browser-side database it's localforage which chooses the best option depen
 <p>Moves the item from one path to another</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| oldPath | <code>string</code> | 
-| newPath | <code>string</code> | 
-| c | [<code>NoParamCallback</code>](#NoParamCallback) | 
+- oldPath <code>string</code>
+- newPath <code>string</code>
+- c [<code>NoParamCallback</code>](#NoParamCallback)
 
 <a name="module_storageBrowser.writeFileAsync"></a>
 
 ### storageBrowser.writeFileAsync(file, data, [options]) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Saves the item at given path</p>
+<p>Async version of [writeFile](#module_storageBrowser.writeFile).</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**See**: module:storageBrowser.writeFile  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| file | <code>string</code> | 
-| data | <code>string</code> | 
-| [options] | <code>object</code> | 
+- file <code>string</code>
+- data <code>string</code>
+- [options] <code>object</code>
 
 <a name="module_storageBrowser.writeFile"></a>
 
@@ -97,26 +99,25 @@ For a browser-side database it's localforage which chooses the best option depen
 <p>Saves the item at given path</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| path | <code>string</code> | 
-| data | <code>string</code> | 
-| options | <code>object</code> | 
-| callback | <code>function</code> | 
+- path <code>string</code>
+- data <code>string</code>
+- options <code>object</code>
+- callback <code>function</code>
 
 <a name="module_storageBrowser.appendFileAsync"></a>
 
 ### storageBrowser.appendFileAsync(filename, toAppend, [options]) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Append to the item at given path</p>
+<p>Async version of [appendFile](#module_storageBrowser.appendFile).</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**See**: module:storageBrowser.appendFile  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
-| toAppend | <code>string</code> | 
-| [options] | <code>object</code> | 
+- filename <code>string</code>
+- toAppend <code>string</code>
+- [options] <code>object</code>
 
 <a name="module_storageBrowser.appendFile"></a>
 
@@ -124,25 +125,24 @@ For a browser-side database it's localforage which chooses the best option depen
 <p>Append to the item at given path</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
-| toAppend | <code>string</code> | 
-| [options] | <code>object</code> | 
-| callback | <code>function</code> | 
+- filename <code>string</code>
+- toAppend <code>string</code>
+- [options] <code>object</code>
+- callback <code>function</code>
 
 <a name="module_storageBrowser.readFileAsync"></a>
 
 ### storageBrowser.readFileAsync(filename, [options]) ⇒ <code>Promise.&lt;Buffer&gt;</code>
-<p>Read data at given path</p>
+<p>Async version of [readFile](#module_storageBrowser.readFile).</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**See**: module:storageBrowser.readFile  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
-| [options] | <code>object</code> | 
+- filename <code>string</code>
+- [options] <code>object</code>
 
 <a name="module_storageBrowser.readFile"></a>
 
@@ -150,23 +150,22 @@ For a browser-side database it's localforage which chooses the best option depen
 <p>Read data at given path</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
-| options | <code>object</code> | 
-| callback | <code>function</code> | 
+- filename <code>string</code>
+- options <code>object</code>
+- callback <code>function</code>
 
 <a name="module_storageBrowser.unlinkAsync"></a>
 
 ### storageBrowser.unlinkAsync(filename) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Remove the data at given path</p>
+<p>Async version of [unlink](#module_storageBrowser.unlink).</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**See**: module:storageBrowser.unlink  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
+- filename <code>string</code>
 
 <a name="module_storageBrowser.unlink"></a>
 
@@ -174,73 +173,66 @@ For a browser-side database it's localforage which chooses the best option depen
 <p>Remove the data at given path</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| path | <code>string</code> | 
-| callback | <code>function</code> | 
+- path <code>string</code>
+- callback <code>function</code>
 
 <a name="module_storageBrowser.mkdirAsync"></a>
 
 ### storageBrowser.mkdirAsync(path, [options]) ⇒ <code>Promise.&lt;(void\|string)&gt;</code>
-<p>Shim for storage.mkdirAsync, nothing to do, no directories will be used on the browser</p>
+<p>Shim for [mkdirAsync](#module_storage.mkdirAsync), nothing to do, no directories will be used on the browser.</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| path | <code>string</code> | 
-| [options] | <code>object</code> | 
+- path <code>string</code>
+- [options] <code>object</code>
 
 <a name="module_storageBrowser.mkdir"></a>
 
 ### storageBrowser.mkdir(path, options, callback)
-<p>Shim for storage.mkdir, nothing to do, no directories will be used on the browser</p>
+<p>Shim for [mkdir](#module_storage.mkdir), nothing to do, no directories will be used on the browser.</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| path | <code>string</code> | 
-| options | <code>object</code> | 
-| callback | <code>function</code> | 
+- path <code>string</code>
+- options <code>object</code>
+- callback <code>function</code>
 
 <a name="module_storageBrowser.ensureDatafileIntegrityAsync"></a>
 
 ### storageBrowser.ensureDatafileIntegrityAsync(filename) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Ensure the datafile contains all the data, even if there was a crash during a full file write
-Nothing to do, no data corruption possible in the browser</p>
+<p>Shim for [ensureDatafileIntegrityAsync](#module_storage.ensureDatafileIntegrityAsync), nothing to do, no data corruption possible in the browser.</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
+- filename <code>string</code>
 
 <a name="module_storageBrowser.ensureDatafileIntegrity"></a>
 
 ### storageBrowser.ensureDatafileIntegrity(filename, callback)
-<p>Ensure the datafile contains all the data, even if there was a crash during a full file write
-Nothing to do, no data corruption possible in the browser</p>
+<p>Shim for [ensureDatafileIntegrity](#module_storage.ensureDatafileIntegrity), nothing to do, no data corruption possible in the browser.</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| filename | <code>string</code> |  |
-| callback | [<code>NoParamCallback</code>](#NoParamCallback) | <p>signature: err</p> |
+- filename <code>string</code>
+- callback [<code>NoParamCallback</code>](#NoParamCallback) - <p>signature: err</p>
 
 <a name="module_storageBrowser.crashSafeWriteFileLinesAsync"></a>
 
 ### storageBrowser.crashSafeWriteFileLinesAsync(filename, lines) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Fully write or rewrite the datafile, immune to crashes during the write operation (data will not be lost)</p>
+<p>Async version of [crashSafeWriteFileLines](#module_storageBrowser.crashSafeWriteFileLines).</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**See**: module:storageBrowser.crashSafeWriteFileLines  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| filename | <code>string</code> | 
-| lines | <code>Array.&lt;string&gt;</code> | 
+- filename <code>string</code>
+- lines <code>Array.&lt;string&gt;</code>
 
 <a name="module_storageBrowser.crashSafeWriteFileLines"></a>
 
@@ -248,19 +240,17 @@ Nothing to do, no data corruption possible in the browser</p>
 <p>Fully write or rewrite the datafile, immune to crashes during the write operation (data will not be lost)</p>
 
 **Kind**: static method of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type | Description |
-| --- | --- | --- |
-| filename | <code>string</code> |  |
-| lines | <code>Array.&lt;string&gt;</code> |  |
-| [callback] | [<code>NoParamCallback</code>](#NoParamCallback) | <p>Optional callback, signature: err</p> |
+- filename <code>string</code>
+- lines <code>Array.&lt;string&gt;</code>
+- [callback] [<code>NoParamCallback</code>](#NoParamCallback) - <p>Optional callback, signature: err</p>
 
 <a name="module_storageBrowser..existsCallback"></a>
 
 ### storageBrowser~existsCallback : <code>function</code>
 **Kind**: inner typedef of [<code>storageBrowser</code>](#module_storageBrowser)  
+**Params**
 
-| Param | Type |
-| --- | --- |
-| exists | <code>boolean</code> | 
+- exists <code>boolean</code>
 
