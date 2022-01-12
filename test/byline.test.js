@@ -37,7 +37,7 @@ describe('byline', function () {
     lineStream.pipe(output)
     output.on('close', function () {
       const out = fs.readFileSync(localPath('test.txt'), 'utf8')
-      const in_ = fs.readFileSync(localPath('empty.txt'), 'utf8').replace(/\n/g, '')
+      const in_ = fs.readFileSync(localPath('empty.txt'), 'utf8').replace(/\r?\n/g, '')
       assert.equal(in_, out)
       fs.unlinkSync(localPath('test.txt'))
       done()
