@@ -9,9 +9,9 @@ const jsdocConf = './jsdoc.conf.js'
 const outputDir = './docs'
 
 const getJsdocDataOptions = {
-  /* same inpout path as jsdoc */
+  /* same input path as jsdoc */
   files: require(jsdocConf).source.include,
-  configure: './jsdoc.conf.js',
+  configure: jsdocConf,
   'no-cache': true
 }
 

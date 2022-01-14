@@ -8,9 +8,9 @@ written by Louis Chatriot.
 Since the original maintainer doesn't support this package anymore, we forked it
 and maintain it for the needs of [Seald](https://www.seald.io).
 
-**Embedded persistent or in memory database for Node.js, nw.js, Electron and
-browsers, 100% JavaScript, no binary dependency**. API is a subset of MongoDB's
-and it's [plenty fast](#speed).
+**Embedded persistent or in memory database for Node.js, Electron and browsers,
+100% JavaScript, no binary dependency**. API is a subset of MongoDB's and it's
+[plenty fast](#speed).
 
 ## Installation
 

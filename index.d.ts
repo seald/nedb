@@ -26,8 +26,6 @@ declare class Nedb<G = any> extends EventEmitter {
 
   getAllData<T extends G>(): T[];
 
-  resetIndexes(newData?: any): void;
-
   ensureIndex(options: Nedb.EnsureIndexOptions, callback?: (err: Error | null) => void): void;
 
   ensureIndexAsync(options: Nedb.EnsureIndexOptions): Promise<void>;
@@ -35,17 +33,6 @@ declare class Nedb<G = any> extends EventEmitter {
   removeIndex(fieldName: string, callback?: (err: Error | null) => void): void;
 
   removeIndexAsync(fieldName: string): Promise<void>;
-
-  addToIndexes<T extends G>(doc: T | T[]): void;
-
-  removeFromIndexes<T extends G>(doc: T | T[]): void;
-
-  updateIndexes<T extends G>(oldDoc: T, newDoc: T): void;
-  updateIndexes<T extends G>(updates: Array<{ oldDoc: T; newDoc: T }>): void;
-
-  getCandidates<T extends G>(query: any, dontExpireStaleDocs: boolean, callback?: (err: Error | null, candidates: T[]) => void): void;
-
-  getCandidatesAsync<T extends G>(query: any, dontExpireStaleDocs: boolean): Promise<T[]>;
 
   insert<T extends G>(newDoc: T, callback?: (err: Error | null, document: T) => void): void;
   insert<T extends G>(newDocs: T[], callback?: (err: Error | null, documents: T[]) => void): void;

@@ -5,10 +5,10 @@
  * @module storageBrowser
  * @see module:storage
  * @see module:storageReactNative
+ * @private
  */
 
 const localforage = require('localforage')
-const { callbackify } = require('util') // TODO: util is not a dependency, this would fail if util is not polyfilled
 
 // Configure localforage to display NeDB name for now. Would be a good idea to let user use his own app name
 const store = localforage.createInstance({
@@ -19,12 +19,10 @@ const store = localforage.createInstance({
 /**
  * Returns Promise<true> if file exists.
  *
- * Async version of {@link module:storageBrowser.exists}.
  * @param {string} file
  * @return {Promise<boolean>}
  * @async
  * @alias module:storageBrowser.existsAsync
- * @see module:storageBrowser.exists
  */
 const existsAsync = async file => {
   try {
@@ -37,27 +35,12 @@ const existsAsync = async file => {
 }
 
 /**
- * @callback module:storageBrowser~existsCallback
- * @param {boolean} exists
- */
-
-/**
- * Callback returns true if file exists.
- * @function
- * @param {string} file
- * @param {module:storageBrowser~existsCallback} cb
- * @alias module:storageBrowser.exists
- */
-const exists = callbackify(existsAsync)
-
-/**
- * Async version of {@link module:storageBrowser.rename}.
+ * Moves the item from one path to another.
  * @param {string} oldPath
  * @param {string} newPath
  * @return {Promise<void>}
  * @alias module:storageBrowser.renameAsync
  * @async
- * @see module:storageBrowser.rename
  */
 const renameAsync = async (oldPath, newPath) => {
   try {
@@ -73,25 +56,13 @@ const renameAsync = async (oldPath, newPath) => {
 }
 
 /**
- * Moves the item from one path to another
- * @function
- * @param {string} oldPath
- * @param {string} newPath
- * @param {NoParamCallback} c
- * @return {void}
- * @alias module:storageBrowser.rename
- */
-const rename = callbackify(renameAsync)
-
-/**
- * Async version of {@link module:storageBrowser.writeFile}.
+ * Saves the item at given path.
  * @param {string} file
  * @param {string} data
  * @param {object} [options]
  * @return {Promise<void>}
  * @alias module:storageBrowser.writeFileAsync
  * @async
- * @see module:storageBrowser.writeFile
  */
 const writeFileAsync = async (file, data, options) => {
   // Options do not matter in browser setup
@@ -103,18 +74,7 @@ const writeFileAsync = async (file, data, options) => {
 }
 
 /**
- * Saves the item at given path
- * @function
- * @param {string} path
- * @param {string} data
- * @param {object} options
- * @param {function} callback
- * @alias module:storageBrowser.writeFile
- */
-const writeFile = callbackify(writeFileAsync)
-
-/**
- * Async version of {@link module:storageBrowser.appendFile}.
+ * Append to the item at given path.
  * @function
  * @param {string} filename
  * @param {string} toAppend
@@ -122,7 +82,6 @@ const writeFile = callbackify(writeFileAsync)
  * @return {Promise<void>}
  * @alias module:storageBrowser.appendFileAsync
  * @async
- * @see module:storageBrowser.appendFile
  */
 const appendFileAsync = async (filename, toAppend, options) => {
   // Options do not matter in browser setup
@@ -135,25 +94,13 @@ const appendFileAsync = async (filename, toAppend, options) => {
 }
 
 /**
- * Append to the item at given path
- * @function
- * @param {string} filename
- * @param {string} toAppend
- * @param {object} [options]
- * @param {function} callback
- * @alias module:storageBrowser.appendFile
- */
-const appendFile = callbackify(appendFileAsync)
-
-/**
- * Async version of {@link module:storageBrowser.readFile}.
+ * Read data at given path.
  * @function
  * @param {string} filename
  * @param {object} [options]
  * @return {Promise<Buffer>}
  * @alias module:storageBrowser.readFileAsync
  * @async
- * @see module:storageBrowser.readFile
  */
 const readFileAsync = async (filename, options) => {
   try {
@@ -163,15 +110,6 @@ const readFileAsync = async (filename, options) => {
     return ''
   }
 }
-/**
- * Read data at given path
- * @function
- * @param {string} filename
- * @param {object} options
- * @param {function} callback
- * @alias module:storageBrowser.readFile
- */
-const readFile = callbackify(readFileAsync)
 
 /**
  * Async version of {@link module:storageBrowser.unlink}.
@@ -179,8 +117,7 @@ const readFile = callbackify(readFileAsync)
  * @param {string} filename
  * @return {Promise<void>}
  * @async
- * @alias module:storageBrowser.unlinkAsync
- * @see module:storageBrowser.unlink
+ * @alias module:storageBrowser
  */
 const unlinkAsync = async filename => {
   try {
@@ -189,15 +126,6 @@ const unlinkAsync = async filename => {
     console.warn('An error happened while unlinking, skip')
   }
 }
-
-/**
- * Remove the data at given path
- * @function
- * @param {string} path
- * @param {function} callback
- * @alias module:storageBrowser.unlink
- */
-const unlink = callbackify(unlinkAsync)
 
 /**
  * Shim for {@link module:storage.mkdirAsync}, nothing to do, no directories will be used on the browser.
@@ -209,15 +137,6 @@ const unlink = callbackify(unlinkAsync)
  * @async
  */
 const mkdirAsync = (path, options) => Promise.resolve()
-/**
- * Shim for {@link module:storage.mkdir}, nothing to do, no directories will be used on the browser.
- * @function
- * @param {string} path
- * @param {object} options
- * @param {function} callback
- * @alias module:storageBrowser.mkdir
- */
-const mkdir = callbackify(mkdirAsync)
 
 /**
  * Shim for {@link module:storage.ensureDatafileIntegrityAsync}, nothing to do, no data corruption possible in the browser.
@@ -228,61 +147,32 @@ const mkdir = callbackify(mkdirAsync)
 const ensureDatafileIntegrityAsync = (filename) => Promise.resolve()
 
 /**
- * Shim for {@link module:storage.ensureDatafileIntegrity}, nothing to do, no data corruption possible in the browser.
- * @function
- * @param {string} filename
- * @param {NoParamCallback} callback signature: err
- * @alias module:storageBrowser.ensureDatafileIntegrity
- */
-const ensureDatafileIntegrity = callbackify(ensureDatafileIntegrityAsync)
-
-/**
- * Async version of {@link module:storageBrowser.crashSafeWriteFileLines}.
- * @param {string} filename
+ * Fully write or rewrite the datafile, immune to crashes during the write operation (data will not be lost)
+ * * @param {string} filename
  * @param {string[]} lines
  * @return {Promise<void>}
  * @alias module:storageBrowser.crashSafeWriteFileLinesAsync
- * @see module:storageBrowser.crashSafeWriteFileLines
  */
 const crashSafeWriteFileLinesAsync = async (filename, lines) => {
   lines.push('') // Add final new line
   await writeFileAsync(filename, lines.join('\n'))
 }
 
-/**
- * Fully write or rewrite the datafile, immune to crashes during the write operation (data will not be lost)
- * @function
- * @param {string} filename
- * @param {string[]} lines
- * @param {NoParamCallback} [callback] Optional callback, signature: err
- * @alias module:storageBrowser.crashSafeWriteFileLines
- */
-const crashSafeWriteFileLines = callbackify(crashSafeWriteFileLinesAsync)
-
 // Interface
-module.exports.exists = exists
 module.exports.existsAsync = existsAsync
 
-module.exports.rename = rename
 module.exports.renameAsync = renameAsync
 
-module.exports.writeFile = writeFile
 module.exports.writeFileAsync = writeFileAsync
 
-module.exports.crashSafeWriteFileLines = crashSafeWriteFileLines
 module.exports.crashSafeWriteFileLinesAsync = crashSafeWriteFileLinesAsync
 
-module.exports.appendFile = appendFile
 module.exports.appendFileAsync = appendFileAsync
 
-module.exports.readFile = readFile
 module.exports.readFileAsync = readFileAsync
 
-module.exports.unlink = unlink
 module.exports.unlinkAsync = unlinkAsync
 
-module.exports.mkdir = mkdir
 module.exports.mkdirAsync = mkdirAsync
 
-module.exports.ensureDatafileIntegrity = ensureDatafileIntegrity
 module.exports.ensureDatafileIntegrityAsync = ensureDatafileIntegrityAsync

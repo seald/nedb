@@ -120,9 +120,9 @@ describe('Cursor Async', function () {
         compareStrings: function (a, b) { return a.length - b.length }
       })
 
-      db.insertAsync({ name: 'alpha' }) // TODO was not awaited
-      db.insertAsync({ name: 'charlie' }) // TODO was not awaited
-      db.insertAsync({ name: 'zulu' }) // TODO was not awaited
+      await db.insertAsync({ name: 'alpha' })
+      await db.insertAsync({ name: 'charlie' })
+      await db.insertAsync({ name: 'zulu' })
 
       const docs = await db.findAsync({}).sort({ name: 1 })
       assert.equal(docs.map(x => x.name)[0], 'zulu')
@@ -130,7 +130,7 @@ describe('Cursor Async', function () {
       assert.equal(docs.map(x => x.name)[2], 'charlie')
 
       delete db.compareStrings
-      const docs2 = await db.find({}).sort({ name: 1 })
+      const docs2 = await db.findAsync({}).sort({ name: 1 })
       assert.equal(docs2.map(x => x.name)[0], 'alpha')
       assert.equal(docs2.map(x => x.name)[1], 'charlie')
       assert.equal(docs2.map(x => x.name)[2], 'zulu')

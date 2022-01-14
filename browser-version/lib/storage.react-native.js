@@ -3,12 +3,13 @@
  *
  * This version is the React-Native version and uses [@react-native-async-storage/async-storage]{@link https://github.com/react-native-async-storage/async-storage}.
  * @module storageReactNative
- * @see module:storageBrowser
- * @see module:storageReactNative
+ * @see module:storagereact-native
+ * @see module:storage
+ * @private
  */
 
 const AsyncStorage = require('@react-native-async-storage/async-storage').default
-const { callbackify } = require('util') // TODO: util is not a dependency, this would fail if util is not polyfilled
+const { callbackify } = require('util')
 
 /**
  * Async version of {@link module:storageReactNative.exists}.
@@ -21,7 +22,7 @@ const { callbackify } = require('util') // TODO: util is not a dependency, this 
 const existsAsync = async file => {
   try {
     const value = await AsyncStorage.getItem(file)
-    if (value !== null) return true // Even if value is undefined, localforage returns null
+    if (value !== null) return true // Even if value is undefined, AsyncStorage returns null
     return false
   } catch (error) {
     return false
@@ -85,7 +86,7 @@ const rename = callbackify(renameAsync)
  * @see module:storageReactNative.writeFile
  */
 const writeFileAsync = async (file, data, options) => {
-  // Options do not matter in browser setup
+  // Options do not matter in react-native setup
   try {
     await AsyncStorage.setItem(file, data)
   } catch (error) {
@@ -116,7 +117,7 @@ const writeFile = callbackify(writeFileAsync)
  * @see module:storageReactNative.appendFile
  */
 const appendFileAsync = async (filename, toAppend, options) => {
-  // Options do not matter in browser setup
+  // Options do not matter in react-native setup
   try {
     const contents = (await AsyncStorage.getItem(filename)) || ''
     await AsyncStorage.setItem(filename, contents + toAppend)
@@ -192,7 +193,7 @@ const unlinkAsync = async filename => {
 const unlink = callbackify(unlinkAsync)
 
 /**
- * Shim for {@link module:storage.mkdirAsync}, nothing to do, no directories will be used on the browser.
+ * Shim for {@link module:storage.mkdirAsync}, nothing to do, no directories will be used on the react-native.
  * @function
  * @param {string} dir
  * @param {object} [options]
@@ -203,7 +204,7 @@ const unlink = callbackify(unlinkAsync)
 const mkdirAsync = (dir, options) => Promise.resolve()
 
 /**
- * Shim for {@link module:storage.mkdir}, nothing to do, no directories will be used on the browser.
+ * Shim for {@link module:storage.mkdir}, nothing to do, no directories will be used on the react-native.
  * @function
  * @param {string} path
  * @param {object} options
@@ -213,7 +214,7 @@ const mkdirAsync = (dir, options) => Promise.resolve()
 const mkdir = callbackify(mkdirAsync)
 
 /**
- * Shim for {@link module:storage.ensureDatafileIntegrityAsync}, nothing to do, no data corruption possible in the browser.
+ * Shim for {@link module:storage.ensureDatafileIntegrityAsync}, nothing to do, no data corruption possible in the react-native.
  * @param {string} filename
  * @return {Promise<void>}
  * @alias module:storageReactNative.ensureDatafileIntegrityAsync
@@ -221,7 +222,7 @@ const mkdir = callbackify(mkdirAsync)
 const ensureDatafileIntegrityAsync = (filename) => Promise.resolve()
 
 /**
- * Shim for {@link module:storage.ensureDatafileIntegrity}, nothing to do, no data corruption possible in the browser.
+ * Shim for {@link module:storage.ensureDatafileIntegrity}, nothing to do, no data corruption possible in the react-native.
  * @function
  * @param {string} filename
  * @param {NoParamCallback} callback signature: err
