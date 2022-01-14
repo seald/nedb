@@ -1,6 +1,7 @@
 const fs = require('fs')
 const { waterfall, whilst } = require('../test/utils.test.js')
 const Nedb = require('../lib/datastore')
+const { callbackify } = require('util')
 const db = new Nedb({ filename: './workspace/openfds.db', autoload: true })
 const N = 64
 let i
@@ -48,7 +49,7 @@ waterfall([
         i = 0
         whilst(function () { return i < 2 * N + 1 }
           , function (cb) {
-            db.persistence.persistCachedDatabase(function (err) {
+            callbackify(() => db.persistence.persistCachedDatabaseAsync())(function (err) {
               if (err) { return cb(err) }
               i += 1
               return cb()

@@ -7,6 +7,7 @@ const { each, waterfall } = require('./utils.test.js')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
 const Cursor = require('../lib/cursor')
+const { callbackify } = require('util')
 
 const { assert } = chai
 chai.should()
@@ -21,7 +22,7 @@ describe('Cursor', function () {
 
     waterfall([
       function (cb) {
-        Persistence.ensureDirectoryExists(path.dirname(testDb), function () {
+        callbackify((dirname) => Persistence.ensureDirectoryExistsAsync(dirname))(path.dirname(testDb), function () {
           fs.access(testDb, fs.constants.F_OK, function (err) {
             if (!err) {
               fs.unlink(testDb, cb)

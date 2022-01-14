@@ -9,7 +9,7 @@
  * https://github.com/dominictarr/crypto-browserify
  * NOTE: Math.random() does not guarantee "cryptographic quality" but we actually don't need it
  * @param {number} size in bytes
- * @return {array<number>}
+ * @return {Array<number>}
  */
 const randomBytes = size => {
   const bytes = new Array(size)
@@ -25,7 +25,7 @@ const randomBytes = size => {
 /**
  * Taken from the base64-js module
  * https://github.com/beatgammit/base64-js/
- * @param {array} uint8
+ * @param {Array} uint8
  * @return {string}
  */
 const byteArrayToBase64 = uint8 => {

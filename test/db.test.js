@@ -7,6 +7,7 @@ const { apply, each, waterfall } = require('./utils.test.js')
 const model = require('../lib/model')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
+const { callbackify } = require('util')
 const reloadTimeUpperBound = 60 // In ms, an upper bound for the reload time used to check createdAt and updatedAt
 
 const { assert } = chai
@@ -22,7 +23,7 @@ describe('Database', function () {
 
     waterfall([
       function (cb) {
-        Persistence.ensureDirectoryExists(path.dirname(testDb), function () {
+        callbackify((dirname) => Persistence.ensureDirectoryExistsAsync(dirname))(path.dirname(testDb), function () {
           fs.access(testDb, fs.constants.FS_OK, function (err) {
             if (!err) {
               fs.unlink(testDb, cb)
@@ -472,7 +473,7 @@ describe('Database', function () {
             d.insert({ tf: 4, an: 'other' }, function (err, _doc2) {
               d.insert({ tf: 9 }, function () {
                 // eslint-disable-next-line node/handle-callback-err
-                d.getCandidates({ r: 6, tf: 4 }, function (err, data) {
+                callbackify(query => d._getCandidatesAsync(query))({ r: 6, tf: 4 }, function (err, data) {
                   const doc1 = data.find(function (d) { return d._id === _doc1._id })
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
 
@@ -501,7 +502,7 @@ describe('Database', function () {
               // eslint-disable-next-line node/handle-callback-err
               d.insert({ tf: 9 }, function (err, _doc2) {
                 // eslint-disable-next-line node/handle-callback-err
-                d.getCandidates({ r: 6, tf: { $in: [6, 9, 5] } }, function (err, data) {
+                callbackify(query => d._getCandidatesAsync(query))({ r: 6, tf: { $in: [6, 9, 5] } }, function (err, data) {
                   const doc1 = data.find(function (d) { return d._id === _doc1._id })
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
 
@@ -530,7 +531,7 @@ describe('Database', function () {
               // eslint-disable-next-line node/handle-callback-err
               d.insert({ tf: 9 }, function (err, _doc4) {
                 // eslint-disable-next-line node/handle-callback-err
-                d.getCandidates({ r: 6, notf: { $in: [6, 9, 5] } }, function (err, data) {
+                callbackify(query => d._getCandidatesAsync(query))({ r: 6, notf: { $in: [6, 9, 5] } }, function (err, data) {
                   const doc1 = data.find(function (d) { return d._id === _doc1._id })
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
                   const doc3 = data.find(function (d) { return d._id === _doc3._id })
@@ -563,7 +564,7 @@ describe('Database', function () {
               // eslint-disable-next-line node/handle-callback-err
               d.insert({ tf: 9 }, function (err, _doc4) {
                 // eslint-disable-next-line node/handle-callback-err
-                d.getCandidates({ r: 6, tf: { $lte: 9, $gte: 6 } }, function (err, data) {
+                callbackify(query => d._getCandidatesAsync(query))({ r: 6, tf: { $lte: 9, $gte: 6 } }, function (err, data) {
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
                   const doc4 = data.find(function (d) { return d._id === _doc4._id })
 
@@ -2178,26 +2179,27 @@ describe('Database', function () {
 
         d.getAllData().length.should.equal(0)
 
-        d.ensureIndex({ fieldName: 'z' })
-        d.indexes.z.fieldName.should.equal('z')
-        d.indexes.z.unique.should.equal(false)
-        d.indexes.z.sparse.should.equal(false)
-        d.indexes.z.tree.getNumberOfKeys().should.equal(0)
+        d.ensureIndex({ fieldName: 'z' }, function () {
+          d.indexes.z.fieldName.should.equal('z')
+          d.indexes.z.unique.should.equal(false)
+          d.indexes.z.sparse.should.equal(false)
+          d.indexes.z.tree.getNumberOfKeys().should.equal(0)
 
-        fs.writeFile(testDb, rawData, 'utf8', function () {
-          d.loadDatabase(function () {
-            const doc1 = d.getAllData().find(function (doc) { return doc.z === '1' })
-            const doc2 = d.getAllData().find(function (doc) { return doc.z === '2' })
-            const doc3 = d.getAllData().find(function (doc) { return doc.z === '3' })
+          fs.writeFile(testDb, rawData, 'utf8', function () {
+            d.loadDatabase(function () {
+              const doc1 = d.getAllData().find(function (doc) { return doc.z === '1' })
+              const doc2 = d.getAllData().find(function (doc) { return doc.z === '2' })
+              const doc3 = d.getAllData().find(function (doc) { return doc.z === '3' })
 
-            d.getAllData().length.should.equal(3)
+              d.getAllData().length.should.equal(3)
 
-            d.indexes.z.tree.getNumberOfKeys().should.equal(3)
-            d.indexes.z.tree.search('1')[0].should.equal(doc1)
-            d.indexes.z.tree.search('2')[0].should.equal(doc2)
-            d.indexes.z.tree.search('3')[0].should.equal(doc3)
+              d.indexes.z.tree.getNumberOfKeys().should.equal(3)
+              d.indexes.z.tree.search('1')[0].should.equal(doc1)
+              d.indexes.z.tree.search('2')[0].should.equal(doc2)
+              d.indexes.z.tree.search('3')[0].should.equal(doc3)
 
-            done()
+              done()
+            })
           })
         })
       })
@@ -2248,18 +2250,19 @@ describe('Database', function () {
 
         d.getAllData().length.should.equal(0)
 
-        d.ensureIndex({ fieldName: 'z', unique: true })
-        d.indexes.z.tree.getNumberOfKeys().should.equal(0)
+        d.ensureIndex({ fieldName: 'z', unique: true }, function () {
+          d.indexes.z.tree.getNumberOfKeys().should.equal(0)
 
-        fs.writeFile(testDb, rawData, 'utf8', function () {
-          d.loadDatabase(function (err) {
-            err.should.not.equal(null)
-            err.errorType.should.equal('uniqueViolated')
-            err.key.should.equal('1')
-            d.getAllData().length.should.equal(0)
-            d.indexes.z.tree.getNumberOfKeys().should.equal(0)
+          fs.writeFile(testDb, rawData, 'utf8', function () {
+            d.loadDatabase(function (err) {
+              assert.isNotNull(err)
+              err.errorType.should.equal('uniqueViolated')
+              err.key.should.equal('1')
+              d.getAllData().length.should.equal(0)
+              d.indexes.z.tree.getNumberOfKeys().should.equal(0)
 
-            done()
+              done()
+            })
           })
         })
       })
@@ -3022,7 +3025,7 @@ describe('Database', function () {
       d.ensureIndex({ fieldName: 'bad' })
       d.insert({ bad: ['a', 'b'] }, function () {
         // eslint-disable-next-line node/handle-callback-err
-        d.getCandidates({ bad: { $in: ['a', 'b'] } }, function (err, res) {
+        callbackify(query => d._getCandidatesAsync(query))({ bad: { $in: ['a', 'b'] } }, function (err, res) {
           res.length.should.equal(1)
           done()
         })

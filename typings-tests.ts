@@ -20,10 +20,6 @@ db.loadDatabase()
 db = new Datastore({ filename: 'path/to/datafile_2', autoload: true })
 // You can issue commands right away
 
-// Type 4: Persistent datastore for a Node Webkit app called 'nwtest'
-// For example on Linux, the datafile will be ~/.config/nwtest/nedb-data/something.db
-db = new Datastore({ filename: 'something.db' })
-
 // Of course you can create multiple datastores if you need several
 // collections. In this case it's usually a good idea to use autoload for all collections.
 const dbContainer: any = {}

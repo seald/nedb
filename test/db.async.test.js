@@ -53,7 +53,7 @@ describe('Database async', function () {
       await fs.writeFile(autoDb, fileStr, 'utf8')
       const db = new Datastore({ filename: autoDb, autoload: true })
 
-      const docs = await db.find({})
+      const docs = await db.findAsync({})
       assert.equal(docs.length, 2)
     })
 
@@ -300,7 +300,7 @@ describe('Database async', function () {
       await d.insertAsync({ tf: 6 })
       const _doc2 = await d.insertAsync({ tf: 4, an: 'other' })
       await d.insertAsync({ tf: 9 })
-      const data = await d.getCandidatesAsync({ r: 6, tf: 4 })
+      const data = await d._getCandidatesAsync({ r: 6, tf: 4 })
       const doc1 = data.find(d => d._id === _doc1._id)
       const doc2 = data.find(d => d._id === _doc2._id)
 
@@ -310,12 +310,12 @@ describe('Database async', function () {
     })
 
     it('Can use an index to get docs with a $in match', async () => {
-      await d.ensureIndex({ fieldName: 'tf' })
+      await d.ensureIndexAsync({ fieldName: 'tf' })
       await d.insertAsync({ tf: 4 })
       const _doc1 = await d.insertAsync({ tf: 6 })
       await d.insertAsync({ tf: 4, an: 'other' })
       const _doc2 = await d.insertAsync({ tf: 9 })
-      const data = await d.getCandidatesAsync({ r: 6, tf: { $in: [6, 9, 5] } })
+      const data = await d._getCandidatesAsync({ r: 6, tf: { $in: [6, 9, 5] } })
       const doc1 = data.find(d => d._id === _doc1._id)
       const doc2 = data.find(d => d._id === _doc2._id)
 
@@ -330,7 +330,7 @@ describe('Database async', function () {
       const _doc2 = await d.insertAsync({ tf: 6 })
       const _doc3 = await d.insertAsync({ tf: 4, an: 'other' })
       const _doc4 = await d.insertAsync({ tf: 9 })
-      const data = await d.getCandidatesAsync({ r: 6, notf: { $in: [6, 9, 5] } })
+      const data = await d._getCandidatesAsync({ r: 6, notf: { $in: [6, 9, 5] } })
       const doc1 = data.find(d => d._id === _doc1._id)
       const doc2 = data.find(d => d._id === _doc2._id)
       const doc3 = data.find(d => d._id === _doc3._id)
@@ -349,7 +349,7 @@ describe('Database async', function () {
       const _doc2 = await d.insertAsync({ tf: 6 })
       await d.insertAsync({ tf: 4, an: 'other' })
       const _doc4 = await d.insertAsync({ tf: 9 })
-      const data = await d.getCandidatesAsync({ r: 6, tf: { $lte: 9, $gte: 6 } })
+      const data = await d._getCandidatesAsync({ r: 6, tf: { $lte: 9, $gte: 6 } })
       const doc2 = data.find(d => d._id === _doc2._id)
       const doc4 = data.find(d => d._id === _doc4._id)
 
@@ -448,12 +448,12 @@ describe('Database async', function () {
       await d.insertAsync({ somedata: 'again', plus: 'additional data' })
       await d.insertAsync({ somedata: 'again' })
       // Test with query that will return docs
-      const doc = await d.findOne({ somedata: 'ok' })
+      const doc = await d.findOneAsync({ somedata: 'ok' })
       assert.equal(Object.keys(doc).length, 2)
       assert.equal(doc.somedata, 'ok')
       assert.notEqual(doc._id, undefined)
       // Test with query that doesn't match anything
-      const doc2 = await d.findOne({ somedata: 'nope' })
+      const doc2 = await d.findOneAsync({ somedata: 'nope' })
       assert.equal(doc2, null)
     })
 
@@ -462,28 +462,28 @@ describe('Database async', function () {
       const date2 = new Date(9999)
 
       await d.insertAsync({ now: date1, sth: { name: 'nedb' } })
-      const doc1 = await d.findOne({ now: date1 })
+      const doc1 = await d.findOneAsync({ now: date1 })
       assert.equal(doc1.sth.name, 'nedb')
 
-      const doc2 = await d.findOne({ now: date2 })
+      const doc2 = await d.findOneAsync({ now: date2 })
       assert.equal(doc2, null)
 
-      const doc3 = await d.findOne({ sth: { name: 'nedb' } })
+      const doc3 = await d.findOneAsync({ sth: { name: 'nedb' } })
       assert.equal(doc3.sth.name, 'nedb')
 
-      const doc4 = await d.findOne({ sth: { name: 'other' } })
+      const doc4 = await d.findOneAsync({ sth: { name: 'other' } })
       assert.equal(doc4, null)
     })
 
     it('Can use dot-notation to query subfields', async () => {
       await d.insertAsync({ greeting: { english: 'hello' } })
-      const doc1 = await d.findOne({ 'greeting.english': 'hello' })
+      const doc1 = await d.findOneAsync({ 'greeting.english': 'hello' })
       assert.equal(doc1.greeting.english, 'hello')
 
-      const doc2 = await d.findOne({ 'greeting.english': 'hellooo' })
+      const doc2 = await d.findOneAsync({ 'greeting.english': 'hellooo' })
       assert.equal(doc2, null)
 
-      const doc3 = await d.findOne({ 'greeting.englis': 'hello' })
+      const doc3 = await d.findOneAsync({ 'greeting.englis': 'hello' })
       assert.equal(doc3, null)
     })
 
@@ -551,11 +551,11 @@ describe('Database async', function () {
       assert.equal(doc2.hello, 'home')
 
       // And a skip
-      const doc3 = await d.findOne({ a: { $gt: 14 } }).sort({ a: 1 }).skip(1)
+      const doc3 = await d.findOneAsync({ a: { $gt: 14 } }).sort({ a: 1 }).skip(1)
       assert.equal(doc3.hello, 'earth')
 
       // No result
-      const doc4 = await d.findOne({ a: { $gt: 14 } }).sort({ a: 1 }).skip(2)
+      const doc4 = await d.findOneAsync({ a: { $gt: 14 } }).sort({ a: 1 }).skip(2)
       assert.equal(doc4, null)
     })
 
@@ -795,7 +795,7 @@ describe('Database async', function () {
     })
 
     it('If the update query contains modifiers, it is applied to the object resulting from removing all operators from the find query 1', async () => {
-      await d.update({ $or: [{ a: 4 }, { a: 5 }] }, {
+      await d.updateAsync({ $or: [{ a: 4 }, { a: 5 }] }, {
         $set: { hello: 'world' },
         $inc: { bloup: 3 }
         // eslint-disable-next-line node/handle-callback-err
@@ -809,7 +809,7 @@ describe('Database async', function () {
     })
 
     it('If the update query contains modifiers, it is applied to the object resulting from removing all operators from the find query 2', async () => {
-      await d.update({ $or: [{ a: 4 }, { a: 5 }], cac: 'rrr' }, {
+      await d.updateAsync({ $or: [{ a: 4 }, { a: 5 }], cac: 'rrr' }, {
         $set: { hello: 'world' },
         $inc: { bloup: 3 }
         // eslint-disable-next-line node/handle-callback-err
@@ -845,7 +845,7 @@ describe('Database async', function () {
       }, { multi: false })
       assert.equal(numAffected, 1)
 
-      const doc = await d.findOne({ _id: id })
+      const doc = await d.findOneAsync({ _id: id })
       assert.equal(Object.keys(doc).length, 3)
       assert.equal(doc._id, id)
       assert.equal(doc.something, 'changed')
@@ -874,13 +874,13 @@ describe('Database async', function () {
       await d.insertAsync({ bloup: { blip: 'blap', other: true } })
       // Correct methos
       await d.updateAsync({}, { $set: { 'bloup.blip': 'hello' } }, {})
-      const doc = await d.findOne({})
+      const doc = await d.findOneAsync({})
       assert.equal(doc.bloup.blip, 'hello')
       assert.equal(doc.bloup.other, true)
 
       // Wrong
       await d.updateAsync({}, { $set: { bloup: { blip: 'ola' } } }, {})
-      const doc2 = await d.findOne({})
+      const doc2 = await d.findOneAsync({})
       assert.equal(doc2.bloup.blip, 'ola')
       assert.equal(doc2.bloup.other, undefined) // This information was lost
     })
@@ -977,7 +977,7 @@ describe('Database async', function () {
     })
 
     it('If a multi update fails on one document, previous updates should be rolled back', async () => {
-      d.ensureIndexAsync({ fieldName: 'a' }) // TODO should be awaited, but was not in original tests
+      await d.ensureIndexAsync({ fieldName: 'a' })
       const doc1 = await d.insertAsync({ a: 4 })
       const doc2 = await d.insertAsync({ a: 5 })
       const doc3 = await d.insertAsync({ a: 'abc' })
@@ -1002,7 +1002,7 @@ describe('Database async', function () {
     })
 
     it('If an index constraint is violated by an update, all changes should be rolled back', async () => {
-      d.ensureIndex({ fieldName: 'a', unique: true }) // TODO should be awaited, but was not in original tests
+      await d.ensureIndexAsync({ fieldName: 'a', unique: true })
       const doc1 = await d.insertAsync({ a: 4 })
       const doc2 = await d.insertAsync({ a: 5 })
       // With this query, candidates are always returned in the order 4, 5, 'abc' so it's always the last one which fails
@@ -1067,20 +1067,20 @@ describe('Database async', function () {
 
     it('createdAt property is unchanged and updatedAt correct after an update, even a complete document replacement', async () => {
       const d2 = new Datastore({ inMemoryOnly: true, timestampData: true })
-      d2.insertAsync({ a: 1 }) // TODO probably should await but was not awaited in original tests
+      await d2.insertAsync({ a: 1 })
       const doc = await d2.findOneAsync({ a: 1 })
       const createdAt = doc.createdAt.getTime()
 
       // Modifying update
       await wait(20)
-      d2.updateAsync({ a: 1 }, { $set: { b: 2 } }, {}) // TODO probably should await but was not awaited in original tests
+      await d2.updateAsync({ a: 1 }, { $set: { b: 2 } }, {})
       const doc2 = await d2.findOneAsync({ a: 1 })
       assert.equal(doc2.createdAt.getTime(), createdAt)
       assert.ok(Date.now() - doc2.updatedAt.getTime() < 5)
 
       // Complete replacement
       await wait(20)
-      d2.update({ a: 1 }, { c: 3 }, {}) // TODO probably should await but was not awaited in original tests
+      await d2.updateAsync({ a: 1 }, { c: 3 }, {})
       const doc3 = await d2.findOneAsync({ c: 3 })
       assert.equal(doc3.createdAt.getTime(), createdAt)
       assert.ok(Date.now() - doc3.updatedAt.getTime() < 5)
@@ -1089,8 +1089,8 @@ describe('Database async', function () {
 
   describe('Callback signature', function () {
     it('Regular update, multi false', async () => {
-      d.insertAsync({ a: 1 }) // TODO probably should await but was not awaited in original tests
-      d.insertAsync({ a: 2 }) // TODO probably should await but was not awaited in original tests
+      await d.insertAsync({ a: 1 })
+      await d.insertAsync({ a: 2 })
 
       // returnUpdatedDocs set to false
       const { numAffected, affectedDocuments, upsert } = await d.updateAsync({ a: 1 }, { $set: { b: 20 } }, {})
@@ -1111,8 +1111,8 @@ describe('Database async', function () {
     })
 
     it('Regular update, multi true', async () => {
-      d.insertAsync({ a: 1 }) // TODO probably should await but was not awaited in original tests
-      d.insertAsync({ a: 2 }) // TODO probably should await but was not awaited in original tests
+      await d.insertAsync({ a: 1 })
+      await d.insertAsync({ a: 2 })
 
       // returnUpdatedDocs set to false
       const {
@@ -1139,8 +1139,8 @@ describe('Database async', function () {
     })
 
     it('Upsert', async () => {
-      d.insertAsync({ a: 1 }) // TODO probably should await but was not awaited in original tests
-      d.insertAsync({ a: 2 }) // TODO probably should await but was not awaited in original tests
+      await d.insertAsync({ a: 1 })
+      await d.insertAsync({ a: 2 })
 
       // Upsert flag not set
       const { numAffected, affectedDocuments, upsert } = await d.updateAsync({ a: 3 }, { $set: { b: 20 } }, {})
@@ -1280,7 +1280,7 @@ describe('Database async', function () {
 
         assert.deepEqual(Object.keys(d.indexes), ['_id'])
 
-        d.ensureIndexAsync({ fieldName: 'z' }) // TODO: was not async
+        await d.ensureIndexAsync({ fieldName: 'z' })
         assert.equal(d.indexes.z.fieldName, 'z')
         assert.equal(d.indexes.z.unique, false)
         assert.equal(d.indexes.z.sparse, false)
@@ -1335,7 +1335,7 @@ describe('Database async', function () {
         await d.updateAsync({ z: '1' }, { $set: { yes: 'yep' } }, {})
         assert.deepEqual(Object.keys(d.indexes), ['_id'])
 
-        d.ensureIndexAsync({ fieldName: 'z' }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'z' })
         assert.equal(d.indexes.z.fieldName, 'z')
         assert.equal(d.indexes.z.unique, false)
         assert.equal(d.indexes.z.sparse, false)
@@ -1367,7 +1367,7 @@ describe('Database async', function () {
 
         assert.equal(d.getAllData().length, 0)
 
-        d.ensureIndexAsync({ fieldName: 'z' }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'z' })
         assert.equal(d.indexes.z.fieldName, 'z')
         assert.equal(d.indexes.z.unique, false)
         assert.equal(d.indexes.z.sparse, false)
@@ -1426,17 +1426,17 @@ describe('Database async', function () {
 
         assert.equal(d.getAllData().length, 0)
 
-        d.ensureIndexAsync({ fieldName: 'z', unique: true }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'z', unique: true })
         assert.equal(d.indexes.z.tree.getNumberOfKeys(), 0)
 
         await fs.writeFile(testDb, rawData, 'utf8')
         await assert.rejects(() => d.loadDatabaseAsync(), err => {
           assert.equal(err.errorType, 'uniqueViolated')
           assert.equal(err.key, '1')
-          assert.equal(d.getAllData().length, 0) // TODO wtf ?
-          assert.equal(d.indexes.z.tree.getNumberOfKeys(), 0) // TODO wtf ?
           return true
         })
+        assert.equal(d.getAllData().length, 0)
+        assert.equal(d.indexes.z.tree.getNumberOfKeys(), 0)
       })
 
       it('If a unique constraint is not respected, ensureIndex will return an error and not create an index', async () => {
@@ -1465,7 +1465,7 @@ describe('Database async', function () {
 
     describe('Indexing newly inserted documents', function () {
       it('Newly inserted documents are indexed', async () => {
-        d.ensureIndexAsync({ fieldName: 'z' }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'z' })
         assert.equal(d.indexes.z.tree.getNumberOfKeys(), 0)
 
         const newDoc = await d.insertAsync({ a: 2, z: 'yes' })
@@ -1478,8 +1478,8 @@ describe('Database async', function () {
       })
 
       it('If multiple indexes are defined, the document is inserted in all of them', async () => {
-        d.ensureIndexAsync({ fieldName: 'z' }) // TODO was not awaited
-        d.ensureIndexAsync({ fieldName: 'ya' }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'z' })
+        await d.ensureIndexAsync({ fieldName: 'ya' })
         assert.equal(d.indexes.z.tree.getNumberOfKeys(), 0)
 
         const newDoc = await d.insertAsync({ a: 2, z: 'yes', ya: 'indeed' })
@@ -1496,7 +1496,7 @@ describe('Database async', function () {
       })
 
       it('Can insert two docs at the same key for a non unique index', async () => {
-        d.ensureIndexAsync({ fieldName: 'z' }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'z' })
         assert.equal(d.indexes.z.tree.getNumberOfKeys(), 0)
 
         const newDoc = await d.insertAsync({ a: 2, z: 'yes' })
@@ -1509,7 +1509,7 @@ describe('Database async', function () {
       })
 
       it('If the index has a unique constraint, an error is thrown if it is violated and the data is not modified', async () => {
-        d.ensureIndexAsync({ fieldName: 'z', unique: true }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'z', unique: true })
         assert.equal(d.indexes.z.tree.getNumberOfKeys(), 0)
 
         const newDoc = await d.insertAsync({ a: 2, z: 'yes' })
@@ -1533,9 +1533,9 @@ describe('Database async', function () {
       })
 
       it('If an index has a unique constraint, other indexes cannot be modified when it raises an error', async () => {
-        d.ensureIndexAsync({ fieldName: 'nonu1' }) // TODO was not awaited
-        d.ensureIndexAsync({ fieldName: 'uni', unique: true }) // TODO was not awaited
-        d.ensureIndexAsync({ fieldName: 'nonu2' }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'nonu1' })
+        await d.ensureIndexAsync({ fieldName: 'uni', unique: true })
+        await d.ensureIndexAsync({ fieldName: 'nonu2' })
 
         const newDoc = await d.insertAsync({ nonu1: 'yes', nonu2: 'yes2', uni: 'willfail' })
         assert.equal(d.indexes.nonu1.tree.getNumberOfKeys(), 1)
@@ -1558,7 +1558,7 @@ describe('Database async', function () {
       })
 
       it('Unique indexes prevent you from inserting two docs where the field is undefined except if theyre sparse', async () => {
-        d.ensureIndexAsync({ fieldName: 'zzz', unique: true }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'zzz', unique: true })
         assert.equal(d.indexes.zzz.tree.getNumberOfKeys(), 0)
 
         const newDoc = await d.insertAsync({ a: 2, z: 'yes' })
@@ -1571,7 +1571,7 @@ describe('Database async', function () {
           return true
         })
 
-        d.ensureIndexAsync({ fieldName: 'yyy', unique: true, sparse: true }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'yyy', unique: true, sparse: true })
 
         await d.insertAsync({ a: 5, z: 'other', zzz: 'set' })
         assert.equal(d.indexes.yyy.getAll().length, 0) // Nothing indexed
@@ -1579,8 +1579,8 @@ describe('Database async', function () {
       })
 
       it('Insertion still works as before with indexing', async () => {
-        d.ensureIndexAsync({ fieldName: 'a' }) // TODO was not awaited
-        d.ensureIndexAsync({ fieldName: 'b' }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'a' })
+        await d.ensureIndexAsync({ fieldName: 'b' })
 
         const doc1 = await d.insertAsync({ a: 1, b: 'hello' })
         const doc2 = await d.insertAsync({ a: 2, b: 'si' })
@@ -1590,7 +1590,7 @@ describe('Database async', function () {
       })
 
       it('All indexes point to the same data as the main index on _id', async () => {
-        d.ensureIndexAsync({ fieldName: 'a' }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'a' })
 
         const doc1 = await d.insertAsync({ a: 1, b: 'hello' })
         const doc2 = await d.insertAsync({ a: 2, b: 'si' })
@@ -1608,7 +1608,7 @@ describe('Database async', function () {
       })
 
       it('If a unique constraint is violated, no index is changed, including the main one', async () => {
-        d.ensureIndexAsync({ fieldName: 'a', unique: true }) // TODO was not awaited
+        await d.ensureIndexAsync({ fieldName: 'a', unique: true })
 
         const doc1 = await d.insertAsync({ a: 1, b: 'hello' })
         await assert.rejects(() => d.insertAsync({ a: 1, b: 'si' }))
@@ -1627,7 +1627,7 @@ describe('Database async', function () {
 
     describe('Updating indexes upon document update', function () {
       it('Updating docs still works as before with indexing', async () => {
-        d.ensureIndexAsync({ fieldName: 'a' }) // TODO: not awaited
+        await d.ensureIndexAsync({ fieldName: 'a' })
 
         const _doc1 = await d.insertAsync({ a: 1, b: 'hello' })
         const _doc2 = await d.insertAsync({ a: 2, b: 'si' })
@@ -1658,8 +1658,8 @@ describe('Database async', function () {
       })
 
       it('Indexes get updated when a document (or multiple documents) is updated', async () => {
-        d.ensureIndexAsync({ fieldName: 'a' }) // TODO: not awaited
-        d.ensureIndexAsync({ fieldName: 'b' }) // TODO: not awaited
+        await d.ensureIndexAsync({ fieldName: 'a' })
+        await d.ensureIndexAsync({ fieldName: 'b' })
 
         const doc1 = await d.insertAsync({ a: 1, b: 'hello' })
         const doc2 = await d.insertAsync({ a: 2, b: 'si' })
@@ -1711,9 +1711,9 @@ describe('Database async', function () {
       })
 
       it('If a simple update violates a contraint, all changes are rolled back and an error is thrown', async () => {
-        d.ensureIndexAsync({ fieldName: 'a', unique: true }) // TODO: not awaited
-        d.ensureIndexAsync({ fieldName: 'b', unique: true }) // TODO: not awaited
-        d.ensureIndexAsync({ fieldName: 'c', unique: true }) // TODO: not awaited
+        await d.ensureIndexAsync({ fieldName: 'a', unique: true })
+        await d.ensureIndexAsync({ fieldName: 'b', unique: true })
+        await d.ensureIndexAsync({ fieldName: 'c', unique: true })
 
         const _doc1 = await d.insertAsync({ a: 1, b: 10, c: 100 })
         const _doc2 = await d.insertAsync({ a: 2, b: 20, c: 200 })
@@ -1752,9 +1752,9 @@ describe('Database async', function () {
       })
 
       it('If a multi update violates a contraint, all changes are rolled back and an error is thrown', async () => {
-        d.ensureIndexAsync({ fieldName: 'a', unique: true }) // TODO: was not awaited
-        d.ensureIndexAsync({ fieldName: 'b', unique: true }) // TODO: was not awaited
-        d.ensureIndexAsync({ fieldName: 'c', unique: true }) // TODO: was not awaited
+        await d.ensureIndexAsync({ fieldName: 'a', unique: true })
+        await d.ensureIndexAsync({ fieldName: 'b', unique: true })
+        await d.ensureIndexAsync({ fieldName: 'c', unique: true })
 
         const _doc1 = await d.insertAsync({ a: 1, b: 10, c: 100 })
         const _doc2 = await d.insertAsync({ a: 2, b: 20, c: 200 })
@@ -1798,7 +1798,7 @@ describe('Database async', function () {
 
     describe('Updating indexes upon document remove', function () {
       it('Removing docs still works as before with indexing', async () => {
-        d.ensureIndexAsync({ fieldName: 'a' }) // TODO: was not awaited
+        await d.ensureIndexAsync({ fieldName: 'a' })
 
         await d.insertAsync({ a: 1, b: 'hello' })
         const _doc2 = await d.insertAsync({ a: 2, b: 'si' })
@@ -1822,8 +1822,8 @@ describe('Database async', function () {
       })
 
       it('Indexes get updated when a document (or multiple documents) is removed', async () => {
-        d.ensureIndexAsync({ fieldName: 'a' }) // TODO: was not awaited
-        d.ensureIndexAsync({ fieldName: 'b' }) // TODO: was not awaited
+        await d.ensureIndexAsync({ fieldName: 'a' })
+        await d.ensureIndexAsync({ fieldName: 'b' })
 
         await d.insertAsync({ a: 1, b: 'hello' })
         const doc2 = await d.insertAsync({ a: 2, b: 'si' })
@@ -2027,9 +2027,9 @@ describe('Database async', function () {
     }) // ==== End of 'Persisting indexes' ====
 
     it('Results of getMatching should never contain duplicates', async () => {
-      d.ensureIndexAsync({ fieldName: 'bad' }) // TODO: was not awaited
+      await d.ensureIndexAsync({ fieldName: 'bad' })
       await d.insertAsync({ bad: ['a', 'b'] })
-      const res = await d.getCandidatesAsync({ bad: { $in: ['a', 'b'] } })
+      const res = await d._getCandidatesAsync({ bad: { $in: ['a', 'b'] } })
       assert.equal(res.length, 1)
     })
   }) // ==== End of 'Using indexes' ==== //

@@ -39,3 +39,4 @@ module.exports.waterfall = waterfall
 module.exports.each = each
 module.exports.wait = wait
 module.exports.exists = exists
+module.exports.callbackify = callbackify

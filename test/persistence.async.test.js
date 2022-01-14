@@ -334,6 +334,29 @@ describe('Persistence async', function () {
     assert.equal(doc2Reloaded, undefined)
   })
 
+  it('Calling dropDatabase after the datafile was modified loads the new data', async () => {
+    await d.loadDatabaseAsync()
+    await d.insertAsync({ a: 1 })
+    await d.insertAsync({ a: 2 })
+    const data = d.getAllData()
+    const doc1 = data.find(doc => doc.a === 1)
+    const doc2 = data.find(doc => doc.a === 2)
+    assert.equal(data.length, 2)
+    assert.equal(doc1.a, 1)
+    assert.equal(doc2.a, 2)
+
+    await fs.writeFile(testDb, '{"a":3,"_id":"aaa"}', 'utf8')
+    await d.loadDatabaseAsync()
+    const dataReloaded = d.getAllData()
+    const doc1Reloaded = dataReloaded.find(function (doc) { return doc.a === 1 })
+    const doc2Reloaded = dataReloaded.find(function (doc) { return doc.a === 2 })
+    const doc3Reloaded = dataReloaded.find(function (doc) { return doc.a === 3 })
+    assert.equal(dataReloaded.length, 1)
+    assert.equal(doc3Reloaded.a, 3)
+    assert.equal(doc1Reloaded, undefined)
+    assert.equal(doc2Reloaded, undefined)
+  })
+
   it('When treating raw data, refuse to proceed if too much data is corrupt, to avoid data loss', async () => {
     const corruptTestFilename = 'workspace/corruptTest.db'
     const fakeData = '{"_id":"one","hello":"world"}\n' + 'Some corrupt data\n' + '{"_id":"two","hello":"earth"}\n' + '{"_id":"three","hello":"you"}\n'
@@ -707,7 +730,7 @@ describe('Persistence async', function () {
 
     it('persistCachedDatabase should update the contents of the datafile and leave a clean state even if there is a temp datafile', async () => {
       await d.insertAsync({ hello: 'world' })
-      const docs = await d.find({})
+      const docs = await d.findAsync({})
       assert.equal(docs.length, 1)
 
       if (await exists(testDb)) { await fs.unlink(testDb) }
@@ -749,7 +772,7 @@ describe('Persistence async', function () {
 
       const theDb = new Datastore({ filename: dbFile })
       await theDb.loadDatabaseAsync()
-      const docs = await theDb.find({})
+      const docs = await theDb.findAsync({})
       assert.equal(docs.length, 0)
 
       const doc1 = await theDb.insertAsync({ a: 'hello' })

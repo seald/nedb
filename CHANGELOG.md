@@ -13,14 +13,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Added markdown documentation generated from the JSDoc
 
 ### Changed
-- All the functions are now async at the core, and a fully retro-compatible callback-ified version is exposed.
-- The executor is now much simpler and Promise-based. A retro-compatible shim is still exposed, with the exception that it no longer handles [`arguments`](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Functions/arguments) as the arguments Array. If you use the executor directly, you'll need to convert it to a proper Array beforehand.
+- All the functions are now async at the core, and a fully retro-compatible callback-ified version is exposed for the exposed functions.
+- The executor is now much simpler and Promise-based. A mostly retro-compatible shim is still exposed, with the exception that it no longer handles [`arguments`](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Functions/arguments) as the arguments Array. If you use the executor directly, you'll need to convert it to a proper Array beforehand. However [follicle@1.x](https://github.com/seald/follicle) is not compatible, please update to v2.
 - As a result, the `async` dependency has been removed completely. To avoid rewriting the tests, shims of some functions of `async` are defined in an utilities file used exclusively in the tests.
 - The `Datastore#update`'s callback has its signature slightly changed. The `upsert` flag is always defined either at `true` or `false` but not `null` nor `undefined`, and `affectedDocuments` is `null` when none is given rather than `undefined` (except when there is an error of course).
-
+- 
 ### Deprecated
 - Formally deprecate giving a string as argument to the `Datastore` constructor
-- Formally deprecate using `Persistence.getNWAppFilename()` and `options.nodeWebkitAppName`
 
 
 ## [2.2.1] - 2022-01-18
