@@ -2,6 +2,7 @@
  * Utility functions that need to be reimplemented for each environment.
  * This is the version for the browser & React-Native
  * @module customUtilsBrowser
+ * @private
  */
 
 /**

@@ -117,7 +117,7 @@ const readFileAsync = async (filename, options) => {
  * @param {string} filename
  * @return {Promise<void>}
  * @async
- * @alias module:storageBrowser
+ * @alias module:storageBrowser.unlink
  */
 const unlinkAsync = async filename => {
   try {
