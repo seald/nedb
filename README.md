@@ -55,11 +55,11 @@ documentation is available in the [`docs`](./docs) directory of the repository.
 
 You can use NeDB as an in-memory only datastore or as a persistent datastore.
 One datastore is the equivalent of a MongoDB collection. The constructor is used
-as follows [`new Datastore(options)` where `options` is an object](./docs/Datastore.md#new_Datastore_new).
+as follows [`new Datastore(options)` where `options` is an object](./API.md#new_Datastore_new).
 
-If the Datastore is persistent (if you give it [`options.filename`](./docs/Datastore.md#Datastore+filename),
-you'll need to load the database using [Datastore#loadDatabaseAsync](./docs/Datastore.md#Datastore+loadDatabaseAsync),
-or using [`options.autoload`](./docs/Datastore.md#Datastore+autoload).
+If the Datastore is persistent (if you give it [`options.filename`](./API.md#Datastore+filename),
+you'll need to load the database using [Datastore#loadDatabaseAsync](./API.md#Datastore+loadDatabaseAsync),
+or using [`options.autoload`](./API.md#Datastore+autoload).
 
 ```javascript
 // Type 1: In-memory only datastore (no need to load the database)
@@ -101,11 +101,11 @@ compacted (i.e. put back in the one-line-per-document format) every time you
 load each database within your application.
 
 You can manually call the compaction function
-with [`yourDatabase#persistence#compactDatafileAsync`](./docs/Persistence.md#Persistence+compactDatafileAsync).
+with [`yourDatabase#persistence#compactDatafileAsync`](./API.md#Persistence+compactDatafileAsync).
 
 You can also set automatic compaction at regular intervals
-with [`yourDatabase#persistence#setAutocompactionInterval`](./docs/Persistence.md#Persistence+setAutocompactionInterval),
-and stop automatic compaction with [`yourDatabase#persistence#stopAutocompaction`](./docs/Persistence.md#Persistence+stopAutocompaction).
+with [`yourDatabase#persistence#setAutocompactionInterval`](./API.md#Persistence+setAutocompactionInterval),
+and stop automatic compaction with [`yourDatabase#persistence#stopAutocompaction`](./API.md#Persistence+stopAutocompaction).
 
 ### Inserting documents
 
@@ -387,17 +387,17 @@ const docs = await db.findAsync({
 
 #### Sorting and paginating
 
-[`Datastore#findAsync`](./docs/Datastore.md#Datastore+findAsync),
-[`Datastore#findOneAsync`](./docs/Datastore.md#Datastore+findOneAsync) and
-[`Datastore#countAsync`](./docs/Datastore.md#Datastore+countAsync) don't
+[`Datastore#findAsync`](./API.md#Datastore+findAsync),
+[`Datastore#findOneAsync`](./API.md#Datastore+findOneAsync) and
+[`Datastore#countAsync`](./API.md#Datastore+countAsync) don't
 actually return a `Promise`, but a [`Cursor`](./docs/Cursor.md) which is a
 [`Thenable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#thenable_objects)
-which calls [`Cursor#execAsync`](./docs/Cursor.md#Cursor+execAsync) when awaited.
+which calls [`Cursor#execAsync`](./API.md#Cursor+execAsync) when awaited.
 
-This pattern allows to chain [`Cursor#sort`](./docs/Cursor.md#Cursor+sort),
-[`Cursor#skip`](./docs/Cursor.md#Cursor+skip), 
-[`Cursor#limit`](./docs/Cursor.md#Cursor+limit) and
-[`Cursor#projection`](./docs/Cursor.md#Cursor+projection) and await the result.
+This pattern allows to chain [`Cursor#sort`](./API.md#Cursor+sort),
+[`Cursor#skip`](./API.md#Cursor+skip), 
+[`Cursor#limit`](./API.md#Cursor+limit) and
+[`Cursor#projection`](./API.md#Cursor+projection) and await the result.
 
 ```javascript
 // Let's say the database contains these 4 documents
@@ -486,14 +486,14 @@ const count = await db.countAsync({})
 
 ### Updating documents
 
-[`db.updateAsync(query, update, options)`](./docs/Datastore.md#Datastore+updateAsync)
+[`db.updateAsync(query, update, options)`](./API.md#Datastore+updateAsync)
 will update all documents matching `query` according to the `update` rules.
 
 `update` specifies how the documents should be modified. It is either a new 
 document or a set of modifiers (you cannot use both together):
 * A new document will replace the matched docs;
 * Modifiers create the fields they need to modify if they don't exist,
-  and you can apply them to subdocs (see [the API reference]((./docs/Datastore.md#Datastore+updateAsync)))
+  and you can apply them to subdocs (see [the API reference]((./API.md#Datastore+updateAsync)))
 
 `options` is an object with three possible parameters:
 * `multi` which allows the modification of several documents if set to true.
@@ -637,7 +637,7 @@ await db.updateAsync({ _id: 'id1' }, { $min: { value: 8 } }, {})
 
 ### Removing documents
 
-[`db.removeAsync(query, options)`](./docs/Datastore.md#Datastore#removeAsync)
+[`db.removeAsync(query, options)`](./API.md#Datastore#removeAsync)
 will remove documents matching `query`. Can remove multiple documents if
 `options.multi` is set. Returns the `Promise<numRemoved>`.
 
@@ -672,7 +672,7 @@ fields in nested documents using the dot notation. For now, indexes are only
 used to speed up basic queries and queries using `$in`, `$lt`, `$lte`, `$gt`
 and `$gte`. The indexed values cannot be of type array of object.
 
-To create an index, use [`datastore#ensureIndexAsync(options)`](./docs/Datastore.md#Datastore+ensureIndexAsync).
+To create an index, use [`datastore#ensureIndexAsync(options)`](./API.md#Datastore+ensureIndexAsync).
 It resolves when the index is persisted on disk (if the database is persistent)
 and may throw an Error (usually a unique constraint that was violated). It can
 be called when you want, even after some data was inserted, though it's best to
@@ -690,7 +690,7 @@ call it at application startup. The options are:
 Note: the `_id` is automatically indexed with a unique constraint.
 
 You can remove a previously created index with
-[`datastore#removeIndexAsync(fieldName)`](./docs/Datastore.md#Datastore+removeIndexAsync).
+[`datastore#removeIndexAsync(fieldName)`](./API.md#Datastore+removeIndexAsync).
 
 ```javascript
 try {

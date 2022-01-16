@@ -87,7 +87,7 @@
     "test:react-native": "jest test/react-native",
     "test:typings": "ts-node ./typings-tests.ts",
     "prepublishOnly": "npm run build:browser",
-    "generateDocs:markdown": "node jsdoc2md.js",
+    "generateDocs:markdown": "jsdoc2md --no-cache -c jsdoc.conf.js --param-list-format list --files . > API.md",
     "generateDocs:html": "jsdoc -c jsdoc.conf.js -d docs-html --readme README.md"
   },
   "main": "index.js",
