@@ -258,14 +258,15 @@ Will return pointers to matched elements (shallow copies), returning full copies
         * [.ttlIndexes](#Datastore+ttlIndexes) : <code>Object.&lt;string, number&gt;</code>
         * [.autoloadPromise](#Datastore+autoloadPromise) : <code>Promise</code>
         * [.compareStrings()](#Datastore+compareStrings) : [<code>compareStrings</code>](#compareStrings)
-        * [.loadDatabase(callback)](#Datastore+loadDatabase)
+        * [.loadDatabase([callback])](#Datastore+loadDatabase)
         * [.loadDatabaseAsync()](#Datastore+loadDatabaseAsync) ⇒ <code>Promise</code>
         * [.getAllData()](#Datastore+getAllData) ⇒ [<code>Array.&lt;document&gt;</code>](#document)
-        * [.ensureIndex(options, callback)](#Datastore+ensureIndex)
+        * [.ensureIndex(options, [callback])](#Datastore+ensureIndex)
         * [.ensureIndexAsync(options)](#Datastore+ensureIndexAsync) ⇒ <code>Promise.&lt;void&gt;</code>
         * [.removeIndex(fieldName, callback)](#Datastore+removeIndex)
         * [.removeIndexAsync(fieldName)](#Datastore+removeIndexAsync) ⇒ <code>Promise.&lt;void&gt;</code>
-        * [.insertAsync(newDoc)](#Datastore+insertAsync) ⇒ [<code>Promise.&lt;document&gt;</code>](#document)
+        * [.insert(newDoc, [callback])](#Datastore+insert)
+        * [.insertAsync(newDoc)](#Datastore+insertAsync) ⇒ <code>Promise.&lt;(document\|Array.&lt;document&gt;)&gt;</code>
         * [.count(query, [callback])](#Datastore+count) ⇒ <code>Cursor.&lt;number&gt;</code> \| <code>undefined</code>
         * [.countAsync(query)](#Datastore+countAsync) ⇒ <code>Cursor.&lt;number&gt;</code>
         * [.find(query, [projection], [callback])](#Datastore+find) ⇒ <code>Cursor.&lt;Array.&lt;document&gt;&gt;</code> \| <code>undefined</code>
@@ -408,21 +409,21 @@ letters. Native <code>localCompare</code> will most of the time be the right cho
 **Access**: protected  
 <a name="Datastore+loadDatabase"></a>
 
-### neDB.loadDatabase(callback)
-<p>Load the database from the datafile, and trigger the execution of buffered commands if any.</p>
+### neDB.loadDatabase([callback])
+<p>Callback version of [loadDatabaseAsync](#Datastore+loadDatabaseAsync).</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**See**: Datastore#loadDatabaseAsync  
 **Params**
 
-- callback [<code>NoParamCallback</code>](#NoParamCallback)
+- [callback] [<code>NoParamCallback</code>](#NoParamCallback)
 
 <a name="Datastore+loadDatabaseAsync"></a>
 
 ### neDB.loadDatabaseAsync() ⇒ <code>Promise</code>
-<p>Async version of [loadDatabase](#Datastore+loadDatabase).</p>
+<p>Load the database from the datafile, and trigger the execution of buffered commands if any.</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
-**See**: Datastore#loadDatabase  
 <a name="Datastore+getAllData"></a>
 
 ### neDB.getAllData() ⇒ [<code>Array.&lt;document&gt;</code>](#document)
@@ -431,36 +432,40 @@ letters. Native <code>localCompare</code> will most of the time be the right cho
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
 <a name="Datastore+ensureIndex"></a>
 
-### neDB.ensureIndex(options, callback)
-<p>Ensure an index is kept for this field. Same parameters as lib/indexes
-This function acts synchronously on the indexes, however the persistence of the indexes is deferred with the
-executor.
-Previous versions said explicitly the callback was optional, it is now recommended setting one.</p>
-
-**Kind**: instance method of [<code>Datastore</code>](#Datastore)  
-**Params**
-
-- options <code>object</code>
-    - .fieldName <code>string</code> - <p>Name of the field to index. Use the dot notation to index a field in a nested document.</p>
-    - [.unique] <code>boolean</code> <code> = false</code> - <p>Enforce field uniqueness. Note that a unique index will raise an error if you try to index two documents for which the field is not defined.</p>
-    - [.sparse] <code>boolean</code> <code> = false</code> - <p>don't index documents for which the field is not defined. Use this option along with &quot;unique&quot; if you want to accept multiple documents for which it is not defined.</p>
-    - [.expireAfterSeconds] <code>number</code> - <p>if set, the created index is a TTL (time to live) index, that will automatically remove documents when the system date becomes larger than the date on the indexed field plus <code>expireAfterSeconds</code>. Documents where the indexed field is not specified or not a <code>Date</code> object are ignored</p>
-- callback [<code>NoParamCallback</code>](#NoParamCallback) - <p>Callback, signature: err</p>
-
-<a name="Datastore+ensureIndexAsync"></a>
-
-### neDB.ensureIndexAsync(options) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Async version of [ensureIndex](#Datastore+ensureIndex).</p>
+### neDB.ensureIndex(options, [callback])
+<p>Callback version of [ensureIndex](#Datastore+ensureIndex).</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
 **See**: Datastore#ensureIndex  
 **Params**
 
 - options <code>object</code>
-    - .fieldName <code>string</code> - <p>Name of the field to index. Use the dot notation to index a field in a nested document.</p>
-    - [.unique] <code>boolean</code> <code> = false</code> - <p>Enforce field uniqueness. Note that a unique index will raise an error if you try to index two documents for which the field is not defined.</p>
-    - [.sparse] <code>boolean</code> <code> = false</code> - <p>Don't index documents for which the field is not defined. Use this option along with &quot;unique&quot; if you want to accept multiple documents for which it is not defined.</p>
-    - [.expireAfterSeconds] <code>number</code> - <p>If set, the created index is a TTL (time to live) index, that will automatically remove documents when the system date becomes larger than the date on the indexed field plus <code>expireAfterSeconds</code>. Documents where the indexed field is not specified or not a <code>Date</code> object are ignored</p>
+    - .fieldName <code>string</code>
+    - [.unique] <code>boolean</code> <code> = false</code>
+    - [.sparse] <code>boolean</code> <code> = false</code>
+    - [.expireAfterSeconds] <code>number</code>
+- [callback] [<code>NoParamCallback</code>](#NoParamCallback)
+
+<a name="Datastore+ensureIndexAsync"></a>
+
+### neDB.ensureIndexAsync(options) ⇒ <code>Promise.&lt;void&gt;</code>
+<p>Ensure an index is kept for this field. Same parameters as lib/indexes
+This function acts synchronously on the indexes, however the persistence of the indexes is deferred with the
+executor.</p>
+
+**Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**Params**
+
+- options <code>object</code>
+    - .fieldName <code>string</code> - <p>Name of the field to index. Use the dot notation to index a field in a nested
+document.</p>
+    - [.unique] <code>boolean</code> <code> = false</code> - <p>Enforce field uniqueness. Note that a unique index will raise an error
+if you try to index two documents for which the field is not defined.</p>
+    - [.sparse] <code>boolean</code> <code> = false</code> - <p>Don't index documents for which the field is not defined. Use this option
+along with &quot;unique&quot; if you want to accept multiple documents for which it is not defined.</p>
+    - [.expireAfterSeconds] <code>number</code> - <p>If set, the created index is a TTL (time to live) index, that will
+automatically remove documents when the system date becomes larger than the date on the indexed field plus
+<code>expireAfterSeconds</code>. Documents where the indexed field is not specified or not a <code>Date</code> object are ignored.</p>
 
 <a name="Datastore+removeIndex"></a>
 
@@ -487,31 +492,45 @@ field in a nested document.</p>
 - fieldName <code>string</code> - <p>Field name of the index to remove. Use the dot notation to remove an index referring to a
 field in a nested document.</p>
 
-<a name="Datastore+insertAsync"></a>
+<a name="Datastore+insert"></a>
 
-### neDB.insertAsync(newDoc) ⇒ [<code>Promise.&lt;document&gt;</code>](#document)
-<p>Async version of [Datastore#insert](Datastore#insert).</p>
+### neDB.insert(newDoc, [callback])
+<p>Callback version of [insertAsync](#Datastore+insertAsync).</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**See**: Datastore#insertAsync  
 **Params**
 
 - newDoc [<code>document</code>](#document) | [<code>Array.&lt;document&gt;</code>](#document)
+- [callback] [<code>SingleDocumentCallback</code>](#SingleDocumentCallback) | [<code>MultipleDocumentsCallback</code>](#MultipleDocumentsCallback)
+
+<a name="Datastore+insertAsync"></a>
+
+### neDB.insertAsync(newDoc) ⇒ <code>Promise.&lt;(document\|Array.&lt;document&gt;)&gt;</code>
+<p>Insert a new document, or new documents.</p>
+
+**Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**Returns**: <code>Promise.&lt;(document\|Array.&lt;document&gt;)&gt;</code> - <p>The document(s) inserted.</p>  
+**Params**
+
+- newDoc [<code>document</code>](#document) | [<code>Array.&lt;document&gt;</code>](#document) - <p>Document or array of documents to insert.</p>
 
 <a name="Datastore+count"></a>
 
 ### neDB.count(query, [callback]) ⇒ <code>Cursor.&lt;number&gt;</code> \| <code>undefined</code>
-<p>Count all documents matching the query.</p>
+<p>Callback-version of [countAsync](#Datastore+countAsync).</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**See**: Datastore#countAsync  
 **Params**
 
-- query [<code>query</code>](#query) - <p>MongoDB-style query</p>
-- [callback] [<code>countCallback</code>](#Datastore..countCallback) - <p>If given, the function will return undefined, otherwise it will return the Cursor.</p>
+- query [<code>query</code>](#query)
+- [callback] [<code>countCallback</code>](#Datastore..countCallback)
 
 <a name="Datastore+countAsync"></a>
 
 ### neDB.countAsync(query) ⇒ <code>Cursor.&lt;number&gt;</code>
-<p>Async version of [count](#Datastore+count).</p>
+<p>Count all documents matching the query.</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
 **Returns**: <code>Cursor.&lt;number&gt;</code> - <p>count</p>  
@@ -522,21 +541,22 @@ field in a nested document.</p>
 <a name="Datastore+find"></a>
 
 ### neDB.find(query, [projection], [callback]) ⇒ <code>Cursor.&lt;Array.&lt;document&gt;&gt;</code> \| <code>undefined</code>
-<p>Find all documents matching the query
-If no callback is passed, we return the cursor so that user can limit, skip and finally exec</p>
+<p>Callback version of [findAsync](#Datastore+findAsync).</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**See**: Datastore#findAsync  
 **Params**
 
-- query [<code>query</code>](#query) - <p>MongoDB-style query</p>
-- [projection] [<code>projection</code>](#projection) | [<code>MultipleDocumentsCallback</code>](#MultipleDocumentsCallback) <code> = {}</code> - <p>MongoDB-style projection. If not given, will be
-interpreted as the callback.</p>
-- [callback] [<code>MultipleDocumentsCallback</code>](#MultipleDocumentsCallback) - <p>Optional callback, signature: err, docs</p>
+- query [<code>query</code>](#query)
+- [projection] [<code>projection</code>](#projection) | [<code>MultipleDocumentsCallback</code>](#MultipleDocumentsCallback) <code> = {}</code>
+- [callback] [<code>MultipleDocumentsCallback</code>](#MultipleDocumentsCallback)
 
 <a name="Datastore+findAsync"></a>
 
 ### neDB.findAsync(query, [projection]) ⇒ <code>Cursor.&lt;Array.&lt;document&gt;&gt;</code>
-<p>Async version of [find](#Datastore+find).</p>
+<p>Find all documents matching the query.
+We return the [Cursor](#Cursor) that the user can either <code>await</code> directly or use to can [limit](#Cursor+limit) or
+[skip](#Cursor+skip) before.</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
 **Params**
@@ -547,22 +567,23 @@ interpreted as the callback.</p>
 <a name="Datastore+findOne"></a>
 
 ### neDB.findOne(query, [projection], [callback]) ⇒ [<code>Cursor.&lt;document&gt;</code>](#document) \| <code>undefined</code>
-<p>Find one document matching the query.</p>
+<p>Callback version of [findOneAsync](#Datastore+findOneAsync).</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**See**: Datastore#findOneAsync  
 **Params**
 
-- query [<code>query</code>](#query) - <p>MongoDB-style query</p>
-- [projection] [<code>projection</code>](#projection) | [<code>SingleDocumentCallback</code>](#SingleDocumentCallback) <code> = {}</code> - <p>MongoDB-style projection</p>
-- [callback] [<code>SingleDocumentCallback</code>](#SingleDocumentCallback) - <p>Optional callback, signature: err, doc</p>
+- query [<code>query</code>](#query)
+- [projection] [<code>projection</code>](#projection) | [<code>SingleDocumentCallback</code>](#SingleDocumentCallback) <code> = {}</code>
+- [callback] [<code>SingleDocumentCallback</code>](#SingleDocumentCallback)
 
 <a name="Datastore+findOneAsync"></a>
 
 ### neDB.findOneAsync(query, projection) ⇒ [<code>Cursor.&lt;document&gt;</code>](#document)
-<p>Async version of [findOne](#Datastore+findOne).</p>
+<p>Find one document matching the query.
+We return the [Cursor](#Cursor) that the user can either <code>await</code> directly or use to can [skip](#Cursor+skip) before.</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
-**See**: Datastore#findOne  
 **Params**
 
 - query [<code>query</code>](#query) - <p>MongoDB-style query</p>

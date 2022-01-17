@@ -1,65 +1,61 @@
 const fs = require('fs')
-const { waterfall, whilst } = require('../test/utils.test.js')
+const fsPromises = fs.promises
 const Nedb = require('../lib/datastore')
-const { callbackify } = require('util')
-const db = new Nedb({ filename: './workspace/openfds.db', autoload: true })
 const N = 64
-let i
-let fds
 
-function multipleOpen (filename, N, callback) {
-  whilst(function () { return i < N }
-    , function (cb) {
-      fs.open(filename, 'r', function (err, fd) {
-        i += 1
-        if (fd) { fds.push(fd) }
-        return cb(err)
-      })
+// A console.error triggers an error of the parent test
+
+const test = async () => {
+  let filehandles = []
+  try {
+    for (let i = 0; i < 2 * N + 1; i++) {
+      const filehandle = await fsPromises.open('./test_lac/openFdsTestFile', 'r')
+      filehandles.push(filehandle)
     }
-    , callback)
-}
-
-waterfall([
-  // Check that ulimit has been set to the correct value
-  function (cb) {
-    i = 0
-    fds = []
-    multipleOpen('./test_lac/openFdsTestFile', 2 * N + 1, function (err) {
-      if (!err) { console.log('No error occured while opening a file too many times') }
-      fds.forEach(function (fd) { fs.closeSync(fd) })
-      return cb()
-    })
-  },
-  function (cb) {
-    i = 0
-    fds = []
-    multipleOpen('./test_lac/openFdsTestFile2', N, function (err) {
-      if (err) { console.log('An unexpected error occured when opening file not too many times: ' + err) }
-      fds.forEach(function (fd) { fs.closeSync(fd) })
-      return cb()
-    })
-  },
-  // Then actually test NeDB persistence
-  function () {
-    db.remove({}, { multi: true }, function (err) {
-      if (err) { console.log(err) }
-      db.insert({ hello: 'world' }, function (err) {
-        if (err) { console.log(err) }
-
-        i = 0
-        whilst(function () { return i < 2 * N + 1 }
-          , function (cb) {
-            callbackify(() => db.persistence.persistCachedDatabaseAsync())(function (err) {
-              if (err) { return cb(err) }
-              i += 1
-              return cb()
-            })
-          }
-          , function (err) {
-            if (err) { console.log('Got unexpected error during one peresistence operation: ' + err) }
-          }
-        )
-      })
-    })
+    console.error('No error occurred while opening a file too many times')
+    process.exit(1)
+  } catch (error) {
+    if (error.code !== 'EMFILE') {
+      console.error(error)
+      process.exit(1)
+    }
+  } finally {
+    for (const filehandle of filehandles) {
+      await filehandle.close()
+    }
+    filehandles = []
   }
-], () => {})
+
+  try {
+    for (let i = 0; i < N; i++) {
+      const filehandle = await fsPromises.open('./test_lac/openFdsTestFile2', 'r')
+      filehandles.push(filehandle)
+    }
+  } catch (error) {
+    console.error(`An unexpected error occurred when opening file not too many times at i: ${i} with error: ${error}`)
+    process.exit(1)
+  } finally {
+    for (const filehandle of filehandles) {
+      await filehandle.close()
+    }
+  }
+
+  try {
+    const db = new Nedb({ filename: './workspace/openfds.db' })
+    await db.loadDatabaseAsync()
+    await db.removeAsync({}, { multi: true })
+    await db.insertAsync({ hello: 'world' })
+
+    for (let i = 0; i < 2 * N + 1; i++) {
+      await db.persistence.persistCachedDatabaseAsync()
+    }
+  } catch (error) {
+    console.error(`Got unexpected error during one persistence operation at ${i}: with error: ${error}`)
+  }
+}
+try {
+  test()
+} catch (error) {
+  console.error(error)
+  process.exit(1)
+}

@@ -824,39 +824,63 @@ describe('Persistence async', function () {
 
       const datafileLength = (await fs.readFile('workspace/lac.db', 'utf8')).length
 
+      assert(datafileLength > 5000)
+
       // Loading it in a separate process that we will crash before finishing the loadDatabase
-      fork('test_lac/loadAndCrash.test').on('exit', async function (code) {
-        assert.equal(code, 1) // See test_lac/loadAndCrash.test.js
+      const child = fork('test_lac/loadAndCrash.test', [], { stdio: 'inherit' })
 
-        assert.equal(await exists('workspace/lac.db'), true)
-        assert.equal(await exists('workspace/lac.db~'), true)
-        assert.equal((await fs.readFile('workspace/lac.db', 'utf8')).length, datafileLength)
-        assert.equal((await fs.readFile('workspace/lac.db~', 'utf8')).length, 5000)
+      await Promise.race([
+        new Promise((resolve, reject) => child.on('error', reject)),
+        new Promise((resolve, reject) => {
+          child.on('exit', async function (code) {
+            try {
+              assert.equal(code, 1) // See test_lac/loadAndCrash.test.js
 
-        // Reload database without a crash, check that no data was lost and fs state is clean (no temp file)
-        const db = new Datastore({ filename: 'workspace/lac.db' })
-        await db.loadDatabaseAsync()
-        assert.equal(await exists('workspace/lac.db'), true)
-        assert.equal(await exists('workspace/lac.db~'), false)
-        assert.equal((await fs.readFile('workspace/lac.db', 'utf8')).length, datafileLength)
+              assert.equal(await exists('workspace/lac.db'), true)
+              assert.equal(await exists('workspace/lac.db~'), true)
+              assert.equal((await fs.readFile('workspace/lac.db', 'utf8')).length, datafileLength)
+              assert.equal((await fs.readFile('workspace/lac.db~', 'utf8')).length, 5000)
 
-        const docs = await db.findAsync({})
-        assert.equal(docs.length, N)
-        for (i = 0; i < N; i += 1) {
-          docI = docs.find(d => d._id === 'anid_' + i)
-          assert.notEqual(docI, undefined)
-          assert.deepEqual({ hello: 'world', _id: 'anid_' + i }, docI)
-        }
-      })
+              // Reload database without a crash, check that no data was lost and fs state is clean (no temp file)
+              const db = new Datastore({ filename: 'workspace/lac.db' })
+              await db.loadDatabaseAsync()
+              assert.equal(await exists('workspace/lac.db'), true)
+              assert.equal(await exists('workspace/lac.db~'), false)
+              assert.equal((await fs.readFile('workspace/lac.db', 'utf8')).length, datafileLength)
 
-      // Not run on Windows as there is no clean way to set maximum file descriptors. Not an issue as the code itself is tested.
-      it('Cannot cause EMFILE errors by opening too many file descriptors', async function () {
-        this.timeout(5000)
-        if (process.platform === 'win32' || process.platform === 'win64') { return }
-        const { stdout } = await promisify(execFile)('test_lac/openFdsLaunch.sh')
+              const docs = await db.findAsync({})
+              assert.equal(docs.length, N)
+              for (i = 0; i < N; i += 1) {
+                docI = docs.find(d => d._id === 'anid_' + i)
+                assert.notEqual(docI, undefined)
+                assert.deepEqual({ hello: 'world', _id: 'anid_' + i }, docI)
+              }
+              resolve()
+            } catch (error) {
+              reject(error)
+            }
+          })
+        })
+      ])
+    })
+
+    // Not run on Windows as there is no clean way to set maximum file descriptors. Not an issue as the code itself is tested.
+    it('Cannot cause EMFILE errors by opening too many file descriptors', async function () {
+      this.timeout(10000)
+      if (process.platform === 'win32' || process.platform === 'win64') { return }
+      try {
+        const { stdout, stderr } = await promisify(execFile)('test_lac/openFdsLaunch.sh')
         // The subprocess will not output anything to stdout unless part of the test fails
-        if (stdout.length !== 0) throw new Error(stdout)
-      })
+        if (stderr.length !== 0) {
+          console.error('subprocess catch\n', stdout)
+          throw new Error(stderr)
+        }
+      } catch (err) {
+        if (Object.prototype.hasOwnProperty.call(err, 'stdout') || Object.prototype.hasOwnProperty.call(err, 'stderr')) {
+          console.error('subprocess catch\n', err.stdout)
+          throw new Error(err.stderr)
+        } else throw err
+      }
     })
   }) // ==== End of 'Prevent dataloss when persisting data' ====
 
