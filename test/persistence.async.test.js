@@ -10,6 +10,7 @@ const Persistence = require('../lib/persistence')
 const storage = require('../lib/storage')
 const { execFile, fork } = require('child_process')
 const { promisify } = require('util')
+const { ensureFileDoesntExistAsync } = require('../lib/storage')
 const Readable = require('stream').Readable
 
 describe('Persistence async', function () {
@@ -381,7 +382,7 @@ describe('Persistence async', function () {
         resolve()
       })
     })
-    await d.persistence.compactDatafileAsync()
+    await d.compactDatafileAsync()
     await compacted // should already be resolved when the function returns, but still awaiting for it
   })
 
@@ -898,4 +899,89 @@ describe('Persistence async', function () {
       assert.equal(await exists('workspace/existing'), false)
     })
   }) // ==== End of 'ensureFileDoesntExist' ====
+
+  describe('dropDatabase', function () {
+    it('deletes data in memory', async () => {
+      const inMemoryDB = new Datastore({ inMemoryOnly: true })
+      await inMemoryDB.insertAsync({ hello: 'world' })
+      await inMemoryDB.dropDatabaseAsync()
+      assert.equal(inMemoryDB.getAllData().length, 0)
+    })
+
+    it('deletes data in memory & on disk', async () => {
+      await d.insertAsync({ hello: 'world' })
+      await d.dropDatabaseAsync()
+      assert.equal(d.getAllData().length, 0)
+      assert.equal(await exists(testDb), false)
+    })
+
+    it('check that executor is drained before drop', async () => {
+      for (let i = 0; i < 100; i++) {
+        d.insertAsync({ hello: 'world' }) // no await
+      }
+      await d.dropDatabaseAsync() // it should await the end of the inserts
+      assert.equal(d.getAllData().length, 0)
+      assert.equal(await exists(testDb), false)
+    })
+
+    it('check that autocompaction is stopped', async () => {
+      d.setAutocompactionInterval(5000)
+      await d.insertAsync({ hello: 'world' })
+      await d.dropDatabaseAsync()
+      assert.equal(d.autocompactionIntervalId, null)
+      assert.equal(d.getAllData().length, 0)
+      assert.equal(await exists(testDb), false)
+    })
+
+    it('check that we can reload and insert afterwards', async () => {
+      await d.insertAsync({ hello: 'world' })
+      await d.dropDatabaseAsync()
+      assert.equal(d.getAllData().length, 0)
+      assert.equal(await exists(testDb), false)
+      await d.loadDatabaseAsync()
+      await d.insertAsync({ hello: 'world' })
+      assert.equal(d.getAllData().length, 1)
+      await d.compactDatafileAsync()
+      assert.equal(await exists(testDb), true)
+    })
+
+    it('check that we can dropDatatabase if the file is already deleted', async () => {
+      await ensureFileDoesntExistAsync(testDb)
+      assert.equal(await exists(testDb), false)
+      await d.dropDatabaseAsync()
+      assert.equal(await exists(testDb), false)
+    })
+
+    it('Check that TTL indexes are reset', async () => {
+      await d.ensureIndexAsync({ fieldName: 'expire', expireAfterSeconds: 10 })
+      const date = new Date()
+      await d.insertAsync({ hello: 'world', expire: new Date(date.getTime() - 1000 * 20) }) // expired by 10 seconds
+      assert.equal((await d.findAsync({})).length, 0) // the TTL makes it so that the document is not returned
+      await d.dropDatabaseAsync()
+      assert.equal(d.getAllData().length, 0)
+      assert.equal(await exists(testDb), false)
+      await d.loadDatabaseAsync()
+      await d.insertAsync({ hello: 'world', expire: new Date(date.getTime() - 1000 * 20) })
+      assert.equal((await d.findAsync({})).length, 1) // the TTL index should have been removed
+      await d.compactDatafileAsync()
+      assert.equal(await exists(testDb), true)
+    })
+
+    it('Check that the buffer is reset', async () => {
+      await d.dropDatabaseAsync()
+      // these 3 will hang until load
+      d.insertAsync({ hello: 'world' })
+      d.insertAsync({ hello: 'world' })
+      d.insertAsync({ hello: 'world' })
+
+      assert.equal(d.getAllData().length, 0)
+
+      await d.dropDatabaseAsync()
+      d.insertAsync({ hi: 'world' })
+      await d.loadDatabaseAsync() // will trigger the buffer execution
+
+      assert.equal(d.getAllData().length, 1)
+      assert.equal(d.getAllData()[0].hi, 'world')
+    })
+  }) // ==== End of 'dropDatabase' ====
 })

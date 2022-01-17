@@ -368,7 +368,7 @@ describe('Database async', function () {
       await wait(101)
       const doc2 = await d.findOneAsync({})
       assert.equal(doc2, null)
-      await d.persistence.compactDatafileAsync()
+      await d.compactDatafileAsync()
       // After compaction, no more mention of the document, correctly removed
       const datafileContents = await fs.readFile(testDb, 'utf8')
       assert.equal(datafileContents.split('\n').length, 2)

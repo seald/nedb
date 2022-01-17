@@ -32,7 +32,7 @@ const test = async () => {
       filehandles.push(filehandle)
     }
   } catch (error) {
-    console.error(`An unexpected error occurred when opening file not too many times at i: ${i} with error: ${error}`)
+    console.error(`An unexpected error occurred when opening file not too many times with error: ${error}`)
     process.exit(1)
   } finally {
     for (const filehandle of filehandles) {
@@ -50,7 +50,7 @@ const test = async () => {
       await db.persistence.persistCachedDatabaseAsync()
     }
   } catch (error) {
-    console.error(`Got unexpected error during one persistence operation at ${i}: with error: ${error}`)
+    console.error(`Got unexpected error during one persistence operation with error: ${error}`)
   }
 }
 try {

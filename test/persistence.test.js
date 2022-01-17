@@ -446,7 +446,7 @@ describe('Persistence', function () {
       done()
     })
 
-    d.persistence.compactDatafile()
+    d.compactDatafile()
   })
 
   describe('Serialization hooks', function () {

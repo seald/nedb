@@ -12,16 +12,10 @@ updates and deletes actually result in lines added at the end of the datafile,
 for performance reasons. The database is automatically compacted (i.e. put back
 in the one-line-per-document format) every time you load each database within
 your application.</p>
-<p>You can manually call the compaction function
-with <code>yourDatabase.persistence.compactDatafile</code> which takes no argument. It
-queues a compaction of the datafile in the executor, to be executed sequentially
-after all pending operations. The datastore will fire a <code>compaction.done</code> event
-once compaction is finished.</p>
-<p>You can also set automatic compaction at regular intervals
-with <code>yourDatabase.persistence.setAutocompactionInterval(interval)</code>, <code>interval</code>
-in milliseconds (a minimum of 5s is enforced), and stop automatic compaction
-with <code>yourDatabase.persistence.stopAutocompaction()</code>.</p>
-<p>Keep in mind that compaction takes a bit of time (not too much: 130ms for 50k
+<p>Persistence handles the compaction exposed in the Datastore [compactDatafileAsync](#Datastore+compactDatafileAsync),
+[setAutocompactionInterval](#Datastore+setAutocompactionInterval).</p>
+<p>Since version 3.0.0, using [Datastore.persistence](Datastore.persistence) methods manually is deprecated.</p>
+<p>Compaction takes a bit of time (not too much: 130ms for 50k
 records on a typical development machine) and no other operation can happen when
 it does, so most projects actually don't need to use it.</p>
 <p>Compaction will also immediately remove any documents whose data line has become
@@ -50,13 +44,13 @@ with <code>appendfsync</code> option set to <code>no</code>.</p></dd>
   return 0
 </code></pre></dd>
 <dt><a href="#MultipleDocumentsCallback">MultipleDocumentsCallback</a> : <code>function</code></dt>
-<dd><p>Callback that returns an Array of documents</p></dd>
+<dd><p>Callback that returns an Array of documents.</p></dd>
 <dt><a href="#SingleDocumentCallback">SingleDocumentCallback</a> : <code>function</code></dt>
-<dd><p>Callback that returns a single document</p></dd>
+<dd><p>Callback that returns a single document.</p></dd>
 <dt><a href="#AsyncFunction">AsyncFunction</a> ⇒ <code>Promise.&lt;*&gt;</code></dt>
-<dd><p>Generic async function</p></dd>
+<dd><p>Generic async function.</p></dd>
 <dt><a href="#GenericCallback">GenericCallback</a> : <code>function</code></dt>
-<dd><p>Callback with generic parameters</p></dd>
+<dd><p>Callback with generic parameters.</p></dd>
 <dt><a href="#document">document</a> : <code>Object.&lt;string, *&gt;</code></dt>
 <dd><p>Generic document in NeDB.
 It consists of an Object with anything you want inside.</p></dd>
@@ -140,7 +134,7 @@ The <code>beforeDeserialization</code> should revert what <code>afterDeserializa
 <a name="new_Cursor_new"></a>
 
 ### new Cursor(db, query, [mapFn])
-<p>Create a new cursor for this collection</p>
+<p>Create a new cursor for this collection.</p>
 
 **Params**
 
@@ -161,9 +155,10 @@ The <code>beforeDeserialization</code> should revert what <code>afterDeserializa
 <a name="Cursor+limit"></a>
 
 ### cursor.limit(limit) ⇒ [<code>Cursor</code>](#Cursor)
-<p>Set a limit to the number of results</p>
+<p>Set a limit to the number of results for the given Cursor.</p>
 
 **Kind**: instance method of [<code>Cursor</code>](#Cursor)  
+**Returns**: [<code>Cursor</code>](#Cursor) - <p>the same instance of Cursor, (useful for chaining).</p>  
 **Params**
 
 - limit <code>Number</code>
@@ -171,9 +166,10 @@ The <code>beforeDeserialization</code> should revert what <code>afterDeserializa
 <a name="Cursor+skip"></a>
 
 ### cursor.skip(skip) ⇒ [<code>Cursor</code>](#Cursor)
-<p>Skip a number of results</p>
+<p>Skip a number of results for the given Cursor.</p>
 
 **Kind**: instance method of [<code>Cursor</code>](#Cursor)  
+**Returns**: [<code>Cursor</code>](#Cursor) - <p>the same instance of Cursor, (useful for chaining).</p>  
 **Params**
 
 - skip <code>Number</code>
@@ -181,9 +177,10 @@ The <code>beforeDeserialization</code> should revert what <code>afterDeserializa
 <a name="Cursor+sort"></a>
 
 ### cursor.sort(sortQuery) ⇒ [<code>Cursor</code>](#Cursor)
-<p>Sort results of the query</p>
+<p>Sort results of the query for the given Cursor.</p>
 
 **Kind**: instance method of [<code>Cursor</code>](#Cursor)  
+**Returns**: [<code>Cursor</code>](#Cursor) - <p>the same instance of Cursor, (useful for chaining).</p>  
 **Params**
 
 - sortQuery <code>Object.&lt;string, number&gt;</code> - <p>sortQuery is { field: order }, field can use the dot-notation, order is 1 for ascending and -1 for descending</p>
@@ -191,9 +188,10 @@ The <code>beforeDeserialization</code> should revert what <code>afterDeserializa
 <a name="Cursor+projection"></a>
 
 ### cursor.projection(projection) ⇒ [<code>Cursor</code>](#Cursor)
-<p>Add the use of a projection</p>
+<p>Add the use of a projection to the given Cursor.</p>
 
 **Kind**: instance method of [<code>Cursor</code>](#Cursor)  
+**Returns**: [<code>Cursor</code>](#Cursor) - <p>the same instance of Cursor, (useful for chaining).</p>  
 **Params**
 
 - projection <code>Object.&lt;string, number&gt;</code> - <p>MongoDB-style projection. {} means take all fields. Then it's { key1: 1, key2: 1 } to take only key1 and key2
@@ -202,10 +200,10 @@ The <code>beforeDeserialization</code> should revert what <code>afterDeserializa
 <a name="Cursor+exec"></a>
 
 ### cursor.exec(_callback)
-<p>Get all matching elements
-Will return pointers to matched elements (shallow copies), returning full copies is the role of find or findOne</p>
+<p>Callback version of [exec](#Cursor+exec).</p>
 
 **Kind**: instance method of [<code>Cursor</code>](#Cursor)  
+**See**: Cursor#execAsync  
 **Params**
 
 - _callback [<code>execCallback</code>](#Cursor..execCallback)
@@ -213,10 +211,10 @@ Will return pointers to matched elements (shallow copies), returning full copies
 <a name="Cursor+execAsync"></a>
 
 ### cursor.execAsync() ⇒ <code>Promise.&lt;(Array.&lt;document&gt;\|\*)&gt;</code>
-<p>Async version of [exec](#Cursor+exec).</p>
+<p>Get all matching elements.
+Will return pointers to matched elements (shallow copies), returning full copies is the role of [findAsync](#Datastore+findAsync) or [findOneAsync](#Datastore+findOneAsync).</p>
 
 **Kind**: instance method of [<code>Cursor</code>](#Cursor)  
-**See**: Cursor#exec  
 <a name="Cursor..mapFn"></a>
 
 ### Cursor~mapFn ⇒ <code>\*</code> \| <code>Promise.&lt;\*&gt;</code>
@@ -234,7 +232,7 @@ Will return pointers to matched elements (shallow copies), returning full copies
 **Params**
 
 - err <code>Error</code>
-- res [<code>Array.&lt;document&gt;</code>](#document) | <code>\*</code> - <p>If an mapFn was given to the Cursor, then the type of this parameter is the one returned by the mapFn.</p>
+- res [<code>Array.&lt;document&gt;</code>](#document) | <code>\*</code> - <p>If a mapFn was given to the Cursor, then the type of this parameter is the one returned by the mapFn.</p>
 
 <a name="Datastore"></a>
 
@@ -258,12 +256,18 @@ Will return pointers to matched elements (shallow copies), returning full copies
         * [.ttlIndexes](#Datastore+ttlIndexes) : <code>Object.&lt;string, number&gt;</code>
         * [.autoloadPromise](#Datastore+autoloadPromise) : <code>Promise</code>
         * [.compareStrings()](#Datastore+compareStrings) : [<code>compareStrings</code>](#compareStrings)
+        * [.compactDatafileAsync()](#Datastore+compactDatafileAsync)
+        * [.compactDatafile([callback])](#Datastore+compactDatafile)
+        * [.setAutocompactionInterval(interval)](#Datastore+setAutocompactionInterval)
+        * [.stopAutocompaction()](#Datastore+stopAutocompaction)
         * [.loadDatabase([callback])](#Datastore+loadDatabase)
+        * [.dropDatabaseAsync()](#Datastore+dropDatabaseAsync) ⇒ <code>Promise</code>
+        * [.dropDatabase([callback])](#Datastore+dropDatabase)
         * [.loadDatabaseAsync()](#Datastore+loadDatabaseAsync) ⇒ <code>Promise</code>
         * [.getAllData()](#Datastore+getAllData) ⇒ [<code>Array.&lt;document&gt;</code>](#document)
         * [.ensureIndex(options, [callback])](#Datastore+ensureIndex)
         * [.ensureIndexAsync(options)](#Datastore+ensureIndexAsync) ⇒ <code>Promise.&lt;void&gt;</code>
-        * [.removeIndex(fieldName, callback)](#Datastore+removeIndex)
+        * [.removeIndex(fieldName, [callback])](#Datastore+removeIndex)
         * [.removeIndexAsync(fieldName)](#Datastore+removeIndexAsync) ⇒ <code>Promise.&lt;void&gt;</code>
         * [.insert(newDoc, [callback])](#Datastore+insert)
         * [.insertAsync(newDoc)](#Datastore+insertAsync) ⇒ <code>Promise.&lt;(document\|Array.&lt;document&gt;)&gt;</code>
@@ -273,7 +277,7 @@ Will return pointers to matched elements (shallow copies), returning full copies
         * [.findAsync(query, [projection])](#Datastore+findAsync) ⇒ <code>Cursor.&lt;Array.&lt;document&gt;&gt;</code>
         * [.findOne(query, [projection], [callback])](#Datastore+findOne) ⇒ [<code>Cursor.&lt;document&gt;</code>](#document) \| <code>undefined</code>
         * [.findOneAsync(query, projection)](#Datastore+findOneAsync) ⇒ [<code>Cursor.&lt;document&gt;</code>](#document)
-        * [.update(query, update, [options|], [cb])](#Datastore+update)
+        * [.update(query, update, [options|], [callback])](#Datastore+update)
         * [.updateAsync(query, update, [options])](#Datastore+updateAsync) ⇒ <code>Promise.&lt;{numAffected: number, affectedDocuments: (Array.&lt;document&gt;\|document\|null), upsert: boolean}&gt;</code>
         * [.remove(query, [options], [cb])](#Datastore+remove)
         * [.removeAsync(query, [options])](#Datastore+removeAsync) ⇒ <code>Promise.&lt;number&gt;</code>
@@ -370,9 +374,9 @@ after instanciation.</p>
 <a name="Datastore+executor"></a>
 
 ### neDB.executor : [<code>Executor</code>](#new_Executor_new)
-<p>The <code>Executor</code> instance for this <code>Datastore</code>. It is used in all methods exposed by the <code>Datastore</code>, any <code>Cursor</code>
-produced by the <code>Datastore</code> and by <code>this.persistence.compactDataFile</code> &amp; <code>this.persistence.compactDataFileAsync</code>
-to ensure operations are performed sequentially in the database.</p>
+<p>The <code>Executor</code> instance for this <code>Datastore</code>. It is used in all methods exposed by the [Datastore](#Datastore),
+any [Cursor](#Cursor) produced by the <code>Datastore</code> and by [compactDatafileAsync](#Datastore+compactDatafileAsync) to ensure operations
+are performed sequentially in the database.</p>
 
 **Kind**: instance property of [<code>Datastore</code>](#Datastore)  
 **Access**: protected  
@@ -407,6 +411,41 @@ letters. Native <code>localCompare</code> will most of the time be the right cho
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
 **Access**: protected  
+<a name="Datastore+compactDatafileAsync"></a>
+
+### neDB.compactDatafileAsync()
+<p>Queue a compaction/rewrite of the datafile.
+It works by rewriting the database file, and compacts it since the cache always contains only the number of
+documents in the collection while the data file is append-only so it may grow larger.</p>
+
+**Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+<a name="Datastore+compactDatafile"></a>
+
+### neDB.compactDatafile([callback])
+<p>Callback version of [compactDatafileAsync](#Datastore+compactDatafileAsync).</p>
+
+**Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**See**: Datastore#compactDatafileAsync  
+**Params**
+
+- [callback] [<code>NoParamCallback</code>](#NoParamCallback) <code> = () &#x3D;&gt; {}</code>
+
+<a name="Datastore+setAutocompactionInterval"></a>
+
+### neDB.setAutocompactionInterval(interval)
+<p>Set automatic compaction every <code>interval</code> ms</p>
+
+**Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**Params**
+
+- interval <code>Number</code> - <p>in milliseconds, with an enforced minimum of 5000 milliseconds</p>
+
+<a name="Datastore+stopAutocompaction"></a>
+
+### neDB.stopAutocompaction()
+<p>Stop autocompaction (do nothing if automatic compaction was not running)</p>
+
+**Kind**: instance method of [<code>Datastore</code>](#Datastore)  
 <a name="Datastore+loadDatabase"></a>
 
 ### neDB.loadDatabase([callback])
@@ -414,6 +453,25 @@ letters. Native <code>localCompare</code> will most of the time be the right cho
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
 **See**: Datastore#loadDatabaseAsync  
+**Params**
+
+- [callback] [<code>NoParamCallback</code>](#NoParamCallback)
+
+<a name="Datastore+dropDatabaseAsync"></a>
+
+### neDB.dropDatabaseAsync() ⇒ <code>Promise</code>
+<p>Stops auto-compaction, finishes all queued operations, drops the database both in memory and in storage.
+<strong>WARNING</strong>: it is not recommended re-using an instance of NeDB if its database has been dropped, it is
+preferable to instantiate a new one.</p>
+
+**Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+<a name="Datastore+dropDatabase"></a>
+
+### neDB.dropDatabase([callback])
+<p>Callback version of [dropDatabaseAsync](#Datastore+dropDatabaseAsync).</p>
+
+**Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**See**: Datastore#dropDatabaseAsync  
 **Params**
 
 - [callback] [<code>NoParamCallback</code>](#NoParamCallback)
@@ -469,21 +527,20 @@ automatically remove documents when the system date becomes larger than the date
 
 <a name="Datastore+removeIndex"></a>
 
-### neDB.removeIndex(fieldName, callback)
-<p>Remove an index
-Previous versions said explicitly the callback was optional, it is now recommended setting one.</p>
+### neDB.removeIndex(fieldName, [callback])
+<p>Callback version of [removeIndexAsync](#Datastore+removeIndexAsync).</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**See**: Datastore#removeIndexAsync  
 **Params**
 
-- fieldName <code>string</code> - <p>Field name of the index to remove. Use the dot notation to remove an index referring to a
-field in a nested document.</p>
-- callback [<code>NoParamCallback</code>](#NoParamCallback) - <p>Optional callback, signature: err</p>
+- fieldName <code>string</code>
+- [callback] [<code>NoParamCallback</code>](#NoParamCallback)
 
 <a name="Datastore+removeIndexAsync"></a>
 
 ### neDB.removeIndexAsync(fieldName) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Async version of [removeIndex](#Datastore+removeIndex).</p>
+<p>Remove an index.</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
 **See**: Datastore#removeIndex  
@@ -591,41 +648,46 @@ We return the [Cursor](#Cursor) that the user can either <code>await</code> dire
 
 <a name="Datastore+update"></a>
 
-### neDB.update(query, update, [options|], [cb])
-<p>Update all docs matching query.</p>
+### neDB.update(query, update, [options|], [callback])
+<p>Callback version of [updateAsync](#Datastore+updateAsync).</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**See**: Datastore#updateAsync  
 **Params**
 
-- query [<code>query</code>](#query) - <p>is the same kind of finding query you use with <code>find</code> and <code>findOne</code></p>
-- update [<code>document</code>](#document) | <code>\*</code> - <p>specifies how the documents should be modified. It is either a new document or a
-set of modifiers (you cannot use both together, it doesn't make sense!). Using a new document will replace the
-matched docs. Using a set of modifiers will create the fields they need to modify if they don't exist, and you can
-apply them to subdocs. Available field modifiers are <code>$set</code> to change a field's value, <code>$unset</code> to delete a field,
-<code>$inc</code> to increment a field's value and <code>$min</code>/<code>$max</code> to change field's value, only if provided value is
-less/greater than current value. To work on arrays, you have <code>$push</code>, <code>$pop</code>, <code>$addToSet</code>, <code>$pull</code>, and the special
-<code>$each</code> and <code>$slice</code>.</p>
-- [options|] <code>Object</code> | [<code>updateCallback</code>](#Datastore..updateCallback) - <p>Optional options</p>
-    - [.multi] <code>boolean</code> <code> = false</code> - <p>If true, can update multiple documents</p>
-    - [.upsert] <code>boolean</code> <code> = false</code> - <p>If true, can insert a new document corresponding to the <code>update</code> rules if
-your <code>query</code> doesn't match anything. If your <code>update</code> is a simple object with no modifiers, it is the inserted
-document. In the other case, the <code>query</code> is stripped from all operator recursively, and the <code>update</code> is applied to
-it.</p>
-    - [.returnUpdatedDocs] <code>boolean</code> <code> = false</code> - <p>(not Mongo-DB compatible) If true and update is not an upsert,
-will return the array of documents matched by the find query and updated. Updated documents will be returned even
-if the update did not actually modify them.</p>
-- [cb] [<code>updateCallback</code>](#Datastore..updateCallback) <code> = () &#x3D;&gt; {}</code> - <p>Optional callback</p>
+- query [<code>query</code>](#query)
+- update [<code>document</code>](#document) | <code>\*</code>
+- [options|] <code>Object</code> | [<code>updateCallback</code>](#Datastore..updateCallback)
+    - [.multi] <code>boolean</code> <code> = false</code>
+    - [.upsert] <code>boolean</code> <code> = false</code>
+    - [.returnUpdatedDocs] <code>boolean</code> <code> = false</code>
+- [callback] [<code>updateCallback</code>](#Datastore..updateCallback)
 
 <a name="Datastore+updateAsync"></a>
 
 ### neDB.updateAsync(query, update, [options]) ⇒ <code>Promise.&lt;{numAffected: number, affectedDocuments: (Array.&lt;document&gt;\|document\|null), upsert: boolean}&gt;</code>
-<p>Async version of [update](#Datastore+update).</p>
+<p>Update all docs matching query.</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
-**See**: Datastore#update  
+**Returns**: <code>Promise.&lt;{numAffected: number, affectedDocuments: (Array.&lt;document&gt;\|document\|null), upsert: boolean}&gt;</code> - <ul>
+<li><code>upsert</code> is <code>true</code> if and only if the update did insert a document, <strong>cannot be true if <code>options.upsert !== true</code></strong>.</li>
+<li><code>numAffected</code> is the number of documents affected by the update or insertion (if <code>options.multi</code> is <code>false</code> or <code>options.upsert</code> is <code>true</code>, cannot exceed <code>1</code>);</li>
+<li><code>affectedDocuments</code> can be one of the following:
+<ul>
+<li>If <code>upsert</code> is <code>true</code>, the inserted document;</li>
+<li>If <code>options.returnUpdatedDocs</code> is <code>false</code>, <code>null</code>;</li>
+<li>If <code>options.returnUpdatedDocs</code> is <code>true</code>:
+<ul>
+<li>If <code>options.multi</code> is <code>false</code>, the updated document;</li>
+<li>If <code>options.multi</code> is <code>false</code>, the array of updated documents.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>  
 **Params**
 
-- query [<code>query</code>](#query) - <p>is the same kind of finding query you use with <code>find</code> and <code>findOne</code></p>
+- query [<code>query</code>](#query) - <p>is the same kind of finding query you use with <code>find</code> and <code>findOne</code>.</p>
 - update [<code>document</code>](#document) | <code>\*</code> - <p>specifies how the documents should be modified. It is either a new document or a
 set of modifiers (you cannot use both together, it doesn't make sense!). Using a new document will replace the
 matched docs. Using a set of modifiers will create the fields they need to modify if they don't exist, and you can
@@ -646,27 +708,27 @@ if the update did not actually modify them.</p>
 <a name="Datastore+remove"></a>
 
 ### neDB.remove(query, [options], [cb])
-<p>Remove all docs matching the query.</p>
+<p>Callback version of [removeAsync](#Datastore+removeAsync).</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
+**See**: Datastore#removeAsync  
 **Params**
 
 - query [<code>query</code>](#query)
-- [options] <code>object</code> | [<code>removeCallback</code>](#Datastore..removeCallback) <code> = {}</code> - <p>Optional options</p>
-    - [.multi] <code>boolean</code> <code> = false</code> - <p>If true, can update multiple documents</p>
-- [cb] [<code>removeCallback</code>](#Datastore..removeCallback) <code> = () &#x3D;&gt; {}</code> - <p>Optional callback</p>
+- [options] <code>object</code> | [<code>removeCallback</code>](#Datastore..removeCallback) <code> = {}</code>
+    - [.multi] <code>boolean</code> <code> = false</code>
+- [cb] [<code>removeCallback</code>](#Datastore..removeCallback) <code> = () &#x3D;&gt; {}</code>
 
 <a name="Datastore+removeAsync"></a>
 
 ### neDB.removeAsync(query, [options]) ⇒ <code>Promise.&lt;number&gt;</code>
-<p>Remove all docs matching the query.
-Use Datastore.removeAsync which has the same signature</p>
+<p>Remove all docs matching the query.</p>
 
 **Kind**: instance method of [<code>Datastore</code>](#Datastore)  
 **Returns**: <code>Promise.&lt;number&gt;</code> - <p>How many documents were removed</p>  
 **Params**
 
-- query [<code>query</code>](#query)
+- query [<code>query</code>](#query) - <p>MongoDB-style query</p>
 - [options] <code>object</code> <code> = {}</code> - <p>Optional options</p>
     - [.multi] <code>boolean</code> <code> = false</code> - <p>If true, can update multiple documents</p>
 
@@ -674,13 +736,15 @@ Use Datastore.removeAsync which has the same signature</p>
 
 ### "event:compaction.done"
 <p>Compaction event. Happens when the Datastore's Persistence has been compacted.
-It happens when calling <code>datastore.persistence.compactDatafile</code>, which is called periodically if you have called
-<code>datastore.persistence.setAutocompactionInterval</code>.</p>
+It happens when calling [compactDatafileAsync](#Datastore+compactDatafileAsync), which is called periodically if you have called
+[setAutocompactionInterval](#Datastore+setAutocompactionInterval).</p>
 
 **Kind**: event emitted by [<code>Datastore</code>](#Datastore)  
 <a name="Datastore..countCallback"></a>
 
 ### Datastore~countCallback : <code>function</code>
+<p>Callback for [Datastore#countCallback](Datastore#countCallback).</p>
+
 **Kind**: inner typedef of [<code>Datastore</code>](#Datastore)  
 **Params**
 
@@ -699,22 +763,15 @@ It happens when calling <code>datastore.persistence.compactDatafile</code>, whic
 <a name="Datastore..updateCallback"></a>
 
 ### Datastore~updateCallback : <code>function</code>
-<p>If update was an upsert, <code>upsert</code> flag is set to true, <code>affectedDocuments</code> can be one of the following:</p>
-<ul>
-<li>For an upsert, the upserted document</li>
-<li>For an update with returnUpdatedDocs option false, null</li>
-<li>For an update with returnUpdatedDocs true and multi false, the updated document</li>
-<li>For an update with returnUpdatedDocs true and multi true, the array of updated documents</li>
-</ul>
-<p><strong>WARNING:</strong> The API was changed between v1.7.4 and v1.8, for consistency and readability reasons. Prior and
-including to v1.7.4, the callback signature was (err, numAffected, updated) where updated was the updated document
-in case of an upsert or the array of updated documents for an update if the returnUpdatedDocs option was true. That
-meant that the type of affectedDocuments in a non multi update depended on whether there was an upsert or not,
-leaving only two ways for the user to check whether an upsert had occured: checking the type of affectedDocuments
-or running another find query on the whole dataset to check its size. Both options being ugly, the breaking change
-was necessary.</p>
+<p>See [updateAsync](#Datastore+updateAsync) return type for the definition of the callback parameters.</p>
+<p><strong>WARNING:</strong> Prior to 3.0.0, <code>upsert</code> was either <code>true</code> of falsy (but not <code>false</code>), it is now always a boolean.
+<code>affectedDocuments</code> could be <code>undefined</code> when <code>returnUpdatedDocs</code> was <code>false</code>, it is now <code>null</code> in these cases.</p>
+<p><strong>WARNING:</strong> Prior to 1.8.0, the <code>upsert</code> argument was not given, it was impossible for the developer to determine
+during a <code>{ multi: false, returnUpdatedDocs: true, upsert: true }</code> update if it inserted a document or just updated
+it.</p>
 
 **Kind**: inner typedef of [<code>Datastore</code>](#Datastore)  
+**See**: {Datastore#updateAsync}  
 **Params**
 
 - err <code>Error</code>
@@ -739,16 +796,10 @@ updates and deletes actually result in lines added at the end of the datafile,
 for performance reasons. The database is automatically compacted (i.e. put back
 in the one-line-per-document format) every time you load each database within
 your application.</p>
-<p>You can manually call the compaction function
-with <code>yourDatabase.persistence.compactDatafile</code> which takes no argument. It
-queues a compaction of the datafile in the executor, to be executed sequentially
-after all pending operations. The datastore will fire a <code>compaction.done</code> event
-once compaction is finished.</p>
-<p>You can also set automatic compaction at regular intervals
-with <code>yourDatabase.persistence.setAutocompactionInterval(interval)</code>, <code>interval</code>
-in milliseconds (a minimum of 5s is enforced), and stop automatic compaction
-with <code>yourDatabase.persistence.stopAutocompaction()</code>.</p>
-<p>Keep in mind that compaction takes a bit of time (not too much: 130ms for 50k
+<p>Persistence handles the compaction exposed in the Datastore [compactDatafileAsync](#Datastore+compactDatafileAsync),
+[setAutocompactionInterval](#Datastore+setAutocompactionInterval).</p>
+<p>Since version 3.0.0, using [Datastore.persistence](Datastore.persistence) methods manually is deprecated.</p>
+<p>Compaction takes a bit of time (not too much: 130ms for 50k
 records on a typical development machine) and no other operation can happen when
 it does, so most projects actually don't need to use it.</p>
 <p>Compaction will also immediately remove any documents whose data line has become
@@ -768,19 +819,9 @@ with <code>appendfsync</code> option set to <code>no</code>.</p>
 
 * [Persistence](#Persistence)
     * [new Persistence()](#new_Persistence_new)
-    * _instance_
-        * [.persistCachedDatabaseAsync()](#Persistence+persistCachedDatabaseAsync) ⇒ <code>Promise.&lt;void&gt;</code>
-        * [.compactDatafile([callback])](#Persistence+compactDatafile)
-        * [.compactDatafileAsync()](#Persistence+compactDatafileAsync)
-        * [.setAutocompactionInterval(interval)](#Persistence+setAutocompactionInterval)
-        * [.stopAutocompaction()](#Persistence+stopAutocompaction)
-        * [.persistNewStateAsync(newDocs)](#Persistence+persistNewStateAsync) ⇒ <code>Promise</code>
-        * [.treatRawData(rawData)](#Persistence+treatRawData) ⇒ <code>Object</code>
-        * [.treatRawStreamAsync(rawStream)](#Persistence+treatRawStreamAsync) ⇒ <code>Promise.&lt;{data: Array.&lt;document&gt;, indexes: Object.&lt;string, rawIndex&gt;}&gt;</code>
-        * [.loadDatabase(callback)](#Persistence+loadDatabase)
-        * [.loadDatabaseAsync()](#Persistence+loadDatabaseAsync) ⇒ <code>Promise.&lt;void&gt;</code>
-    * _static_
-        * [.ensureDirectoryExistsAsync(dir)](#Persistence.ensureDirectoryExistsAsync) ⇒ <code>Promise.&lt;void&gt;</code>
+    * ~~[.compactDatafile([callback])](#Persistence+compactDatafile)~~
+    * ~~[.setAutocompactionInterval()](#Persistence+setAutocompactionInterval)~~
+    * ~~[.stopAutocompaction()](#Persistence+stopAutocompaction)~~
 
 <a name="new_Persistence_new"></a>
 
@@ -794,127 +835,35 @@ with <code>appendfsync</code> option set to <code>no</code>.</p>
     - [.beforeDeserialization] [<code>serializationHook</code>](#serializationHook) - <p>Hook you can use to transform data after it was serialized and before it is written to disk.</p>
     - [.afterSerialization] [<code>serializationHook</code>](#serializationHook) - <p>Inverse of <code>afterSerialization</code>.</p>
 
-<a name="Persistence+persistCachedDatabaseAsync"></a>
-
-### persistence.persistCachedDatabaseAsync() ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Persist cached database
-This serves as a compaction function since the cache always contains only the number of documents in the collection
-while the data file is append-only so it may grow larger</p>
-<p>This is an internal function, use [compactDatafileAsync](#Persistence+compactDatafileAsync) which uses the [executor](#Datastore+executor).</p>
-
-**Kind**: instance method of [<code>Persistence</code>](#Persistence)  
-**Access**: protected  
 <a name="Persistence+compactDatafile"></a>
 
-### persistence.compactDatafile([callback])
-<p>Queue a rewrite of the datafile</p>
+### ~~persistence.compactDatafile([callback])~~
+***Deprecated***
 
 **Kind**: instance method of [<code>Persistence</code>](#Persistence)  
-**See**: Persistence#persistCachedDatabaseAsync  
+**See**
+
+- Datastore#compactDatafile
+- Persistence#compactDatafileAsync
+
 **Params**
 
 - [callback] [<code>NoParamCallback</code>](#NoParamCallback) <code> = () &#x3D;&gt; {}</code>
 
-<a name="Persistence+compactDatafileAsync"></a>
-
-### persistence.compactDatafileAsync()
-<p>Async version of [compactDatafile](#Persistence+compactDatafile).</p>
-
-**Kind**: instance method of [<code>Persistence</code>](#Persistence)  
-**See**: Persistence#compactDatafile  
 <a name="Persistence+setAutocompactionInterval"></a>
 
-### persistence.setAutocompactionInterval(interval)
-<p>Set automatic compaction every <code>interval</code> ms</p>
+### ~~persistence.setAutocompactionInterval()~~
+***Deprecated***
 
 **Kind**: instance method of [<code>Persistence</code>](#Persistence)  
-**Params**
-
-- interval <code>Number</code> - <p>in milliseconds, with an enforced minimum of 5000 milliseconds</p>
-
+**See**: Datastore#setAutocompactionInterval  
 <a name="Persistence+stopAutocompaction"></a>
 
-### persistence.stopAutocompaction()
-<p>Stop autocompaction (do nothing if automatic compaction was not running)</p>
+### ~~persistence.stopAutocompaction()~~
+***Deprecated***
 
 **Kind**: instance method of [<code>Persistence</code>](#Persistence)  
-<a name="Persistence+persistNewStateAsync"></a>
-
-### persistence.persistNewStateAsync(newDocs) ⇒ <code>Promise</code>
-<p>Persist new state for the given newDocs (can be insertion, update or removal)
-Use an append-only format</p>
-<p>Do not use directly, it should only used by a [Datastore](#Datastore) instance.</p>
-
-**Kind**: instance method of [<code>Persistence</code>](#Persistence)  
-**Params**
-
-- newDocs [<code>Array.&lt;document&gt;</code>](#document) - <p>Can be empty if no doc was updated/removed</p>
-
-<a name="Persistence+treatRawData"></a>
-
-### persistence.treatRawData(rawData) ⇒ <code>Object</code>
-<p>From a database's raw data, return the corresponding machine understandable collection.</p>
-<p>Do not use directly, it should only used by a [Datastore](#Datastore) instance.</p>
-
-**Kind**: instance method of [<code>Persistence</code>](#Persistence)  
-**Access**: protected  
-**Params**
-
-- rawData <code>string</code> - <p>database file</p>
-
-<a name="Persistence+treatRawStreamAsync"></a>
-
-### persistence.treatRawStreamAsync(rawStream) ⇒ <code>Promise.&lt;{data: Array.&lt;document&gt;, indexes: Object.&lt;string, rawIndex&gt;}&gt;</code>
-<p>From a database's raw data stream, return the corresponding machine understandable collection
-Is only used by a [Datastore](#Datastore) instance.</p>
-<p>Is only used in the Node.js version, since [React-Native](module:storageReactNative) &amp;
-[browser](module:storageBrowser) storage modules don't provide an equivalent of
-[readFileStream](#module_storage.readFileStream).</p>
-<p>Do not use directly, it should only used by a [Datastore](#Datastore) instance.</p>
-
-**Kind**: instance method of [<code>Persistence</code>](#Persistence)  
-**Access**: protected  
-**Params**
-
-- rawStream <code>Readable</code>
-
-<a name="Persistence+loadDatabase"></a>
-
-### persistence.loadDatabase(callback)
-<p>Load the database</p>
-<ol>
-<li>Create all indexes</li>
-<li>Insert all data</li>
-<li>Compact the database</li>
-</ol>
-<p>This means pulling data out of the data file or creating it if it doesn't exist
-Also, all data is persisted right away, which has the effect of compacting the database file
-This operation is very quick at startup for a big collection (60ms for ~10k docs)</p>
-<p>Do not use directly as it does not use the [Executor](Datastore.executor), use [loadDatabase](#Datastore+loadDatabase) instead.</p>
-
-**Kind**: instance method of [<code>Persistence</code>](#Persistence)  
-**Access**: protected  
-**Params**
-
-- callback [<code>NoParamCallback</code>](#NoParamCallback)
-
-<a name="Persistence+loadDatabaseAsync"></a>
-
-### persistence.loadDatabaseAsync() ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Async version of [loadDatabase](#Persistence+loadDatabase)</p>
-
-**Kind**: instance method of [<code>Persistence</code>](#Persistence)  
-**See**: Persistence#loadDatabase  
-<a name="Persistence.ensureDirectoryExistsAsync"></a>
-
-### Persistence.ensureDirectoryExistsAsync(dir) ⇒ <code>Promise.&lt;void&gt;</code>
-<p>Check if a directory stat and create it on the fly if it is not the case.</p>
-
-**Kind**: static method of [<code>Persistence</code>](#Persistence)  
-**Params**
-
-- dir <code>string</code>
-
+**See**: Datastore#stopAutocompaction  
 <a name="NoParamCallback"></a>
 
 ## NoParamCallback : <code>function</code>
@@ -943,7 +892,7 @@ This operation is very quick at startup for a big collection (60ms for ~10k docs
 <a name="MultipleDocumentsCallback"></a>
 
 ## MultipleDocumentsCallback : <code>function</code>
-<p>Callback that returns an Array of documents</p>
+<p>Callback that returns an Array of documents.</p>
 
 **Kind**: global typedef  
 **Params**
@@ -954,7 +903,7 @@ This operation is very quick at startup for a big collection (60ms for ~10k docs
 <a name="SingleDocumentCallback"></a>
 
 ## SingleDocumentCallback : <code>function</code>
-<p>Callback that returns a single document</p>
+<p>Callback that returns a single document.</p>
 
 **Kind**: global typedef  
 **Params**
@@ -965,7 +914,7 @@ This operation is very quick at startup for a big collection (60ms for ~10k docs
 <a name="AsyncFunction"></a>
 
 ## AsyncFunction ⇒ <code>Promise.&lt;\*&gt;</code>
-<p>Generic async function</p>
+<p>Generic async function.</p>
 
 **Kind**: global typedef  
 **Params**
@@ -975,7 +924,7 @@ This operation is very quick at startup for a big collection (60ms for ~10k docs
 <a name="GenericCallback"></a>
 
 ## GenericCallback : <code>function</code>
-<p>Callback with generic parameters</p>
+<p>Callback with generic parameters.</p>
 
 **Kind**: global typedef  
 **Params**
