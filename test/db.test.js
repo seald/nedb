@@ -610,7 +610,7 @@ describe('Database', function () {
                     })
                   })
 
-                  d.persistence.compactDatafile()
+                  d.compactDatafile()
                 })
               }, 101)
             })

@@ -8,18 +8,51 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [3.0.0] - Unreleased
 ### Added
-- Added an async interface for all functions
-- The JSDoc is now much more exhaustive
-- Added markdown documentation generated from the JSDoc
+- Added a `Promise`-based interface.
+- The JSDoc is now much more exhaustive.
+- An auto-generated JSDoc file is generated: [API.md](./API.md).
+- Added `Datastore#dropDatabaseAsync` and its callback equivalent.
 
 ### Changed
-- All the functions are now async at the core, and a fully retro-compatible callback-ified version is exposed for the exposed functions.
-- The executor is now much simpler and Promise-based. A mostly retro-compatible shim is still exposed, with the exception that it no longer handles [`arguments`](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Functions/arguments) as the arguments Array. If you use the executor directly, you'll need to convert it to a proper Array beforehand. However [follicle@1.x](https://github.com/seald/follicle) is not compatible, please update to v2.
-- As a result, the `async` dependency has been removed completely. To avoid rewriting the tests, shims of some functions of `async` are defined in an utilities file used exclusively in the tests.
-- The `Datastore#update`'s callback has its signature slightly changed. The `upsert` flag is always defined either at `true` or `false` but not `null` nor `undefined`, and `affectedDocuments` is `null` when none is given rather than `undefined` (except when there is an error of course).
-- 
-### Deprecated
-- Formally deprecate giving a string as argument to the `Datastore` constructor
+- The `Datastore#update`'s callback has its signature slightly changed. The
+`upsert` flag is always defined either at `true` or `false` but not `null` nor
+`undefined`, and `affectedDocuments` is `null` when none is given rather than
+`undefined` (except when there is an error of course).
+- In order to expose a `Promise`-based interface and to remove `async` from the dependencies, many internals have been either rewritten or removed:
+  - Datastore:
+    - `Datastore#getCandidates` replaced with `Datastore#_getCandidatesAsync`;
+    - `Datastore#resetIndexes` replaced with `Datastore#_resetIndexes`;
+    - `Datastore#addToIndexes` replaced with `Datastore#_addToIndexes`;
+    - `Datastore#removeFromIndexes` replaced with `Datastore#_removeFromIndexes`;
+    - `Datastore#updateIndexes` replaced with `Datastore#_updateIndexes`;
+    - `Datastore#_insert` replaced with `Datastore#_insertAsync`;
+    - `Datastore#_update` replaced with `Datastore#_updateAsync`;
+    - `Datastore#_remove` replaced with `Datastore#_removeAsync`;
+  - Persistence:
+    - `Persistence#loadDatabase` replaced with `Persistence#loadDatabaseAsync`;
+    - `Persistence#persistCachedDatabase` replaced with `Persistence#persistCachedDatabaseAsync`;
+    - `Persistence#persistNewState` replaced with `Persistence#persistNewStateAsync`;
+    - `Persistence#treatRawStream` replaced with `Persistence#treatRawStreamAsync`;
+    - `Persistence.ensureDirectoryExists` replaced with `Persistence#ensureDirectoryExistsAsync`;
+  - Cursor:
+    - `Cursor#_exec` replaced with `Cursor#_execAsync`;
+    - `Cursor#project` replaced with `Cursor#_project`;
+    - `Cursor#execFn` has been renamed to `Cursor#mapFn` and no longer supports a callback in its signature, it must be a synchronous function.
+  - Executor: it has been rewritten entirely without the `async`library.
+    - `Executor#buffer` & `Executor#queue` do not have the same signatures as before;
+    - `Executor#push` replaced with `Executor#pushAsync` which is substantially different;
+  - Storage modules : callback-based functions have been replaced with promise-based functions.
+  - Model module: it has been slightly re-written for clarity, but no changes in its interface was made.
+
+## Deprecated
+- Using a `string` in the constructor of NeDB is now deprecated.
+- Using `Datastore#persistence#compactDatafile` is now deprecated, please use `Datastore#compactDatafile` instead.
+- Using `Datastore#persistence#setAutocompactionInterval` is now deprecated, please use `Datastore#setAutocompactionInterval` instead.
+- Using `Datastore#persistence#stopAutocompaction` is now deprecated, please use `Datastore#stopAutocompaction` instead.
+
+## Removed
+- The option for passing `options.nodeWebkitAppName` to the Datastore and the Persistence constructors has been removed.
+  - `Persistence.getNWAppFilename`;
 
 ## [2.2.0] - 2021-10-29
 ### Added
