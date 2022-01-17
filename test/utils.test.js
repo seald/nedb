@@ -33,10 +33,14 @@ const wait = delay => new Promise(resolve => {
 })
 const exists = path => fs.access(path, fsConstants.FS_OK).then(() => true, () => false)
 
+// eslint-disable-next-line node/no-callback-literal
+const existsCallback = (path, callback) => fs.access(path, fsConstants.FS_OK).then(() => callback(true), () => callback(false))
+
 module.exports.whilst = whilst
 module.exports.apply = apply
 module.exports.waterfall = waterfall
 module.exports.each = each
 module.exports.wait = wait
 module.exports.exists = exists
+module.exports.existsCallback = existsCallback
 module.exports.callbackify = callbackify

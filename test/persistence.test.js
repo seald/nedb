@@ -10,6 +10,8 @@ const Persistence = require('../lib/persistence')
 const storage = require('../lib/storage')
 const { execFile, fork } = require('child_process')
 const { callbackify } = require('util')
+const { existsCallback } = require('./utils.test')
+const { ensureFileDoesntExistAsync } = require('../lib/storage')
 const Readable = require('stream').Readable
 
 const { assert } = chai
@@ -1054,4 +1056,162 @@ describe('Persistence', function () {
       })
     })
   }) // ==== End of 'Prevent dataloss when persisting data' ====
+
+  describe('dropDatabase', function () {
+    it('deletes data in memory', done => {
+      const inMemoryDB = new Datastore({ inMemoryOnly: true })
+      inMemoryDB.insert({ hello: 'world' }, err => {
+        assert.equal(err, null)
+        inMemoryDB.dropDatabase(err => {
+          assert.equal(err, null)
+          assert.equal(inMemoryDB.getAllData().length, 0)
+          return done()
+        })
+      })
+    })
+
+    it('deletes data in memory & on disk', done => {
+      d.insert({ hello: 'world' }, err => {
+        if (err) return done(err)
+        d.dropDatabase(err => {
+          if (err) return done(err)
+          assert.equal(d.getAllData().length, 0)
+          existsCallback(testDb, bool => {
+            assert.equal(bool, false)
+            done()
+          })
+        })
+      })
+    })
+
+    it('check that executor is drained before drop', done => {
+      for (let i = 0; i < 100; i++) {
+        d.insert({ hello: 'world' }) // no await
+      }
+      d.dropDatabase(err => { // it should await the end of the inserts
+        if (err) return done(err)
+        assert.equal(d.getAllData().length, 0)
+        existsCallback(testDb, bool => {
+          assert.equal(bool, false)
+          done()
+        })
+      })
+    })
+
+    it('check that autocompaction is stopped', done => {
+      d.setAutocompactionInterval(5000)
+      d.insert({ hello: 'world' }, err => {
+        if (err) return done(err)
+        d.dropDatabase(err => {
+          if (err) return done(err)
+          assert.equal(d.autocompactionIntervalId, null)
+          assert.equal(d.getAllData().length, 0)
+          existsCallback(testDb, bool => {
+            assert.equal(bool, false)
+            done()
+          })
+        })
+      })
+    })
+
+    it('check that we can reload and insert afterwards', done => {
+      d.insert({ hello: 'world' }, err => {
+        if (err) return done(err)
+        d.dropDatabase(err => {
+          if (err) return done(err)
+          assert.equal(d.getAllData().length, 0)
+          existsCallback(testDb, bool => {
+            assert.equal(bool, false)
+            d.loadDatabase(err => {
+              if (err) return done(err)
+              d.insert({ hello: 'world' }, err => {
+                if (err) return done(err)
+                assert.equal(d.getAllData().length, 1)
+                d.compactDatafile(err => {
+                  if (err) return done(err)
+                  existsCallback(testDb, bool => {
+                    assert.equal(bool, true)
+                    done()
+                  })
+                })
+              })
+            })
+          })
+        })
+      })
+    })
+
+    it('check that we can dropDatatabase if the file is already deleted', done => {
+      callbackify(ensureFileDoesntExistAsync)(testDb, err => {
+        if (err) return done(err)
+        existsCallback(testDb, bool => {
+          assert.equal(bool, false)
+          d.dropDatabase(err => {
+            if (err) return done(err)
+            existsCallback(testDb, bool => {
+              assert.equal(bool, false)
+              done()
+            })
+          })
+        })
+      })
+    })
+
+    it('Check that TTL indexes are reset', done => {
+      d.ensureIndex({ fieldName: 'expire', expireAfterSeconds: 10 })
+      const date = new Date()
+      d.insert({ hello: 'world', expire: new Date(date.getTime() - 1000 * 20) }, err => { // expired by 10 seconds
+        if (err) return done(err)
+        d.find({}, (err, docs) => {
+          if (err) return done(err)
+          assert.equal(docs.length, 0) // the TTL makes it so that the document is not returned
+          d.dropDatabase(err => {
+            if (err) return done(err)
+            assert.equal(d.getAllData().length, 0)
+            existsCallback(testDb, bool => {
+              assert.equal(bool, false)
+              d.loadDatabase(err => {
+                if (err) return done(err)
+                d.insert({ hello: 'world', expire: new Date(date.getTime() - 1000 * 20) }, err => {
+                  if (err) return done(err)
+                  d.find({}, (err, docs) => {
+                    if (err) return done(err)
+                    assert.equal(docs.length, 1) // the TTL makes it so that the document is not returned
+                    d.compactDatafile(err => {
+                      if (err) return done(err)
+                      existsCallback(testDb, bool => {
+                        assert.equal(bool, true)
+                        done()
+                      })
+                    })
+                  })
+                })
+              })
+            })
+          })
+        })
+      })
+    })
+
+    it('Check that the buffer is reset', done => {
+      d.dropDatabase(err => {
+        if (err) return done(err)
+        // these 3 will hang until load
+        d.insert({ hello: 'world' })
+        d.insert({ hello: 'world' })
+        d.insert({ hello: 'world' })
+        assert.equal(d.getAllData().length, 0)
+        d.dropDatabase(err => {
+          if (err) return done(err)
+          d.insert({ hi: 'world' })
+          d.loadDatabase(err => {
+            if (err) return done(err)
+            assert.equal(d.getAllData().length, 1)
+            assert.equal(d.getAllData()[0].hi, 'world')
+            done()
+          })
+        })
+      })
+    })
+  }) // ==== End of 'dropDatabase' ====
 })

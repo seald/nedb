@@ -24,6 +24,18 @@ declare class Nedb<G = any> extends EventEmitter {
 
   loadDatabaseAsync(): Promise<void>;
 
+  dropDatabase(callback?: (err: Error |null) => void): void;
+
+  dropDatabaseAsync(): Promise<void>;
+
+  compactDatafile(callback?: (err: Error |null) => void): void;
+
+  compactDatafileAsync(): Promise<void>;
+
+  setAutocompactionInterval(interval: number): void;
+
+  stopAutocompaction(): void;
+
   getAllData<T extends G>(): T[];
 
   ensureIndex(options: Nedb.EnsureIndexOptions, callback?: (err: Error | null) => void): void;
@@ -101,8 +113,6 @@ declare namespace Nedb {
     afterSerialization?(line: string): string;
     corruptAlertThreshold?: number;
     compareStrings?(a: string, b: string): number;
-    /** @deprecated */
-    nodeWebkitAppName?: string;
   }
 
   interface UpdateOptions {
@@ -123,9 +133,13 @@ declare namespace Nedb {
   }
 
   interface Persistence {
+    /** @deprecated */
     compactDatafile(): void;
+    /** @deprecated */
     compactDatafileAsync(): Promise<void>;
+    /** @deprecated */
     setAutocompactionInterval(interval: number): void;
+    /** @deprecated */
     stopAutocompaction(): void;
   }
 }
