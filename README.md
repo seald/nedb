@@ -44,7 +44,7 @@ version.
 Don't hesitate to open an issue if it breaks something in your project.
 
 The rest of the readme will only show the Promise-based API, the full
-documentation is available in the [`docs`](./docs) directory of the repository.
+documentation is available in the [`docs`](./API.md) directory of the repository.
 
 ### Creating/loading a database
 
@@ -87,20 +87,38 @@ await db.users.loadDatabaseAsync()
 await db.robots.loadDatabaseAsync()
 ```
 
+### Dropping a database
+
+Since v3.0.0, you can drop the database by using [`Datastore#dropDatabaseAsync`](./API.md#Datastore+dropDatabaseAsync):
+```js
+const Datastore = require('@seald-io/nedb')
+const db = new Datastore()
+await d.insertAsync({ hello: 'world' })
+await d.dropDatabaseAsync()
+assert.equal(d.getAllData().length, 0)
+assert.equal(await exists(testDb), false)
+```
+
+It is not recommended to keep using an instance of Datastore when its database
+has been dropped as it may have some unintended side effects.
+
 ### Persistence
 
-Under the hood, NeDB's [persistence](./docs/Persistence.md) uses an append-only
+Under the hood, NeDB's [persistence](./API.md#Persistence) uses an append-only
 format, meaning that all updates and deletes actually result in lines added at
 the end of the datafile, for performance reasons. The database is automatically
 compacted (i.e. put back in the one-line-per-document format) every time you
 load each database within your application.
 
+**Breaking change**: since v3.0.0, calling methods of `yourDatabase.persistence`
+is deprecated. The same functions exists directly on the `Datastore`.
+
 You can manually call the compaction function
-with [`yourDatabase#persistence#compactDatafileAsync`](./API.md#Persistence+compactDatafileAsync).
+with [`yourDatabase#compactDatafileAsync`](./API.md#Datastore+compactDatafileAsync).
 
 You can also set automatic compaction at regular intervals
-with [`yourDatabase#persistence#setAutocompactionInterval`](./API.md#Persistence+setAutocompactionInterval),
-and stop automatic compaction with [`yourDatabase#persistence#stopAutocompaction`](./API.md#Persistence+stopAutocompaction).
+with [`yourDatabase#setAutocompactionInterval`](./API.md#Datastore+setAutocompactionInterval),
+and stop automatic compaction with [`yourDatabase#stopAutocompaction`](./API.md#Datastore+stopAutocompaction).
 
 ### Inserting documents
 
@@ -385,7 +403,7 @@ const docs = await db.findAsync({
 [`Datastore#findAsync`](./API.md#Datastore+findAsync),
 [`Datastore#findOneAsync`](./API.md#Datastore+findOneAsync) and
 [`Datastore#countAsync`](./API.md#Datastore+countAsync) don't
-actually return a `Promise`, but a [`Cursor`](./docs/Cursor.md) which is a
+actually return a `Promise`, but a [`Cursor`](./API.md#Cursor) which is a
 [`Thenable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#thenable_objects)
 which calls [`Cursor#execAsync`](./API.md#Cursor+execAsync) when awaited.
 
@@ -783,16 +801,16 @@ for the `browser` field. And this is [done by default by Metro](https://github.c
 for the `react-native` field.
 
 This is done for:
-- the [storage module](./docs/storage.md) which uses Node.js `fs`. It is
-  [replaced in the browser](./docs/storageBrowser.md) by one that uses
+- the [storage module](./lib/storage.js) which uses Node.js `fs`. It is
+  [replaced in the browser](./browser-version/lib/storage.browser.js) by one that uses
   [localforage](https://github.com/localForage/localForage), and
-  [in `react-native`](./docs/storageBrowser.md)  by one that uses
+  [in `react-native`](./browser-version/lib/storage.react-native.js)  by one that uses
   [@react-native-async-storage/async-storage](https://github.com/react-native-async-storage/async-storage)
-- the [customUtils module](./docs/customUtilsNode.md) which uses Node.js
+- the [customUtils module](./browser-version/lib/customUtils.js) which uses Node.js
   `crypto` module. It is replaced by a good enough shim to generate ids that uses `Math.random()`.
-- the [byline module](./docs/byline.md) which uses Node.js `stream`
+- the [byline module](./browser-version/lib/byline.js) which uses Node.js `stream`
   (a fork of [`node-byline`](https://github.com/jahewson/node-byline) included in
-  the repo because it is unmaintained). It isn't used int the browser nor
+  the repo because it is unmaintained). It isn't used in the browser nor
   react-native versions, therefore it is shimmed with an empty object.
 
 ## Performance
@@ -849,7 +867,7 @@ to make it manageable:
   pollute the code.
 * Don't forget tests for your new feature. Also don't forget to run the whole
   test suite before submitting to make sure you didn't introduce regressions.
-* Update the JSDoc and regenerate [the markdown files](./docs).
+* Update the JSDoc and regenerate [the markdown docs](./API.md).
 * Update the readme accordingly.
 
 ## License
