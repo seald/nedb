@@ -51,8 +51,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Using `Datastore#persistence#stopAutocompaction` is now deprecated, please use `Datastore#stopAutocompaction` instead.
 
 ## Removed
-- The option for passing `options.nodeWebkitAppName` to the Datastore and the Persistence constructors has been removed.
-  - `Persistence.getNWAppFilename`;
+- The option for passing `options.nodeWebkitAppName` to the Datastore and the Persistence constructors has been removed, subsequently, the static method `Persistence.getNWAppFilename` has been removed as well;
+- Compatibility with node < 10.1.0 (we use `fs.promises`).
 
 
 ## [2.2.1] - 2022-01-18
