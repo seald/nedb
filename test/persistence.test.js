@@ -1004,6 +1004,8 @@ describe('Persistence', function () {
 
       const datafileLength = fs.readFileSync('workspace/lac.db', 'utf8').length
 
+      assert(datafileLength > 5000)
+
       // Loading it in a separate process that we will crash before finishing the loadDatabase
       fork('test_lac/loadAndCrash.test').on('exit', function (code) {
         code.should.equal(1) // See test_lac/loadAndCrash.test.js
