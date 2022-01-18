@@ -852,6 +852,7 @@ kind of datasets (20MB for 10,000 2KB documents).
 ## Use in other services
 
 * An ODM for NeDB: [follicle](https://github.com/seald/follicle)
+* A layer to add a promise-only interface: [nedb-promises](https://www.npmjs.com/package/nedb-promises)
 
 ## Modernization
 
