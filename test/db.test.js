@@ -8,7 +8,7 @@ const model = require('../lib/model')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
 const { callbackify } = require('util')
-const reloadTimeUpperBound = 60 // In ms, an upper bound for the reload time used to check createdAt and updatedAt
+const reloadTimeUpperBound = 200 // In ms, an upper bound for the reload time used to check createdAt and updatedAt
 
 const { assert } = chai
 chai.should()

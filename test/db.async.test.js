@@ -8,7 +8,7 @@ const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
 const { wait } = require('./utils.test')
 const { exists } = require('./utils.test.js')
-const reloadTimeUpperBound = 60 // In ms, an upper bound for the reload time used to check createdAt and updatedAt
+const reloadTimeUpperBound = 200 // In ms, an upper bound for the reload time used to check createdAt and updatedAt
 
 describe('Database async', function () {
   let d
