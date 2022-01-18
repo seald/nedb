@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2022-01-18
+### Changed
+- [#20](https://github.com/seald/nedb/pull/20) storage.js: check fsync capability from return code rather than using process.platform heuristics (Thanks [@bitmeal](https://github.com/bitmeal)).
+
 ## [2.2.0] - 2021-10-29
 ### Added
 - Include a `"react-native"` version (heavily inspired from [react-native-local-mongdb](https://github.com/antoniopresto/react-native-local-mongodb)).
