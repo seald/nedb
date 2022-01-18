@@ -43,6 +43,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     - `Executor#push` replaced with `Executor#pushAsync` which is substantially different;
   - Storage modules : callback-based functions have been replaced with promise-based functions.
   - Model module: it has been slightly re-written for clarity, but no changes in its interface was made.
+- Typings were updated accordingly.
 
 ## Deprecated
 - Using a `string` in the constructor of NeDB is now deprecated.
@@ -62,6 +63,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [2.2.0] - 2021-10-29
 ### Added
 - Include a `"react-native"` version (heavily inspired from [react-native-local-mongdb](https://github.com/antoniopresto/react-native-local-mongodb)).
+### Changed
+- The browser version uses `browser-version/lib/storage.browser.js` instead of `browser-version/lib/storage.js` in the `"browser"` field of the package.json.
 
 ## [2.1.0] - 2021-10-21
 Thanks to [@eliot-akira](https://github.com/eliot-akira) for the amazing work on file streaming.
