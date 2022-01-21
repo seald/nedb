@@ -15,7 +15,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The Error given when there the `Datastore#corruptAlertThreshold` is reached now has three properties: `dataLength` which is the amount of lines in the database file (excluding empty lines), `corruptItems` which is the amount of corrupted lines, `corruptionRate` which the rate of corruption between 0 and 1.
 
 ### Changed
-- The `corrpuptionAlertThreshold` now doesn't take into account empty lines.
+- The `corruptionAlertThreshold` now doesn't take into account empty lines, and the error message is slightly changed.
 - The `Datastore#update`'s callback has its signature slightly changed. The
 `upsert` flag is always defined either at `true` or `false` but not `null` nor
 `undefined`, and `affectedDocuments` is `null` when none is given rather than
