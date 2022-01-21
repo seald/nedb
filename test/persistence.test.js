@@ -82,6 +82,7 @@ describe('Persistence', function () {
   })
 
   it('Badly formatted lines have no impact on the treated data', function () {
+    d.persistence.corruptAlertThreshold = 1 // to prevent a corruption alert
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       'garbage\n' +
@@ -95,6 +96,7 @@ describe('Persistence', function () {
   })
 
   it('Badly formatted lines have no impact on the treated data (with stream)', function (done) {
+    d.persistence.corruptAlertThreshold = 1 // to prevent a corruption alert
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       'garbage\n' +
@@ -424,6 +426,10 @@ describe('Persistence', function () {
     d.loadDatabase(function (err) {
       assert.isDefined(err)
       assert.isNotNull(err)
+      assert.hasAllKeys(err, ['corruptionRate', 'corruptItems', 'dataLength'])
+      assert.strictEqual(err.corruptionRate, 0.25)
+      assert.strictEqual(err.corruptItems, 1)
+      assert.strictEqual(err.dataLength, 4)
 
       fs.writeFileSync(corruptTestFilename, fakeData, 'utf8')
       d = new Datastore({ filename: corruptTestFilename, corruptAlertThreshold: 1 })
@@ -435,6 +441,11 @@ describe('Persistence', function () {
         d.loadDatabase(function (err) {
           assert.isDefined(err)
           assert.isNotNull(err)
+
+          assert.hasAllKeys(err, ['corruptionRate', 'corruptItems', 'dataLength'])
+          assert.strictEqual(err.corruptionRate, 0.25)
+          assert.strictEqual(err.corruptItems, 1)
+          assert.strictEqual(err.dataLength, 4)
 
           done()
         })

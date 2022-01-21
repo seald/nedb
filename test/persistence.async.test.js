@@ -60,6 +60,7 @@ describe('Persistence async', function () {
   })
 
   it('Badly formatted lines have no impact on the treated data', function () {
+    d.persistence.corruptAlertThreshold = 1 // to prevent a corruption alert
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       'garbage\n' +
@@ -73,6 +74,7 @@ describe('Persistence async', function () {
   })
 
   it('Badly formatted lines have no impact on the treated data (with stream)', async () => {
+    d.persistence.corruptAlertThreshold = 1 // to prevent a corruption alert
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       'garbage\n' +
@@ -366,14 +368,30 @@ describe('Persistence async', function () {
 
     // Default corruptAlertThreshold
     d = new Datastore({ filename: corruptTestFilename })
-    await assert.rejects(() => d.loadDatabaseAsync())
+    await assert.rejects(() => d.loadDatabaseAsync(), err => {
+      assert.ok(Object.prototype.hasOwnProperty.call(err, 'corruptionRate'))
+      assert.ok(Object.prototype.hasOwnProperty.call(err, 'corruptItems'))
+      assert.ok(Object.prototype.hasOwnProperty.call(err, 'dataLength'))
+      assert.equal(err.corruptionRate, 0.25)
+      assert.equal(err.corruptItems, 1)
+      assert.equal(err.dataLength, 4)
+      return true
+    })
 
     await fs.writeFile(corruptTestFilename, fakeData, 'utf8')
     d = new Datastore({ filename: corruptTestFilename, corruptAlertThreshold: 1 })
     await d.loadDatabaseAsync()
     await fs.writeFile(corruptTestFilename, fakeData, 'utf8')
     d = new Datastore({ filename: corruptTestFilename, corruptAlertThreshold: 0 })
-    await assert.rejects(() => d.loadDatabaseAsync())
+    await assert.rejects(() => d.loadDatabaseAsync(), err => {
+      assert.ok(Object.prototype.hasOwnProperty.call(err, 'corruptionRate'))
+      assert.ok(Object.prototype.hasOwnProperty.call(err, 'corruptItems'))
+      assert.ok(Object.prototype.hasOwnProperty.call(err, 'dataLength'))
+      assert.equal(err.corruptionRate, 0.25)
+      assert.equal(err.corruptItems, 1)
+      assert.equal(err.dataLength, 4)
+      return true
+    })
   })
 
   it('Can listen to compaction events', async () => {
