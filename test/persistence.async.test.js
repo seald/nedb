@@ -11,6 +11,7 @@ const storage = require('../lib/storage')
 const { execFile, fork } = require('child_process')
 const { promisify } = require('util')
 const { ensureFileDoesntExistAsync } = require('../lib/storage')
+const { once } = require('events')
 const Readable = require('stream').Readable
 
 describe('Persistence async', function () {
@@ -337,29 +338,6 @@ describe('Persistence async', function () {
     assert.equal(doc2Reloaded, undefined)
   })
 
-  it('Calling dropDatabase after the datafile was modified loads the new data', async () => {
-    await d.loadDatabaseAsync()
-    await d.insertAsync({ a: 1 })
-    await d.insertAsync({ a: 2 })
-    const data = d.getAllData()
-    const doc1 = data.find(doc => doc.a === 1)
-    const doc2 = data.find(doc => doc.a === 2)
-    assert.equal(data.length, 2)
-    assert.equal(doc1.a, 1)
-    assert.equal(doc2.a, 2)
-
-    await fs.writeFile(testDb, '{"a":3,"_id":"aaa"}', 'utf8')
-    await d.loadDatabaseAsync()
-    const dataReloaded = d.getAllData()
-    const doc1Reloaded = dataReloaded.find(function (doc) { return doc.a === 1 })
-    const doc2Reloaded = dataReloaded.find(function (doc) { return doc.a === 2 })
-    const doc3Reloaded = dataReloaded.find(function (doc) { return doc.a === 3 })
-    assert.equal(dataReloaded.length, 1)
-    assert.equal(doc3Reloaded.a, 3)
-    assert.equal(doc1Reloaded, undefined)
-    assert.equal(doc2Reloaded, undefined)
-  })
-
   it('When treating raw data, refuse to proceed if too much data is corrupt, to avoid data loss', async () => {
     const corruptTestFilename = 'workspace/corruptTest.db'
     const fakeData = '{"_id":"one","hello":"world"}\n' + 'Some corrupt data\n' + '{"_id":"two","hello":"earth"}\n' + '{"_id":"three","hello":"you"}\n'
@@ -369,9 +347,8 @@ describe('Persistence async', function () {
     // Default corruptAlertThreshold
     d = new Datastore({ filename: corruptTestFilename })
     await assert.rejects(() => d.loadDatabaseAsync(), err => {
-      assert.ok(Object.prototype.hasOwnProperty.call(err, 'corruptionRate'))
-      assert.ok(Object.prototype.hasOwnProperty.call(err, 'corruptItems'))
-      assert.ok(Object.prototype.hasOwnProperty.call(err, 'dataLength'))
+      assert.notEqual(err, undefined)
+      assert.notEqual(err, null)
       assert.equal(err.corruptionRate, 0.25)
       assert.equal(err.corruptItems, 1)
       assert.equal(err.dataLength, 4)
@@ -384,9 +361,8 @@ describe('Persistence async', function () {
     await fs.writeFile(corruptTestFilename, fakeData, 'utf8')
     d = new Datastore({ filename: corruptTestFilename, corruptAlertThreshold: 0 })
     await assert.rejects(() => d.loadDatabaseAsync(), err => {
-      assert.ok(Object.prototype.hasOwnProperty.call(err, 'corruptionRate'))
-      assert.ok(Object.prototype.hasOwnProperty.call(err, 'corruptItems'))
-      assert.ok(Object.prototype.hasOwnProperty.call(err, 'dataLength'))
+      assert.notEqual(err, undefined)
+      assert.notEqual(err, null)
       assert.equal(err.corruptionRate, 0.25)
       assert.equal(err.corruptItems, 1)
       assert.equal(err.dataLength, 4)
@@ -847,40 +823,28 @@ describe('Persistence async', function () {
 
       // Loading it in a separate process that we will crash before finishing the loadDatabase
       const child = fork('test_lac/loadAndCrash.test', [], { stdio: 'inherit' })
+      const [code] = await once(child, 'exit')
+      assert.equal(code, 1) // See test_lac/loadAndCrash.test.js
 
-      await Promise.race([
-        new Promise((resolve, reject) => child.on('error', reject)),
-        new Promise((resolve, reject) => {
-          child.on('exit', async function (code) {
-            try {
-              assert.equal(code, 1) // See test_lac/loadAndCrash.test.js
+      assert.equal(await exists('workspace/lac.db'), true)
+      assert.equal(await exists('workspace/lac.db~'), true)
+      assert.equal((await fs.readFile('workspace/lac.db', 'utf8')).length, datafileLength)
+      assert.equal((await fs.readFile('workspace/lac.db~', 'utf8')).length, 5000)
 
-              assert.equal(await exists('workspace/lac.db'), true)
-              assert.equal(await exists('workspace/lac.db~'), true)
-              assert.equal((await fs.readFile('workspace/lac.db', 'utf8')).length, datafileLength)
-              assert.equal((await fs.readFile('workspace/lac.db~', 'utf8')).length, 5000)
+      // Reload database without a crash, check that no data was lost and fs state is clean (no temp file)
+      const db = new Datastore({ filename: 'workspace/lac.db' })
+      await db.loadDatabaseAsync()
+      assert.equal(await exists('workspace/lac.db'), true)
+      assert.equal(await exists('workspace/lac.db~'), false)
+      assert.equal((await fs.readFile('workspace/lac.db', 'utf8')).length, datafileLength)
 
-              // Reload database without a crash, check that no data was lost and fs state is clean (no temp file)
-              const db = new Datastore({ filename: 'workspace/lac.db' })
-              await db.loadDatabaseAsync()
-              assert.equal(await exists('workspace/lac.db'), true)
-              assert.equal(await exists('workspace/lac.db~'), false)
-              assert.equal((await fs.readFile('workspace/lac.db', 'utf8')).length, datafileLength)
-
-              const docs = await db.findAsync({})
-              assert.equal(docs.length, N)
-              for (i = 0; i < N; i += 1) {
-                docI = docs.find(d => d._id === 'anid_' + i)
-                assert.notEqual(docI, undefined)
-                assert.deepEqual({ hello: 'world', _id: 'anid_' + i }, docI)
-              }
-              resolve()
-            } catch (error) {
-              reject(error)
-            }
-          })
-        })
-      ])
+      const docs = await db.findAsync({})
+      assert.equal(docs.length, N)
+      for (i = 0; i < N; i += 1) {
+        docI = docs.find(d => d._id === 'anid_' + i)
+        assert.notEqual(docI, undefined)
+        assert.deepEqual({ hello: 'world', _id: 'anid_' + i }, docI)
+      }
     })
 
     // Not run on Windows as there is no clean way to set maximum file descriptors. Not an issue as the code itself is tested.
@@ -946,7 +910,7 @@ describe('Persistence async', function () {
       d.setAutocompactionInterval(5000)
       await d.insertAsync({ hello: 'world' })
       await d.dropDatabaseAsync()
-      assert.equal(d.autocompactionIntervalId, null)
+      assert.equal(d._autocompactionIntervalId, null)
       assert.equal(d.getAllData().length, 0)
       assert.equal(await exists(testDb), false)
     })

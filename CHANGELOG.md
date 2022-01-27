@@ -12,7 +12,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The JSDoc is now much more exhaustive.
 - An auto-generated JSDoc file is generated: [API.md](./API.md).
 - Added `Datastore#dropDatabaseAsync` and its callback equivalent.
-- The Error given when there the `Datastore#corruptAlertThreshold` is reached now has three properties: `dataLength` which is the amount of lines in the database file (excluding empty lines), `corruptItems` which is the amount of corrupted lines, `corruptionRate` which the rate of corruption between 0 and 1.
+- The Error given when the `Datastore#corruptAlertThreshold` is reached now has three properties: `dataLength` which is the amount of lines in the database file (excluding empty lines), `corruptItems` which is the amount of corrupted lines, `corruptionRate` which the rate of corruption between 0 and 1.
 
 ### Changed
 - The `corruptionAlertThreshold` now doesn't take into account empty lines, and the error message is slightly changed.
@@ -44,7 +44,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     - `Executor#buffer` & `Executor#queue` do not have the same signatures as before;
     - `Executor#push` replaced with `Executor#pushAsync` which is substantially different;
   - Storage modules : callback-based functions have been replaced with promise-based functions.
-  - Model module: it has been slightly re-written for clarity, but no changes in its interface was made.
+  - Model module: it has been slightly re-written for clarity, but no changes in its interface were made.
 - Typings were updated accordingly.
 
 ## Deprecated

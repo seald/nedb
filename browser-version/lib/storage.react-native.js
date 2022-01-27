@@ -3,7 +3,7 @@
  *
  * This version is the React-Native version and uses [@react-native-async-storage/async-storage]{@link https://github.com/react-native-async-storage/async-storage}.
  * @module storageReactNative
- * @see module:storagereact-native
+ * @see module:storageBrowser
  * @see module:storage
  * @private
  */
