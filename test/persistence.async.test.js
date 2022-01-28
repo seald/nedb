@@ -12,6 +12,7 @@ const { execFile, fork } = require('child_process')
 const { promisify } = require('util')
 const { ensureFileDoesntExistAsync } = require('../lib/storage')
 const { once } = require('events')
+const { wait } = require('./utils.test')
 const Readable = require('stream').Readable
 
 describe('Persistence async', function () {
@@ -346,13 +347,11 @@ describe('Persistence async', function () {
 
     // Default corruptAlertThreshold
     d = new Datastore({ filename: corruptTestFilename })
-    await assert.rejects(() => d.loadDatabaseAsync(), err => {
-      assert.notEqual(err, undefined)
-      assert.notEqual(err, null)
-      assert.equal(err.corruptionRate, 0.25)
-      assert.equal(err.corruptItems, 1)
-      assert.equal(err.dataLength, 4)
-      return true
+    await assert.rejects(() => d.loadDatabaseAsync(), {
+      corruptionRate: 0.25,
+      corruptItems: 1,
+      dataLength: 4,
+      message: '25% of the data file is corrupt, more than given corruptAlertThreshold (10%). Cautiously refusing to start NeDB to prevent dataloss.'
     })
 
     await fs.writeFile(corruptTestFilename, fakeData, 'utf8')
@@ -360,13 +359,11 @@ describe('Persistence async', function () {
     await d.loadDatabaseAsync()
     await fs.writeFile(corruptTestFilename, fakeData, 'utf8')
     d = new Datastore({ filename: corruptTestFilename, corruptAlertThreshold: 0 })
-    await assert.rejects(() => d.loadDatabaseAsync(), err => {
-      assert.notEqual(err, undefined)
-      assert.notEqual(err, null)
-      assert.equal(err.corruptionRate, 0.25)
-      assert.equal(err.corruptItems, 1)
-      assert.equal(err.dataLength, 4)
-      return true
+    await assert.rejects(() => d.loadDatabaseAsync(), {
+      corruptionRate: 0.25,
+      corruptItems: 1,
+      dataLength: 4,
+      message: '25% of the data file is corrupt, more than given corruptAlertThreshold (0%). Cautiously refusing to start NeDB to prevent dataloss.'
     })
   })
 
@@ -378,6 +375,41 @@ describe('Persistence async', function () {
     })
     await d.compactDatafileAsync()
     await compacted // should already be resolved when the function returns, but still awaiting for it
+  })
+
+  it('setAutocompaction fails gracefully when passed a NaN', async () => {
+    assert.throws(() => {
+      d.setAutocompactionInterval(Number.NaN)
+    }, {
+      message: 'Interval must be a non-NaN number'
+    })
+  })
+
+  it('setAutocompaction fails gracefully when passed a string non castable to a number', async () => {
+    assert.throws(() => {
+      d.setAutocompactionInterval('a')
+    }, {
+      message: 'Interval must be a non-NaN number'
+    })
+  })
+
+  it('setAutocompaction works if passed a number castable to a number below 5000ms', async () => {
+    let i = 0
+    const backup = d.compactDatafile
+    d.compactDatafile = () => {
+      backup.call(d)
+      i++
+    }
+    try {
+      d.setAutocompactionInterval('0') // it should set the actual interval to 5000
+      await wait(6000)
+      assert.ok(i < 3)
+      assert.ok(i >= 1)
+    } finally {
+      d.compactDatafile = backup
+      d.stopAutocompaction()
+      assert.equal(d._autocompactionIntervalId, null)
+    }
   })
 
   describe('Serialization hooks', async () => {
