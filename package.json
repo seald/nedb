@@ -1,6 +1,6 @@
 {
   "name": "@seald-io/nedb",
-  "version": "2.2.1",
+  "version": "3.0.0-6",
   "files": [
     "lib/**/*.js",
     "browser-version/**/*.js",
@@ -42,8 +42,8 @@
   },
   "dependencies": {
     "@seald-io/binary-search-tree": "^1.0.2",
-    "async": "0.2.10",
-    "localforage": "^1.9.0"
+    "localforage": "^1.9.0",
+    "util": "^0.12.4"
   },
   "devDependencies": {
     "@react-native-async-storage/async-storage": "^1.15.9",
@@ -53,17 +53,18 @@
     "commander": "^7.2.0",
     "events": "^3.3.0",
     "jest": "^27.3.1",
-    "jquery": "^3.6.0",
+    "jsdoc-to-markdown": "^7.1.0",
     "karma": "^6.3.2",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
     "karma-junit-reporter": "^2.0.1",
     "karma-mocha": "^2.0.1",
     "karma-source-map-support": "^1.4.0",
-    "mocha": "^8.4.0",
+    "mocha": "^9.1.3",
     "mocha-junit-reporter": "^2.0.0",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
+    "react-native": "^0.66.0",
     "semver": "^7.3.5",
     "source-map-loader": "^2.0.2",
     "standard": "^16.0.3",
@@ -84,7 +85,8 @@
     "test:browser": "xvfb-maybe karma start karma.conf.local.js",
     "test:react-native": "jest test/react-native",
     "test:typings": "ts-node ./typings-tests.ts",
-    "prepublishOnly": "npm run build:browser"
+    "prepublishOnly": "npm run build:browser",
+    "generateDocs:markdown": "jsdoc2md --no-cache -c jsdoc.conf.js --param-list-format list --files ./lib/*.js > API.md"
   },
   "main": "index.js",
   "browser": {

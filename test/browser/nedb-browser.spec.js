@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-/* global chai, Nedb */
+/* global chai, Nedb, testUtils */
 
 /**
  * Testing the browser version of NeDB
@@ -265,7 +265,7 @@ describe('Indexing', function () {
       db.insert({ a: 6 }, function () {
         db.insert({ a: 7 }, function () {
           // eslint-disable-next-line node/handle-callback-err
-          db.getCandidates({ a: 6 }, function (err, candidates) {
+          testUtils.callbackify(query => db._getCandidatesAsync(query))({ a: 6 }, function (err, candidates) {
             assert.strictEqual(candidates.length, 3)
             assert.isDefined(candidates.find(function (doc) { return doc.a === 4 }))
             assert.isDefined(candidates.find(function (doc) { return doc.a === 6 }))
@@ -274,7 +274,7 @@ describe('Indexing', function () {
             db.ensureIndex({ fieldName: 'a' })
 
             // eslint-disable-next-line node/handle-callback-err
-            db.getCandidates({ a: 6 }, function (err, candidates) {
+            testUtils.callbackify(query => db._getCandidatesAsync(query))({ a: 6 }, function (err, candidates) {
               assert.strictEqual(candidates.length, 1)
               assert.isDefined(candidates.find(function (doc) { return doc.a === 6 }))
 

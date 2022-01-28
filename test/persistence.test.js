@@ -3,12 +3,15 @@ const chai = require('chai')
 const testDb = 'workspace/test.db'
 const fs = require('fs')
 const path = require('path')
-const async = require('async')
+const { apply, waterfall } = require('./utils.test.js')
 const model = require('../lib/model')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
 const storage = require('../lib/storage')
 const { execFile, fork } = require('child_process')
+const { callbackify } = require('util')
+const { existsCallback } = require('./utils.test')
+const { ensureFileDoesntExistAsync } = require('../lib/storage')
 const Readable = require('stream').Readable
 
 const { assert } = chai
@@ -22,9 +25,9 @@ describe('Persistence', function () {
     d.filename.should.equal(testDb)
     d.inMemoryOnly.should.equal(false)
 
-    async.waterfall([
+    waterfall([
       function (cb) {
-        Persistence.ensureDirectoryExists(path.dirname(testDb), function () {
+        callbackify((dirname) => Persistence.ensureDirectoryExistsAsync(dirname))(path.dirname(testDb), function () {
           fs.access(testDb, fs.constants.FS_OK, function (err) {
             if (!err) {
               fs.unlink(testDb, cb)
@@ -66,7 +69,7 @@ describe('Persistence', function () {
     stream.push(rawData)
     stream.push(null)
 
-    d.persistence.treatRawStream(stream, function (err, result) {
+    callbackify(rawStream => d.persistence.treatRawStreamAsync(rawStream))(stream, function (err, result) {
       assert.isNull(err)
       const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
@@ -79,6 +82,7 @@ describe('Persistence', function () {
   })
 
   it('Badly formatted lines have no impact on the treated data', function () {
+    d.persistence.corruptAlertThreshold = 1 // to prevent a corruption alert
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       'garbage\n' +
@@ -92,6 +96,7 @@ describe('Persistence', function () {
   })
 
   it('Badly formatted lines have no impact on the treated data (with stream)', function (done) {
+    d.persistence.corruptAlertThreshold = 1 // to prevent a corruption alert
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       'garbage\n' +
@@ -101,7 +106,7 @@ describe('Persistence', function () {
     stream.push(rawData)
     stream.push(null)
 
-    d.persistence.treatRawStream(stream, function (err, result) {
+    callbackify(rawStream => d.persistence.treatRawStreamAsync(rawStream))(stream, function (err, result) {
       assert.isNull(err)
       const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
@@ -135,7 +140,7 @@ describe('Persistence', function () {
     stream.push(rawData)
     stream.push(null)
 
-    d.persistence.treatRawStream(stream, function (err, result) {
+    callbackify(rawStream => d.persistence.treatRawStreamAsync(rawStream))(stream, function (err, result) {
       assert.isNull(err)
       const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
@@ -169,7 +174,7 @@ describe('Persistence', function () {
     stream.push(rawData)
     stream.push(null)
 
-    d.persistence.treatRawStream(stream, function (err, result) {
+    callbackify(rawStream => d.persistence.treatRawStreamAsync(rawStream))(stream, function (err, result) {
       assert.isNull(err)
       const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
@@ -205,7 +210,7 @@ describe('Persistence', function () {
     stream.push(rawData)
     stream.push(null)
 
-    d.persistence.treatRawStream(stream, function (err, result) {
+    callbackify(rawStream => d.persistence.treatRawStreamAsync(rawStream))(stream, function (err, result) {
       assert.isNull(err)
       const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
@@ -239,7 +244,7 @@ describe('Persistence', function () {
     stream.push(rawData)
     stream.push(null)
 
-    d.persistence.treatRawStream(stream, function (err, result) {
+    callbackify(rawStream => d.persistence.treatRawStreamAsync(rawStream))(stream, function (err, result) {
       assert.isNull(err)
       const treatedData = result.data
       treatedData.sort(function (a, b) { return a._id - b._id })
@@ -277,7 +282,7 @@ describe('Persistence', function () {
     stream.push(rawData)
     stream.push(null)
 
-    d.persistence.treatRawStream(stream, function (err, result) {
+    callbackify(rawStream => d.persistence.treatRawStreamAsync(rawStream))(stream, function (err, result) {
       assert.isNull(err)
       const treatedData = result.data
       const indexes = result.indexes
@@ -421,6 +426,10 @@ describe('Persistence', function () {
     d.loadDatabase(function (err) {
       assert.isDefined(err)
       assert.isNotNull(err)
+      assert.hasAllKeys(err, ['corruptionRate', 'corruptItems', 'dataLength'])
+      assert.strictEqual(err.corruptionRate, 0.25)
+      assert.strictEqual(err.corruptItems, 1)
+      assert.strictEqual(err.dataLength, 4)
 
       fs.writeFileSync(corruptTestFilename, fakeData, 'utf8')
       d = new Datastore({ filename: corruptTestFilename, corruptAlertThreshold: 1 })
@@ -432,6 +441,11 @@ describe('Persistence', function () {
         d.loadDatabase(function (err) {
           assert.isDefined(err)
           assert.isNotNull(err)
+
+          assert.hasAllKeys(err, ['corruptionRate', 'corruptItems', 'dataLength'])
+          assert.strictEqual(err.corruptionRate, 0.25)
+          assert.strictEqual(err.corruptItems, 1)
+          assert.strictEqual(err.dataLength, 4)
 
           done()
         })
@@ -445,7 +459,7 @@ describe('Persistence', function () {
       done()
     })
 
-    d.persistence.compactDatafile()
+    d.compactDatafile()
   })
 
   describe('Serialization hooks', function () {
@@ -454,7 +468,7 @@ describe('Persistence', function () {
 
     it('Declaring only one hook will throw an exception to prevent data loss', function (done) {
       const hookTestFilename = 'workspace/hookTest.db'
-      storage.ensureFileDoesntExist(hookTestFilename, function () {
+      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
         fs.writeFileSync(hookTestFilename, 'Some content', 'utf8');
 
         (function () {
@@ -487,7 +501,7 @@ describe('Persistence', function () {
 
     it('Declaring two hooks that are not reverse of one another will cause an exception to prevent data loss', function (done) {
       const hookTestFilename = 'workspace/hookTest.db'
-      storage.ensureFileDoesntExist(hookTestFilename, function () {
+      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
         fs.writeFileSync(hookTestFilename, 'Some content', 'utf8');
 
         (function () {
@@ -509,7 +523,7 @@ describe('Persistence', function () {
 
     it('A serialization hook can be used to transform data before writing new state to disk', function (done) {
       const hookTestFilename = 'workspace/hookTest.db'
-      storage.ensureFileDoesntExist(hookTestFilename, function () {
+      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
         const d = new Datastore({
           filename: hookTestFilename,
           autoload: true,
@@ -586,7 +600,7 @@ describe('Persistence', function () {
 
     it('Use serialization hook when persisting cached database or compacting', function (done) {
       const hookTestFilename = 'workspace/hookTest.db'
-      storage.ensureFileDoesntExist(hookTestFilename, function () {
+      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
         const d = new Datastore({
           filename: hookTestFilename,
           autoload: true,
@@ -619,7 +633,7 @@ describe('Persistence', function () {
               idx = model.deserialize(idx)
               assert.deepStrictEqual(idx, { $$indexCreated: { fieldName: 'idefix' } })
 
-              d.persistence.persistCachedDatabase(function () {
+              callbackify(() => d.persistence.persistCachedDatabaseAsync())(function () {
                 const _data = fs.readFileSync(hookTestFilename, 'utf8')
                 const data = _data.split('\n')
                 let doc0 = bd(data[0])
@@ -646,7 +660,7 @@ describe('Persistence', function () {
 
     it('Deserialization hook is correctly used when loading data', function (done) {
       const hookTestFilename = 'workspace/hookTest.db'
-      storage.ensureFileDoesntExist(hookTestFilename, function () {
+      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
         const d = new Datastore({
           filename: hookTestFilename,
           autoload: true,
@@ -714,7 +728,7 @@ describe('Persistence', function () {
       fs.existsSync('workspace/it.db').should.equal(false)
       fs.existsSync('workspace/it.db~').should.equal(false)
 
-      storage.ensureDatafileIntegrity(p.filename, function (err) {
+      callbackify(storage.ensureDatafileIntegrityAsync)(p.filename, function (err) {
         assert.isNull(err)
 
         fs.existsSync('workspace/it.db').should.equal(true)
@@ -737,7 +751,7 @@ describe('Persistence', function () {
       fs.existsSync('workspace/it.db').should.equal(true)
       fs.existsSync('workspace/it.db~').should.equal(false)
 
-      storage.ensureDatafileIntegrity(p.filename, function (err) {
+      callbackify(storage.ensureDatafileIntegrityAsync)(p.filename, function (err) {
         assert.isNull(err)
 
         fs.existsSync('workspace/it.db').should.equal(true)
@@ -760,7 +774,7 @@ describe('Persistence', function () {
       fs.existsSync('workspace/it.db').should.equal(false)
       fs.existsSync('workspace/it.db~').should.equal(true)
 
-      storage.ensureDatafileIntegrity(p.filename, function (err) {
+      callbackify(storage.ensureDatafileIntegrityAsync)(p.filename, function (err) {
         assert.isNull(err)
 
         fs.existsSync('workspace/it.db').should.equal(true)
@@ -785,7 +799,7 @@ describe('Persistence', function () {
       fs.existsSync('workspace/it.db').should.equal(true)
       fs.existsSync('workspace/it.db~').should.equal(true)
 
-      storage.ensureDatafileIntegrity(theDb.persistence.filename, function (err) {
+      callbackify(storage.ensureDatafileIntegrityAsync)(theDb.persistence.filename, function (err) {
         assert.isNull(err)
 
         fs.existsSync('workspace/it.db').should.equal(true)
@@ -820,7 +834,7 @@ describe('Persistence', function () {
           fs.writeFileSync(testDb + '~', 'something', 'utf8')
           fs.existsSync(testDb + '~').should.equal(true)
 
-          d.persistence.persistCachedDatabase(function (err) {
+          callbackify(() => d.persistence.persistCachedDatabaseAsync())(function (err) {
             const contents = fs.readFileSync(testDb, 'utf8')
             assert.isNull(err)
             fs.existsSync(testDb).should.equal(true)
@@ -848,7 +862,7 @@ describe('Persistence', function () {
           fs.writeFileSync(testDb + '~', 'bloup', 'utf8')
           fs.existsSync(testDb + '~').should.equal(true)
 
-          d.persistence.persistCachedDatabase(function (err) {
+          callbackify(() => d.persistence.persistCachedDatabaseAsync())(function (err) {
             const contents = fs.readFileSync(testDb, 'utf8')
             assert.isNull(err)
             fs.existsSync(testDb).should.equal(true)
@@ -873,7 +887,7 @@ describe('Persistence', function () {
           fs.existsSync(testDb).should.equal(false)
           fs.existsSync(testDb + '~').should.equal(true)
 
-          d.persistence.persistCachedDatabase(function (err) {
+          callbackify(() => d.persistence.persistCachedDatabaseAsync())(function (err) {
             const contents = fs.readFileSync(testDb, 'utf8')
             assert.isNull(err)
             fs.existsSync(testDb).should.equal(true)
@@ -911,9 +925,9 @@ describe('Persistence', function () {
       const dbFile = 'workspace/test2.db'
       let theDb, theDb2, doc1, doc2
 
-      async.waterfall([
-        async.apply(storage.ensureFileDoesntExist, dbFile),
-        async.apply(storage.ensureFileDoesntExist, dbFile + '~'),
+      waterfall([
+        apply(callbackify(storage.ensureFileDoesntExistAsync), dbFile),
+        apply(callbackify(storage.ensureFileDoesntExistAsync), dbFile + '~'),
         function (cb) {
           theDb = new Datastore({ filename: dbFile })
           theDb.loadDatabase(cb)
@@ -1003,6 +1017,8 @@ describe('Persistence', function () {
 
       const datafileLength = fs.readFileSync('workspace/lac.db', 'utf8').length
 
+      assert(datafileLength > 5000)
+
       // Loading it in a separate process that we will crash before finishing the loadDatabase
       fork('test_lac/loadAndCrash.test').on('exit', function (code) {
         code.should.equal(1) // See test_lac/loadAndCrash.test.js
@@ -1052,24 +1068,161 @@ describe('Persistence', function () {
     })
   }) // ==== End of 'Prevent dataloss when persisting data' ====
 
-  describe('ensureFileDoesntExist', function () {
-    it('Doesnt do anything if file already doesnt exist', function (done) {
-      storage.ensureFileDoesntExist('workspace/nonexisting', function (err) {
-        assert.isNull(err)
-        fs.existsSync('workspace/nonexisting').should.equal(false)
-        done()
+  describe('dropDatabase', function () {
+    it('deletes data in memory', done => {
+      const inMemoryDB = new Datastore({ inMemoryOnly: true })
+      inMemoryDB.insert({ hello: 'world' }, err => {
+        assert.equal(err, null)
+        inMemoryDB.dropDatabase(err => {
+          assert.equal(err, null)
+          assert.equal(inMemoryDB.getAllData().length, 0)
+          return done()
+        })
       })
     })
 
-    it('Deletes file if it stat', function (done) {
-      fs.writeFileSync('workspace/existing', 'hello world', 'utf8')
-      fs.existsSync('workspace/existing').should.equal(true)
-
-      storage.ensureFileDoesntExist('workspace/existing', function (err) {
-        assert.isNull(err)
-        fs.existsSync('workspace/existing').should.equal(false)
-        done()
+    it('deletes data in memory & on disk', done => {
+      d.insert({ hello: 'world' }, err => {
+        if (err) return done(err)
+        d.dropDatabase(err => {
+          if (err) return done(err)
+          assert.equal(d.getAllData().length, 0)
+          existsCallback(testDb, bool => {
+            assert.equal(bool, false)
+            done()
+          })
+        })
       })
     })
-  }) // ==== End of 'ensureFileDoesntExist' ====
+
+    it('check that executor is drained before drop', done => {
+      for (let i = 0; i < 100; i++) {
+        d.insert({ hello: 'world' }) // no await
+      }
+      d.dropDatabase(err => { // it should await the end of the inserts
+        if (err) return done(err)
+        assert.equal(d.getAllData().length, 0)
+        existsCallback(testDb, bool => {
+          assert.equal(bool, false)
+          done()
+        })
+      })
+    })
+
+    it('check that autocompaction is stopped', done => {
+      d.setAutocompactionInterval(5000)
+      d.insert({ hello: 'world' }, err => {
+        if (err) return done(err)
+        d.dropDatabase(err => {
+          if (err) return done(err)
+          assert.equal(d.autocompactionIntervalId, null)
+          assert.equal(d.getAllData().length, 0)
+          existsCallback(testDb, bool => {
+            assert.equal(bool, false)
+            done()
+          })
+        })
+      })
+    })
+
+    it('check that we can reload and insert afterwards', done => {
+      d.insert({ hello: 'world' }, err => {
+        if (err) return done(err)
+        d.dropDatabase(err => {
+          if (err) return done(err)
+          assert.equal(d.getAllData().length, 0)
+          existsCallback(testDb, bool => {
+            assert.equal(bool, false)
+            d.loadDatabase(err => {
+              if (err) return done(err)
+              d.insert({ hello: 'world' }, err => {
+                if (err) return done(err)
+                assert.equal(d.getAllData().length, 1)
+                d.compactDatafile(err => {
+                  if (err) return done(err)
+                  existsCallback(testDb, bool => {
+                    assert.equal(bool, true)
+                    done()
+                  })
+                })
+              })
+            })
+          })
+        })
+      })
+    })
+
+    it('check that we can dropDatatabase if the file is already deleted', done => {
+      callbackify(ensureFileDoesntExistAsync)(testDb, err => {
+        if (err) return done(err)
+        existsCallback(testDb, bool => {
+          assert.equal(bool, false)
+          d.dropDatabase(err => {
+            if (err) return done(err)
+            existsCallback(testDb, bool => {
+              assert.equal(bool, false)
+              done()
+            })
+          })
+        })
+      })
+    })
+
+    it('Check that TTL indexes are reset', done => {
+      d.ensureIndex({ fieldName: 'expire', expireAfterSeconds: 10 })
+      const date = new Date()
+      d.insert({ hello: 'world', expire: new Date(date.getTime() - 1000 * 20) }, err => { // expired by 10 seconds
+        if (err) return done(err)
+        d.find({}, (err, docs) => {
+          if (err) return done(err)
+          assert.equal(docs.length, 0) // the TTL makes it so that the document is not returned
+          d.dropDatabase(err => {
+            if (err) return done(err)
+            assert.equal(d.getAllData().length, 0)
+            existsCallback(testDb, bool => {
+              assert.equal(bool, false)
+              d.loadDatabase(err => {
+                if (err) return done(err)
+                d.insert({ hello: 'world', expire: new Date(date.getTime() - 1000 * 20) }, err => {
+                  if (err) return done(err)
+                  d.find({}, (err, docs) => {
+                    if (err) return done(err)
+                    assert.equal(docs.length, 1) // the TTL makes it so that the document is not returned
+                    d.compactDatafile(err => {
+                      if (err) return done(err)
+                      existsCallback(testDb, bool => {
+                        assert.equal(bool, true)
+                        done()
+                      })
+                    })
+                  })
+                })
+              })
+            })
+          })
+        })
+      })
+    })
+
+    it('Check that the buffer is reset', done => {
+      d.dropDatabase(err => {
+        if (err) return done(err)
+        // these 3 will hang until load
+        d.insert({ hello: 'world' })
+        d.insert({ hello: 'world' })
+        d.insert({ hello: 'world' })
+        assert.equal(d.getAllData().length, 0)
+        d.dropDatabase(err => {
+          if (err) return done(err)
+          d.insert({ hi: 'world' })
+          d.loadDatabase(err => {
+            if (err) return done(err)
+            assert.equal(d.getAllData().length, 1)
+            assert.equal(d.getAllData()[0].hi, 'world')
+            done()
+          })
+        })
+      })
+    })
+  }) // ==== End of 'dropDatabase' ====
 })

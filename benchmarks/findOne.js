@@ -1,4 +1,4 @@
-const async = require('async')
+const { apply, waterfall } = require('../test/utils.test.js')
 const commonUtilities = require('./commonUtilities')
 const Profiler = require('./profiler')
 
@@ -8,8 +8,8 @@ const config = commonUtilities.getConfiguration(benchDb)
 const d = config.d
 const n = config.n
 
-async.waterfall([
-  async.apply(commonUtilities.prepareDb, benchDb),
+waterfall([
+  apply(commonUtilities.prepareDb, benchDb),
   function (cb) {
     d.loadDatabase(function (err) {
       if (err) { return cb(err) }
@@ -18,9 +18,9 @@ async.waterfall([
     })
   },
   function (cb) { profiler.beginProfiling(); return cb() },
-  async.apply(commonUtilities.insertDocs, d, n, profiler),
+  apply(commonUtilities.insertDocs, d, n, profiler),
   function (cb) { setTimeout(function () { cb() }, 500) },
-  async.apply(commonUtilities.findOneDocs, d, n, profiler)
+  apply(commonUtilities.findOneDocs, d, n, profiler)
 ], function (err) {
   profiler.step('Benchmark finished')
 

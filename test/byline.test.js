@@ -46,7 +46,7 @@ describe('byline', function () {
 
   it('should work with streams2 API', function (done) {
     let stream = fs.createReadStream(localPath('empty.txt'))
-    stream = byline.createStream(stream)
+    stream = byline(stream)
 
     stream.on('readable', function () {
       while (stream.read() !== null) {

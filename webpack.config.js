@@ -32,15 +32,17 @@ module.exports = (env, argv) => {
         process: 'process/browser',
         Buffer: ['buffer', 'Buffer'],
         setImmediate: ['timers-browserify', 'setImmediate'],
-        clearImmediate: ['timers-browserify', 'clearImmediate']
+        clearImmediate: ['timers-browserify', 'clearImmediate'],
+        util: 'util'
       })
     ],
     entry: {
-      Nedb: path.join(__dirname, 'lib', 'datastore.js')
+      Nedb: path.join(__dirname, 'lib', 'datastore.js'),
+      testUtils: path.join(__dirname, 'test', 'utils.test.js')
     },
     output: {
       path: path.join(__dirname, 'browser-version/out'),
-      filename: minimize ? 'nedb.min.js' : 'nedb.js',
+      filename: pathData => `${pathData.chunk.name.toLowerCase()}${minimize ? '.min' : ''}.js`,
       libraryTarget: 'window',
       library: '[name]'
     }

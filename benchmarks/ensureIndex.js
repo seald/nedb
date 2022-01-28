@@ -1,5 +1,5 @@
-const async = require('async')
 const program = require('commander')
+const { apply, waterfall } = require('../test/utils.test.js')
 const Datastore = require('../lib/datastore')
 const commonUtilities = require('./commonUtilities')
 const Profiler = require('./profiler')
@@ -19,8 +19,8 @@ console.log('----------------------------')
 console.log('Test with ' + n + ' documents')
 console.log('----------------------------')
 
-async.waterfall([
-  async.apply(commonUtilities.prepareDb, benchDb),
+waterfall([
+  apply(commonUtilities.prepareDb, benchDb),
   function (cb) {
     d.loadDatabase(function (err) {
       if (err) { return cb(err) }
@@ -28,7 +28,7 @@ async.waterfall([
     })
   },
   function (cb) { profiler.beginProfiling(); return cb() },
-  async.apply(commonUtilities.insertDocs, d, n, profiler),
+  apply(commonUtilities.insertDocs, d, n, profiler),
   function (cb) {
     let i
 
@@ -41,6 +41,7 @@ async.waterfall([
 
     console.log('Average time for one ensureIndex: ' + (profiler.elapsedSinceLastStep() / n) + 'ms')
     profiler.step('Finished calling ensureIndex ' + n + ' times')
+    cb()
   }
 ], function (err) {
   profiler.step('Benchmark finished')

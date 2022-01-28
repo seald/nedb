@@ -3,11 +3,12 @@ const chai = require('chai')
 const testDb = 'workspace/test.db'
 const fs = require('fs')
 const path = require('path')
-const async = require('async')
+const { apply, each, waterfall } = require('./utils.test.js')
 const model = require('../lib/model')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
-const reloadTimeUpperBound = 60 // In ms, an upper bound for the reload time used to check createdAt and updatedAt
+const { callbackify } = require('util')
+const reloadTimeUpperBound = 200 // In ms, an upper bound for the reload time used to check createdAt and updatedAt
 
 const { assert } = chai
 chai.should()
@@ -20,9 +21,9 @@ describe('Database', function () {
     d.filename.should.equal(testDb)
     d.inMemoryOnly.should.equal(false)
 
-    async.waterfall([
+    waterfall([
       function (cb) {
-        Persistence.ensureDirectoryExists(path.dirname(testDb), function () {
+        callbackify((dirname) => Persistence.ensureDirectoryExistsAsync(dirname))(path.dirname(testDb), function () {
           fs.access(testDb, fs.constants.FS_OK, function (err) {
             if (!err) {
               fs.unlink(testDb, cb)
@@ -431,6 +432,7 @@ describe('Database', function () {
     it('If the callback throws an uncaught exception, do not catch it inside findOne, this is userspace concern', function (done) {
       let tryCount = 0
       const currentUncaughtExceptionHandlers = process.listeners('uncaughtException')
+
       let i
 
       process.removeAllListeners('uncaughtException')
@@ -471,7 +473,7 @@ describe('Database', function () {
             d.insert({ tf: 4, an: 'other' }, function (err, _doc2) {
               d.insert({ tf: 9 }, function () {
                 // eslint-disable-next-line node/handle-callback-err
-                d.getCandidates({ r: 6, tf: 4 }, function (err, data) {
+                callbackify(query => d._getCandidatesAsync(query))({ r: 6, tf: 4 }, function (err, data) {
                   const doc1 = data.find(function (d) { return d._id === _doc1._id })
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
 
@@ -500,7 +502,7 @@ describe('Database', function () {
               // eslint-disable-next-line node/handle-callback-err
               d.insert({ tf: 9 }, function (err, _doc2) {
                 // eslint-disable-next-line node/handle-callback-err
-                d.getCandidates({ r: 6, tf: { $in: [6, 9, 5] } }, function (err, data) {
+                callbackify(query => d._getCandidatesAsync(query))({ r: 6, tf: { $in: [6, 9, 5] } }, function (err, data) {
                   const doc1 = data.find(function (d) { return d._id === _doc1._id })
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
 
@@ -529,7 +531,7 @@ describe('Database', function () {
               // eslint-disable-next-line node/handle-callback-err
               d.insert({ tf: 9 }, function (err, _doc4) {
                 // eslint-disable-next-line node/handle-callback-err
-                d.getCandidates({ r: 6, notf: { $in: [6, 9, 5] } }, function (err, data) {
+                callbackify(query => d._getCandidatesAsync(query))({ r: 6, notf: { $in: [6, 9, 5] } }, function (err, data) {
                   const doc1 = data.find(function (d) { return d._id === _doc1._id })
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
                   const doc3 = data.find(function (d) { return d._id === _doc3._id })
@@ -562,7 +564,7 @@ describe('Database', function () {
               // eslint-disable-next-line node/handle-callback-err
               d.insert({ tf: 9 }, function (err, _doc4) {
                 // eslint-disable-next-line node/handle-callback-err
-                d.getCandidates({ r: 6, tf: { $lte: 9, $gte: 6 } }, function (err, data) {
+                callbackify(query => d._getCandidatesAsync(query))({ r: 6, tf: { $lte: 9, $gte: 6 } }, function (err, data) {
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
                   const doc4 = data.find(function (d) { return d._id === _doc4._id })
 
@@ -608,7 +610,7 @@ describe('Database', function () {
                     })
                   })
 
-                  d.persistence.compactDatafile()
+                  d.compactDatafile()
                 })
               }, 101)
             })
@@ -683,7 +685,7 @@ describe('Database', function () {
 
   describe('Find', function () {
     it('Can find all documents if an empty query is used', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -708,7 +710,7 @@ describe('Database', function () {
     })
 
     it('Can find all documents matching a basic query', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -737,7 +739,7 @@ describe('Database', function () {
     })
 
     it('Can find one document matching a basic query and return null if none is found', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -1011,7 +1013,7 @@ describe('Database', function () {
 
   describe('Count', function () {
     it('Count all documents if an empty query is used', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -1032,7 +1034,7 @@ describe('Database', function () {
     })
 
     it('Count all documents matching a basic query', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -1101,7 +1103,7 @@ describe('Database', function () {
 
   describe('Update', function () {
     it('If the query doesn\'t match anything, database is not modified', function (done) {
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
@@ -1198,7 +1200,7 @@ describe('Database', function () {
       }
 
       // Actually launch the tests
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err, doc1) {
@@ -1220,11 +1222,11 @@ describe('Database', function () {
             return cb()
           })
         },
-        async.apply(testPostUpdateState),
+        apply(testPostUpdateState),
         function (cb) {
           d.loadDatabase(function (err) { cb(err) })
         },
-        async.apply(testPostUpdateState)
+        apply(testPostUpdateState)
       ], done)
     })
 
@@ -1260,7 +1262,7 @@ describe('Database', function () {
       }
 
       // Actually launch the test
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err, doc1) {
@@ -1282,20 +1284,20 @@ describe('Database', function () {
             return cb()
           })
         },
-        async.apply(testPostUpdateState),
+        apply(testPostUpdateState),
         function (cb) {
           d.loadDatabase(function (err) { return cb(err) })
         },
-        async.apply(testPostUpdateState) // The persisted state has been updated
+        apply(testPostUpdateState) // The persisted state has been updated
       ], done)
     })
 
     describe('Upserts', function () {
       it('Can perform upserts if needed', function (done) {
-        d.update({ impossible: 'db is empty anyway' }, { newDoc: true }, {}, function (err, nr, upsert) {
+        d.update({ impossible: 'db is empty anyway' }, { newDoc: true }, {}, function (err, nr, affectedDocuments) {
           assert.isNull(err)
           nr.should.equal(0)
-          assert.isUndefined(upsert)
+          assert.isNull(affectedDocuments)
 
           // eslint-disable-next-line node/handle-callback-err
           d.find({}, function (err, docs) {
@@ -1790,8 +1792,8 @@ describe('Database', function () {
         d.update({ a: 1 }, { $set: { b: 20 } }, {}, function (err, numAffected, affectedDocuments, upsert) {
           assert.isNull(err)
           numAffected.should.equal(1)
-          assert.isUndefined(affectedDocuments)
-          assert.isUndefined(upsert)
+          assert.isNull(affectedDocuments)
+          assert.isFalse(upsert)
 
           // returnUpdatedDocs set to true
           d.update({ a: 1 }, { $set: { b: 21 } }, { returnUpdatedDocs: true }, function (err, numAffected, affectedDocuments, upsert) {
@@ -1799,7 +1801,7 @@ describe('Database', function () {
             numAffected.should.equal(1)
             affectedDocuments.a.should.equal(1)
             affectedDocuments.b.should.equal(21)
-            assert.isUndefined(upsert)
+            assert.isFalse(upsert)
 
             done()
           })
@@ -1814,8 +1816,8 @@ describe('Database', function () {
         d.update({}, { $set: { b: 20 } }, { multi: true }, function (err, numAffected, affectedDocuments, upsert) {
           assert.isNull(err)
           numAffected.should.equal(2)
-          assert.isUndefined(affectedDocuments)
-          assert.isUndefined(upsert)
+          assert.isNull(affectedDocuments)
+          assert.isFalse(upsert)
 
           // returnUpdatedDocs set to true
           d.update({}, { $set: { b: 21 } }, {
@@ -1825,7 +1827,7 @@ describe('Database', function () {
             assert.isNull(err)
             numAffected.should.equal(2)
             affectedDocuments.length.should.equal(2)
-            assert.isUndefined(upsert)
+            assert.isFalse(upsert)
 
             done()
           })
@@ -1840,8 +1842,8 @@ describe('Database', function () {
         d.update({ a: 3 }, { $set: { b: 20 } }, {}, function (err, numAffected, affectedDocuments, upsert) {
           assert.isNull(err)
           numAffected.should.equal(0)
-          assert.isUndefined(affectedDocuments)
-          assert.isUndefined(upsert)
+          assert.isNull(affectedDocuments)
+          assert.isFalse(upsert)
 
           // Upsert flag set
           d.update({ a: 3 }, { $set: { b: 21 } }, { upsert: true }, function (err, numAffected, affectedDocuments, upsert) {
@@ -1881,7 +1883,7 @@ describe('Database', function () {
       }
 
       // Actually launch the test
-      async.waterfall([
+      waterfall([
         function (cb) {
           // eslint-disable-next-line node/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err, doc1) {
@@ -1901,11 +1903,11 @@ describe('Database', function () {
             return cb()
           })
         },
-        async.apply(testPostUpdateState),
+        apply(testPostUpdateState),
         function (cb) {
           d.loadDatabase(function (err) { return cb(err) })
         },
-        async.apply(testPostUpdateState)
+        apply(testPostUpdateState)
       ], done)
     })
 
@@ -1920,7 +1922,7 @@ describe('Database', function () {
 
               // Remove two docs simultaneously
               const toRemove = ['Mars', 'Saturn']
-              async.each(toRemove, function (planet, cb) {
+              each(toRemove, function (planet, cb) {
                 d.remove({ planet: planet }, function (err) { return cb(err) })
                 // eslint-disable-next-line node/handle-callback-err
               }, function (err) {
@@ -2177,26 +2179,27 @@ describe('Database', function () {
 
         d.getAllData().length.should.equal(0)
 
-        d.ensureIndex({ fieldName: 'z' })
-        d.indexes.z.fieldName.should.equal('z')
-        d.indexes.z.unique.should.equal(false)
-        d.indexes.z.sparse.should.equal(false)
-        d.indexes.z.tree.getNumberOfKeys().should.equal(0)
+        d.ensureIndex({ fieldName: 'z' }, function () {
+          d.indexes.z.fieldName.should.equal('z')
+          d.indexes.z.unique.should.equal(false)
+          d.indexes.z.sparse.should.equal(false)
+          d.indexes.z.tree.getNumberOfKeys().should.equal(0)
 
-        fs.writeFile(testDb, rawData, 'utf8', function () {
-          d.loadDatabase(function () {
-            const doc1 = d.getAllData().find(function (doc) { return doc.z === '1' })
-            const doc2 = d.getAllData().find(function (doc) { return doc.z === '2' })
-            const doc3 = d.getAllData().find(function (doc) { return doc.z === '3' })
+          fs.writeFile(testDb, rawData, 'utf8', function () {
+            d.loadDatabase(function () {
+              const doc1 = d.getAllData().find(function (doc) { return doc.z === '1' })
+              const doc2 = d.getAllData().find(function (doc) { return doc.z === '2' })
+              const doc3 = d.getAllData().find(function (doc) { return doc.z === '3' })
 
-            d.getAllData().length.should.equal(3)
+              d.getAllData().length.should.equal(3)
 
-            d.indexes.z.tree.getNumberOfKeys().should.equal(3)
-            d.indexes.z.tree.search('1')[0].should.equal(doc1)
-            d.indexes.z.tree.search('2')[0].should.equal(doc2)
-            d.indexes.z.tree.search('3')[0].should.equal(doc3)
+              d.indexes.z.tree.getNumberOfKeys().should.equal(3)
+              d.indexes.z.tree.search('1')[0].should.equal(doc1)
+              d.indexes.z.tree.search('2')[0].should.equal(doc2)
+              d.indexes.z.tree.search('3')[0].should.equal(doc3)
 
-            done()
+              done()
+            })
           })
         })
       })
@@ -2247,17 +2250,19 @@ describe('Database', function () {
 
         d.getAllData().length.should.equal(0)
 
-        d.ensureIndex({ fieldName: 'z', unique: true })
-        d.indexes.z.tree.getNumberOfKeys().should.equal(0)
+        d.ensureIndex({ fieldName: 'z', unique: true }, function () {
+          d.indexes.z.tree.getNumberOfKeys().should.equal(0)
 
-        fs.writeFile(testDb, rawData, 'utf8', function () {
-          d.loadDatabase(function (err) {
-            err.errorType.should.equal('uniqueViolated')
-            err.key.should.equal('1')
-            d.getAllData().length.should.equal(0)
-            d.indexes.z.tree.getNumberOfKeys().should.equal(0)
+          fs.writeFile(testDb, rawData, 'utf8', function () {
+            d.loadDatabase(function (err) {
+              assert.isNotNull(err)
+              err.errorType.should.equal('uniqueViolated')
+              err.key.should.equal('1')
+              d.getAllData().length.should.equal(0)
+              d.indexes.z.tree.getNumberOfKeys().should.equal(0)
 
-            done()
+              done()
+            })
           })
         })
       })
@@ -3020,7 +3025,7 @@ describe('Database', function () {
       d.ensureIndex({ fieldName: 'bad' })
       d.insert({ bad: ['a', 'b'] }, function () {
         // eslint-disable-next-line node/handle-callback-err
-        d.getCandidates({ bad: { $in: ['a', 'b'] } }, function (err, res) {
+        callbackify(query => d._getCandidatesAsync(query))({ bad: { $in: ['a', 'b'] } }, function (err, res) {
           res.length.should.equal(1)
           done()
         })

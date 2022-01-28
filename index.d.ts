@@ -1,6 +1,7 @@
 // Type definitions for @seald-io/nedb 2.1.0
 // Project: https://github.com/seald/nedb forked from https://github.com/louischatriot/nedb
-// Definitions by: Mehdi Kouhen <https://github.com/arantes555>
+// Definitions by: Timothée Rebours <https://gihub.com/tex0l>
+//                 Mehdi Kouhen <https://github.com/arantes555>
 //                 Stefan Steinhart <https://github.com/reppners>
 //                 Anthony Nichols <https://github.com/anthonynichols>
 //                 Alejandro Fernandez Haro <https://github.com/afharo>
@@ -17,42 +18,64 @@ declare class Nedb<G = any> extends EventEmitter {
 
   persistence: Nedb.Persistence;
 
+  autoloadPromise: Promise<void>|null;
+
   loadDatabase(): void;
+
+  loadDatabaseAsync(): Promise<void>;
+
+  dropDatabase(callback?: (err: Error |null) => void): void;
+
+  dropDatabaseAsync(): Promise<void>;
+
+  compactDatafile(callback?: (err: Error |null) => void): void;
+
+  compactDatafileAsync(): Promise<void>;
+
+  setAutocompactionInterval(interval: number): void;
+
+  stopAutocompaction(): void;
 
   getAllData<T extends G>(): T[];
 
-  resetIndexes(newData?: any): void;
-
   ensureIndex(options: Nedb.EnsureIndexOptions, callback?: (err: Error | null) => void): void;
+
+  ensureIndexAsync(options: Nedb.EnsureIndexOptions): Promise<void>;
 
   removeIndex(fieldName: string, callback?: (err: Error | null) => void): void;
 
-  addToIndexes<T extends G>(doc: T | T[]): void;
-
-  removeFromIndexes<T extends G>(doc: T | T[]): void;
-
-  updateIndexes<T extends G>(oldDoc: T, newDoc: T): void;
-  updateIndexes<T extends G>(updates: Array<{ oldDoc: T; newDoc: T }>): void;
-
-  getCandidates<T extends G>(query: any, dontExpireStaleDocs: boolean, callback?: (err: Error | null, candidates: T[]) => void): void;
+  removeIndexAsync(fieldName: string): Promise<void>;
 
   insert<T extends G>(newDoc: T, callback?: (err: Error | null, document: T) => void): void;
   insert<T extends G>(newDocs: T[], callback?: (err: Error | null, documents: T[]) => void): void;
 
+  insertAsync<T extends G>(newDoc: T): Promise<T>;
+  insertAsync<T extends G>(newDocs: T[]): Promise<T[]>;
+
   count(query: any, callback: (err: Error | null, n: number) => void): void;
   count(query: any): Nedb.CursorCount;
+
+  countAsync(query: any): Nedb.Cursor<number>;
 
   find<T extends G>(query: any, projection: any, callback?: (err: Error | null, documents: T[]) => void): void;
   find<T extends G>(query: any, projection?: any): Nedb.Cursor<T>;
   find<T extends G>(query: any, callback: (err: Error | null, documents: T[]) => void): void;
 
+  findAsync<T extends G>(query: any, projection?: any): Nedb.Cursor<T[]>;
+
   findOne<T extends G>(query: any, projection: any, callback: (err: Error | null, document: T) => void): void;
   findOne<T extends G>(query: any, callback: (err: Error | null, document: T) => void): void;
 
+  findOneAsync<T extends G>(query: any, projection?: any): Nedb.Cursor<T>;
+
   update<T extends G>(query: any, updateQuery: any, options?: Nedb.UpdateOptions, callback?: (err: Error | null, numberOfUpdated: number, affectedDocuments: T | T[] | null, upsert: boolean | null) => void): void;
+
+  updateAsync<T extends G>(query: any, updateQuery: any, options?: Nedb.UpdateOptions): Promise<{numAffected: number, affectedDocuments: T|T[]|null, upsert: boolean}>;
 
   remove(query: any, options: Nedb.RemoveOptions, callback?: (err: Error | null, n: number) => void): void;
   remove(query: any, callback?: (err: Error | null, n: number) => void): void;
+
+  removeAsync(query: any, options: Nedb.RemoveOptions): Promise<number>;
 
   addListener(event: 'compaction.done', listener: () => void): this;
   on(event: 'compaction.done', listener: () => void): this;
@@ -67,12 +90,13 @@ declare class Nedb<G = any> extends EventEmitter {
 }
 
 declare namespace Nedb {
-  interface Cursor<T> {
+  interface Cursor<T> extends Promise<T> {
     sort(query: any): Cursor<T>;
     skip(n: number): Cursor<T>;
     limit(n: number): Cursor<T>;
     projection(query: any): Cursor<T>;
     exec(callback: (err: Error | null, documents: T[]) => void): void;
+    execAsync(): Promise<T>;
   }
 
   interface CursorCount {
@@ -83,7 +107,6 @@ declare namespace Nedb {
     filename?: string;
     timestampData?: boolean;
     inMemoryOnly?: boolean;
-    nodeWebkitAppName?: string;
     autoload?: boolean;
     onload?(error: Error | null): any;
     beforeDeserialization?(line: string): string;
@@ -110,8 +133,13 @@ declare namespace Nedb {
   }
 
   interface Persistence {
+    /** @deprecated */
     compactDatafile(): void;
+    /** @deprecated */
+    compactDatafileAsync(): Promise<void>;
+    /** @deprecated */
     setAutocompactionInterval(interval: number): void;
+    /** @deprecated */
     stopAutocompaction(): void;
   }
 }

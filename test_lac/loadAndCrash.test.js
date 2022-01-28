@@ -1,133 +1,59 @@
 /* eslint-env mocha */
-/* global DEBUG */
 /**
  * Load and modify part of fs to ensure writeFile will crash after writing 5000 bytes
  */
 const fs = require('fs')
+const { Writable } = require('stream')
+const { callbackify } = require('util')
 
-function rethrow () {
-  // Only enable in debug mode. A backtrace uses ~1000 bytes of heap space and
-  // is fairly slow to generate.
-  if (DEBUG) {
-    const backtrace = new Error()
-    return function (err) {
-      if (err) {
-        backtrace.stack = err.name + ': ' + err.message +
-          backtrace.stack.substr(backtrace.name.length)
-        throw backtrace
-      }
-    }
-  }
+fs.promises.writeFile = async function (path, data) {
+  let onePassDone = false
+  const options = { encoding: 'utf8', mode: 0o666, flag: 'w' } // we don't care about the actual options passed
 
-  return function (err) {
-    if (err) {
-      throw err // Forgot a callback but don't know where? Use NODE_DEBUG=fs
-    }
-  }
-}
+  const filehandle = await fs.promises.open(path, options.flag, options.mode)
+  const buffer = (data instanceof Buffer) ? data : Buffer.from('' + data, options.encoding || 'utf8')
+  let length = buffer.length
+  let offset = 0
 
-function maybeCallback (cb) {
-  return typeof cb === 'function' ? cb : rethrow()
-}
-
-function isFd (path) {
-  return (path >>> 0) === path
-}
-
-function assertEncoding (encoding) {
-  if (encoding && !Buffer.isEncoding(encoding)) {
-    throw new Error('Unknown encoding: ' + encoding)
-  }
-}
-
-let onePassDone = false
-
-function writeAll (fd, isUserFd, buffer, offset, length, position, callback_) {
-  const callback = maybeCallback(arguments[arguments.length - 1])
-
-  if (onePassDone) { process.exit(1) } // Crash on purpose before rewrite done
-  const l = Math.min(5000, length) // Force write by chunks of 5000 bytes to ensure data will be incomplete on crash
-
-  // write(fd, buffer, offset, length, position, callback)
-  fs.write(fd, buffer, offset, l, position, function (writeErr, written) {
-    if (writeErr) {
-      if (isUserFd) {
-        if (callback) callback(writeErr)
-      } else {
-        fs.close(fd, function () {
-          if (callback) callback(writeErr)
-        })
-      }
-    } else {
+  try {
+    while (length > 0) {
+      if (onePassDone) { process.exit(1) } // Crash on purpose before rewrite done
+      const { bytesWritten } = await filehandle.write(buffer, offset, Math.min(5000, length)) // Force write by chunks of 5000 bytes to ensure data will be incomplete on crash
       onePassDone = true
-      if (written === length) {
-        if (isUserFd) {
-          if (callback) callback(null)
-        } else {
-          fs.close(fd, callback)
-        }
-      } else {
-        offset += written
-        length -= written
-        if (position !== null) {
-          position += written
-        }
-        writeAll(fd, isUserFd, buffer, offset, length, position, callback)
-      }
+      offset += bytesWritten
+      length -= bytesWritten
     }
-  })
-}
-
-fs.writeFile = function (path, data, options, callback_) {
-  const callback = maybeCallback(arguments[arguments.length - 1])
-
-  if (!options || typeof options === 'function') {
-    options = { encoding: 'utf8', mode: 438, flag: 'w' } // Mode 438 == 0o666 (compatibility with older Node releases)
-  } else if (typeof options === 'string') {
-    options = { encoding: options, mode: 438, flag: 'w' } // Mode 438 == 0o666 (compatibility with older Node releases)
-  } else if (typeof options !== 'object') {
-    throw new Error(`throwOptionsError${options}`)
-  }
-
-  assertEncoding(options.encoding)
-
-  const flag = options.flag || 'w'
-
-  if (isFd(path)) {
-    writeFd(path, true)
-    return
-  }
-
-  fs.open(path, flag, options.mode, function (openErr, fd) {
-    if (openErr) {
-      if (callback) callback(openErr)
-    } else {
-      writeFd(fd, false)
-    }
-  })
-
-  function writeFd (fd, isUserFd) {
-    const buffer = (data instanceof Buffer) ? data : Buffer.from('' + data, options.encoding || 'utf8')
-    const position = /a/.test(flag) ? null : 0
-
-    writeAll(fd, isUserFd, buffer, 0, buffer.length, position, callback)
+  } finally {
+    await filehandle.close()
   }
 }
 
-fs.createWriteStream = function (path) {
-  let content = ''
-  return {
-    write (data) {
-      content += data
-    },
-    close (callback) {
-      fs.writeFile(path, content, callback)
-    }
+class FakeFsWriteStream extends Writable {
+  constructor (filename) {
+    super()
+    this.filename = filename
+    this._content = Buffer.alloc(0)
+  }
+
+  _write (chunk, encoding, callback) {
+    this._content = Buffer.concat([this._content, Buffer.from(chunk, encoding)])
+    callback()
+  }
+
+  _end (chunk, encoding, callback) {
+    this._content = Buffer.concat([this._content, Buffer.from(chunk, encoding)])
+    callback()
+  }
+
+  close (callback) {
+    callbackify(fs.promises.writeFile)(this.filename, this._content, 'utf8', callback)
   }
 }
 
-// End of fs modification
+fs.createWriteStream = path => new FakeFsWriteStream(path)
+
+// End of fs monkey patching
 const Nedb = require('../lib/datastore.js')
 const db = new Nedb({ filename: 'workspace/lac.db' })
 
-db.loadDatabase()
+db.loadDatabaseAsync() // no need to await

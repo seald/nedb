@@ -1,11 +1,13 @@
 /**
  * Way data is stored for this database
- * For a Node.js/Node Webkit database it's the file system
- * For a browser-side database it's localforage, which uses the best backend available (IndexedDB then WebSQL then localStorage)
- * For a react-native database, we use @react-native-async-storage/async-storage
  *
- * This version is the browser version
+ * This version is the browser version and uses [localforage]{@link https://github.com/localForage/localForage} which chooses the best option depending on user browser (IndexedDB then WebSQL then localStorage).
+ * @module storageBrowser
+ * @see module:storage
+ * @see module:storageReactNative
+ * @private
  */
+
 const localforage = require('localforage')
 
 // Configure localforage to display NeDB name for now. Would be a good idea to let user use his own app name
@@ -14,73 +16,163 @@ const store = localforage.createInstance({
   storeName: 'nedbdata'
 })
 
-const exists = (filename, cback) => {
-  // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, value) => {
-    if (value !== null) return cback(true) // Even if value is undefined, localforage returns null
-    else return cback(false)
-  })
+/**
+ * Returns Promise<true> if file exists.
+ *
+ * @param {string} file
+ * @return {Promise<boolean>}
+ * @async
+ * @alias module:storageBrowser.existsAsync
+ */
+const existsAsync = async file => {
+  try {
+    const value = await store.getItem(file)
+    if (value !== null) return true // Even if value is undefined, localforage returns null
+    return false
+  } catch (error) {
+    return false
+  }
 }
 
-const rename = (filename, newFilename, callback) => {
-  // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, value) => {
-    if (value === null) store.removeItem(newFilename, () => callback())
+/**
+ * Moves the item from one path to another.
+ * @param {string} oldPath
+ * @param {string} newPath
+ * @return {Promise<void>}
+ * @alias module:storageBrowser.renameAsync
+ * @async
+ */
+const renameAsync = async (oldPath, newPath) => {
+  try {
+    const value = await store.getItem(oldPath)
+    if (value === null) await store.removeItem(newPath)
     else {
-      store.setItem(newFilename, value, () => {
-        store.removeItem(filename, () => callback())
-      })
+      await store.setItem(newPath, value)
+      await store.removeItem(oldPath)
     }
-  })
+  } catch (err) {
+    console.warn('An error happened while renaming, skip')
+  }
 }
 
-const writeFile = (filename, contents, options, callback) => {
+/**
+ * Saves the item at given path.
+ * @param {string} file
+ * @param {string} data
+ * @param {object} [options]
+ * @return {Promise<void>}
+ * @alias module:storageBrowser.writeFileAsync
+ * @async
+ */
+const writeFileAsync = async (file, data, options) => {
   // Options do not matter in browser setup
-  if (typeof options === 'function') { callback = options }
-  store.setItem(filename, contents, () => callback())
+  try {
+    await store.setItem(file, data)
+  } catch (error) {
+    console.warn('An error happened while writing, skip')
+  }
 }
 
-const appendFile = (filename, toAppend, options, callback) => {
+/**
+ * Append to the item at given path.
+ * @function
+ * @param {string} filename
+ * @param {string} toAppend
+ * @param {object} [options]
+ * @return {Promise<void>}
+ * @alias module:storageBrowser.appendFileAsync
+ * @async
+ */
+const appendFileAsync = async (filename, toAppend, options) => {
   // Options do not matter in browser setup
-  if (typeof options === 'function') { callback = options }
-
-  // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, contents) => {
-    contents = contents || ''
-    contents += toAppend
-    store.setItem(filename, contents, () => callback())
-  })
+  try {
+    const contents = (await store.getItem(filename)) || ''
+    await store.setItem(filename, contents + toAppend)
+  } catch (error) {
+    console.warn('An error happened appending to file writing, skip')
+  }
 }
 
-const readFile = (filename, options, callback) => {
-  // Options do not matter in browser setup
-  if (typeof options === 'function') { callback = options }
-  // eslint-disable-next-line node/handle-callback-err
-  store.getItem(filename, (err, contents) => callback(null, contents || ''))
+/**
+ * Read data at given path.
+ * @function
+ * @param {string} filename
+ * @param {object} [options]
+ * @return {Promise<Buffer>}
+ * @alias module:storageBrowser.readFileAsync
+ * @async
+ */
+const readFileAsync = async (filename, options) => {
+  try {
+    return (await store.getItem(filename)) || ''
+  } catch (error) {
+    console.warn('An error happened while reading, skip')
+    return ''
+  }
 }
 
-const unlink = (filename, callback) => {
-  store.removeItem(filename, () => callback())
+/**
+ * Async version of {@link module:storageBrowser.unlink}.
+ * @function
+ * @param {string} filename
+ * @return {Promise<void>}
+ * @async
+ * @alias module:storageBrowser.unlink
+ */
+const unlinkAsync = async filename => {
+  try {
+    await store.removeItem(filename)
+  } catch (error) {
+    console.warn('An error happened while unlinking, skip')
+  }
 }
 
-// Nothing to do, no directories will be used on the browser
-const mkdir = (dir, options, callback) => callback()
+/**
+ * Shim for {@link module:storage.mkdirAsync}, nothing to do, no directories will be used on the browser.
+ * @function
+ * @param {string} path
+ * @param {object} [options]
+ * @return {Promise<void|string>}
+ * @alias module:storageBrowser.mkdirAsync
+ * @async
+ */
+const mkdirAsync = (path, options) => Promise.resolve()
 
-// Nothing to do, no data corruption possible in the browser
-const ensureDatafileIntegrity = (filename, callback) => callback(null)
+/**
+ * Shim for {@link module:storage.ensureDatafileIntegrityAsync}, nothing to do, no data corruption possible in the browser.
+ * @param {string} filename
+ * @return {Promise<void>}
+ * @alias module:storageBrowser.ensureDatafileIntegrityAsync
+ */
+const ensureDatafileIntegrityAsync = (filename) => Promise.resolve()
 
-const crashSafeWriteFileLines = (filename, lines, callback) => {
+/**
+ * Fully write or rewrite the datafile, immune to crashes during the write operation (data will not be lost)
+ * * @param {string} filename
+ * @param {string[]} lines
+ * @return {Promise<void>}
+ * @alias module:storageBrowser.crashSafeWriteFileLinesAsync
+ */
+const crashSafeWriteFileLinesAsync = async (filename, lines) => {
   lines.push('') // Add final new line
-  writeFile(filename, lines.join('\n'), callback)
+  await writeFileAsync(filename, lines.join('\n'))
 }
 
 // Interface
-module.exports.exists = exists
-module.exports.rename = rename
-module.exports.writeFile = writeFile
-module.exports.crashSafeWriteFileLines = crashSafeWriteFileLines
-module.exports.appendFile = appendFile
-module.exports.readFile = readFile
-module.exports.unlink = unlink
-module.exports.mkdir = mkdir
-module.exports.ensureDatafileIntegrity = ensureDatafileIntegrity
+module.exports.existsAsync = existsAsync
+
+module.exports.renameAsync = renameAsync
+
+module.exports.writeFileAsync = writeFileAsync
+
+module.exports.crashSafeWriteFileLinesAsync = crashSafeWriteFileLinesAsync
+
+module.exports.appendFileAsync = appendFileAsync
+
+module.exports.readFileAsync = readFileAsync
+
+module.exports.unlinkAsync = unlinkAsync
+
+module.exports.mkdirAsync = mkdirAsync
+
+module.exports.ensureDatafileIntegrityAsync = ensureDatafileIntegrityAsync
