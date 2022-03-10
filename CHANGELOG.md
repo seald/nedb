@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.2] - 2022-03-10
+### Fixed
+- [#21](https://github.com/seald/nedb/issues/21) Typings for loadDatabase now support a callback.
+
 ## [2.2.1] - 2022-01-18
 ### Changed
 - [#20](https://github.com/seald/nedb/pull/20) storage.js: check fsync capability from return code rather than using process.platform heuristics (Thanks [@bitmeal](https://github.com/bitmeal)).

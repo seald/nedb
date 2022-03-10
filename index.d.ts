@@ -17,7 +17,7 @@ declare class Nedb<G = any> extends EventEmitter {
 
   persistence: Nedb.Persistence;
 
-  loadDatabase(): void;
+  loadDatabase(callback?: (err: Error | null) => void): void;
 
   getAllData<T extends G>(): T[];
 
