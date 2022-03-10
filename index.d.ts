@@ -22,6 +22,8 @@ declare class Nedb<G = any> extends EventEmitter {
 
   loadDatabase(): void;
 
+  loadDatabase(callback?: (err: Error) => void): void;
+
   loadDatabaseAsync(): Promise<void>;
 
   dropDatabase(callback?: (err: Error |null) => void): void;
