@@ -20,7 +20,7 @@ declare class Nedb<G = any> extends EventEmitter {
 
   autoloadPromise: Promise<void>|null;
 
-  loadDatabase(): void;
+  loadDatabase(callback?: (err: Error | null) => void): void;
 
   loadDatabaseAsync(): Promise<void>;
 

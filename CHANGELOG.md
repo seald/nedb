@@ -57,6 +57,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The option for passing `options.nodeWebkitAppName` to the Datastore and the Persistence constructors has been removed, subsequently, the static method `Persistence.getNWAppFilename` has been removed as well;
 - Compatibility with node < 10.1.0 (we use `fs.promises`).
 
+## Fixed 
+- \[cherry picked from 2.2.2\] [#21](https://github.com/seald/nedb/issues/21) Typings for loadDatabase now support a callback.
+
+## [2.2.2] - 2022-03-10
+### Fixed
+- [#21](https://github.com/seald/nedb/issues/21) Typings for loadDatabase now support a callback.
 
 ## [2.2.1] - 2022-01-18
 ### Changed

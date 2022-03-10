@@ -16,6 +16,12 @@ let db = new Datastore()
 db = new Datastore({ filename: 'path/to/datafile' })
 db.loadDatabase()
 
+// Type 2 bis: Persistent datastore with manual loading with a callback
+db = new Datastore({ filename: 'path/to/datafile' })
+db.loadDatabase((err: Error | null) => {
+  // should not fail
+})
+
 // Type 3: Persistent datastore with automatic loading
 db = new Datastore({ filename: 'path/to/datafile_2', autoload: true })
 // You can issue commands right away
