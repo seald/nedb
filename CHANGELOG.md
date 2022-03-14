@@ -13,6 +13,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - An auto-generated JSDoc file is generated: [API.md](./API.md).
 - Added `Datastore#dropDatabaseAsync` and its callback equivalent.
 - The Error given when the `Datastore#corruptAlertThreshold` is reached now has three properties: `dataLength` which is the amount of lines in the database file (excluding empty lines), `corruptItems` which is the amount of corrupted lines, `corruptionRate` which the rate of corruption between 0 and 1.
+- Added a `mode` option which allows to set the file and / or directory modes, by default, it uses `0o644` for files and `0o755` for directories, which may be breaking.
 
 ### Changed
 - The `corruptionAlertThreshold` now doesn't take into account empty lines, and the error message is slightly changed.

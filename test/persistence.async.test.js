@@ -999,3 +999,81 @@ describe('Persistence async', function () {
     })
   }) // ==== End of 'dropDatabase' ====
 })
+
+const getMode = async path => {
+  const { mode } = await fs.lstat(path)
+  const octalString = mode.toString('8')
+  return parseInt(octalString.substring(octalString.length - 4), '8')
+}
+
+const testPermissions = async (db, fileMode, dirMode) => {
+  assert.equal(db.persistence.mode.fileMode, fileMode)
+  assert.equal(db.persistence.mode.dirMode, dirMode)
+  await db.loadDatabaseAsync()
+  assert.equal(await getMode(db.filename), fileMode)
+  assert.equal(await getMode(path.dirname(db.filename)), dirMode)
+  await db.ensureIndex({ fieldName: 'foo' })
+  assert.equal(await getMode(db.filename), fileMode)
+  assert.equal(await getMode(path.dirname(db.filename)), dirMode)
+  await db.insertAsync({ hello: 'world' })
+  assert.equal(await getMode(db.filename), fileMode)
+  assert.equal(await getMode(path.dirname(db.filename)), dirMode)
+  await db.removeAsync({ hello: 'world' })
+  assert.equal(await getMode(db.filename), fileMode)
+  assert.equal(await getMode(path.dirname(db.filename)), dirMode)
+  await db.updateAsync({ hello: 'world2' })
+  assert.equal(await getMode(db.filename), fileMode)
+  assert.equal(await getMode(path.dirname(db.filename)), dirMode)
+  await db.removeIndex({ fieldName: 'foo' })
+  assert.equal(await getMode(db.filename), fileMode)
+  assert.equal(await getMode(path.dirname(db.filename)), dirMode)
+  await db.compactDatafileAsync()
+  assert.equal(await getMode(db.filename), fileMode)
+  assert.equal(await getMode(path.dirname(db.filename)), dirMode)
+}
+describe('permissions', function () {
+  const testDb = 'workspace/permissions/test.db'
+
+  beforeEach('cleanup', async () => {
+    try {
+      await fs.chmod(path.dirname(testDb), 0o755)
+      await fs.rm(testDb, { force: true })
+      await fs.rmdir(path.dirname(testDb, { recursive: true }))
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err
+    }
+  })
+
+  it('ensureDirectoryExists forwards mode argument', async () => {
+    await Persistence.ensureDirectoryExistsAsync(path.dirname(testDb), 0o700)
+    assert.equal(await getMode(path.dirname(testDb)), 0o700)
+  })
+
+  it('Setting nothing', async () => {
+    const FILE_MODE = 0o644
+    const DIR_MODE = 0o755
+    const db = new Datastore({ filename: testDb })
+    await testPermissions(db, FILE_MODE, DIR_MODE)
+  })
+
+  it('Setting only fileMode', async () => {
+    const FILE_MODE = 0o600
+    const DIR_MODE = 0o755
+    const db = new Datastore({ filename: testDb, mode: { fileMode: FILE_MODE } })
+    await testPermissions(db, FILE_MODE, DIR_MODE)
+  })
+
+  it('Setting only dirMode', async () => {
+    const FILE_MODE = 0o644
+    const DIR_MODE = 0o700
+    const db = new Datastore({ filename: testDb, mode: { dirMode: DIR_MODE } })
+    await testPermissions(db, FILE_MODE, DIR_MODE)
+  })
+
+  it('Setting fileMode & dirMode', async () => {
+    const FILE_MODE = 0o600
+    const DIR_MODE = 0o700
+    const db = new Datastore({ filename: testDb, mode: { dirMode: DIR_MODE, fileMode: FILE_MODE } })
+    await testPermissions(db, FILE_MODE, DIR_MODE)
+  })
+})
