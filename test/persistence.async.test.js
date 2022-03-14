@@ -1037,7 +1037,7 @@ describe('permissions', function () {
   beforeEach('cleanup', async () => {
     try {
       await fs.chmod(path.dirname(testDb), 0o755)
-      await fs.rm(testDb, { force: true })
+      await fs.unlink(testDb)
       await fs.rmdir(path.dirname(testDb, { recursive: true }))
     } catch (err) {
       if (err.code !== 'ENOENT') throw err
