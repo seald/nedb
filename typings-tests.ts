@@ -23,7 +23,7 @@ db.loadDatabase((err: Error | null) => {
 })
 
 // Type 3: Persistent datastore with automatic loading
-db = new Datastore({ filename: 'path/to/datafile_2', autoload: true })
+db = new Datastore({ filename: 'path/to/datafile_2', autoload: true, modes: {fileMode: 0o644, dirMode: 0o755} })
 // You can issue commands right away
 
 // Of course you can create multiple datastores if you need several

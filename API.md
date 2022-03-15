@@ -309,8 +309,7 @@ automatically considered in-memory only. It cannot end with a <code>~</code> whi
 perform crash-safe writes. Not used if <code>options.inMemoryOnly</code> is <code>true</code>.</p>
     - [.inMemoryOnly] <code>boolean</code> <code> = false</code> - <p>If set to true, no data will be written in storage. This option has
 priority over <code>options.filename</code>.</p>
-    - [.mode] <code>object</code> - <p>Permissions to use for FS. Only used for
-Node.js storage module.</p>
+    - [.modes] <code>object</code> - <p>Permissions to use for FS. Only used for Node.js storage module. Will not work on Windows.</p>
         - [.fileMode] <code>number</code> <code> = 0o644</code> - <p>Permissions to use for database files</p>
         - [.dirMode] <code>number</code> <code> = 0o755</code> - <p>Permissions to use for database directories</p>
     - [.timestampData] <code>boolean</code> <code> = false</code> - <p>If set to true, createdAt and updatedAt will be created and
@@ -838,7 +837,7 @@ with <code>appendfsync</code> option set to <code>no</code>.</p>
     - [.corruptAlertThreshold] <code>Number</code> - <p>Optional, threshold after which an alert is thrown if too much data is corrupt</p>
     - [.beforeDeserialization] [<code>serializationHook</code>](#serializationHook) - <p>Hook you can use to transform data after it was serialized and before it is written to disk.</p>
     - [.afterSerialization] [<code>serializationHook</code>](#serializationHook) - <p>Inverse of <code>afterSerialization</code>.</p>
-    - [.mode] <code>object</code> - <p>Modes to use for FS permissions.</p>
+    - [.modes] <code>object</code> - <p>Modes to use for FS permissions. Will not work on Windows.</p>
         - [.fileMode] <code>number</code> <code> = 0o644</code> - <p>Mode to use for files.</p>
         - [.dirMode] <code>number</code> <code> = 0o755</code> - <p>Mode to use for directories.</p>
 

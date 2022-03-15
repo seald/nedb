@@ -1002,13 +1002,12 @@ describe('Persistence async', function () {
 
 const getMode = async path => {
   const { mode } = await fs.lstat(path)
-  const octalString = mode.toString('8')
-  return parseInt(octalString.substring(octalString.length - 4), '8')
+  return mode & 0o777
 }
 
 const testPermissions = async (db, fileMode, dirMode) => {
-  assert.equal(db.persistence.mode.fileMode, fileMode)
-  assert.equal(db.persistence.mode.dirMode, dirMode)
+  assert.equal(db.persistence.modes.fileMode, fileMode)
+  assert.equal(db.persistence.modes.dirMode, dirMode)
   await db.loadDatabaseAsync()
   assert.equal(await getMode(db.filename), fileMode)
   assert.equal(await getMode(path.dirname(db.filename)), dirMode)
@@ -1033,6 +1032,10 @@ const testPermissions = async (db, fileMode, dirMode) => {
 }
 describe('permissions', function () {
   const testDb = 'workspace/permissions/test.db'
+
+  before('check OS', function () {
+    if (process.platform === 'win32' || process.platform === 'win64') this.skip()
+  })
 
   beforeEach('cleanup', async () => {
     try {
@@ -1059,21 +1062,21 @@ describe('permissions', function () {
   it('Setting only fileMode', async () => {
     const FILE_MODE = 0o600
     const DIR_MODE = 0o755
-    const db = new Datastore({ filename: testDb, mode: { fileMode: FILE_MODE } })
+    const db = new Datastore({ filename: testDb, modes: { fileMode: FILE_MODE } })
     await testPermissions(db, FILE_MODE, DIR_MODE)
   })
 
   it('Setting only dirMode', async () => {
     const FILE_MODE = 0o644
     const DIR_MODE = 0o700
-    const db = new Datastore({ filename: testDb, mode: { dirMode: DIR_MODE } })
+    const db = new Datastore({ filename: testDb, modes: { dirMode: DIR_MODE } })
     await testPermissions(db, FILE_MODE, DIR_MODE)
   })
 
   it('Setting fileMode & dirMode', async () => {
     const FILE_MODE = 0o600
     const DIR_MODE = 0o700
-    const db = new Datastore({ filename: testDb, mode: { dirMode: DIR_MODE, fileMode: FILE_MODE } })
+    const db = new Datastore({ filename: testDb, modes: { dirMode: DIR_MODE, fileMode: FILE_MODE } })
     await testPermissions(db, FILE_MODE, DIR_MODE)
   })
 })

@@ -113,6 +113,7 @@ declare namespace Nedb {
     afterSerialization?(line: string): string;
     corruptAlertThreshold?: number;
     compareStrings?(a: string, b: string): number;
+    modes?: {fileMode: number, dirMode: number};
   }
 
   interface UpdateOptions {
