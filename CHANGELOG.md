@@ -8,7 +8,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [3.0.1] - 2022-09-02
 ### Added
-- Added a `testSerializationHooks` option which defaults to `true` to allow skipping the test of the hooks which may be slow
+- Added a `testSerializationHooks` option which defaults to `true`. Setting to `false` allows to skip the test of the hooks, which may be slow.
 
 ## [3.0.0] - 2022-03-16
 ### Added
