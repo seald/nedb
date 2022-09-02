@@ -461,6 +461,20 @@ describe('Persistence async', function () {
       assert.equal(await fs.readFile(hookTestFilename, 'utf8'), 'Some content')
     })
 
+    it('Declaring two hooks that are not reverse of one another will not cause exception if options.testSerializationHooks === false', async () => {
+      const hookTestFilename = 'workspace/hookTest.db'
+      await storage.ensureFileDoesntExistAsync(hookTestFilename)
+      await fs.writeFile(hookTestFilename, 'Some content', 'utf8')
+      const db = new Datastore({
+        filename: hookTestFilename,
+        autoload: true,
+        afterSerialization: as,
+        beforeDeserialization: function (s) { return s },
+        testSerializationHooks: false
+      })
+      await assert.rejects(() => db.autoloadPromise)
+    })
+
     it('A serialization hook can be used to transform data before writing new state to disk', async () => {
       const hookTestFilename = 'workspace/hookTest.db'
       await storage.ensureFileDoesntExistAsync(hookTestFilename)
