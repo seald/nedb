@@ -309,6 +309,18 @@ describe('Database async', function () {
       assert.deepEqual(doc2, { _id: doc2._id, tf: 4, an: 'other' })
     })
 
+    it('Can use a compound index to get docs with a basic match', async () => {
+      await d.ensureIndexAsync({ fieldName: ['tf', 'tg'] })
+      await d.insertAsync({ tf: 4, tg: 0, foo: 1 })
+      await d.insertAsync({ tf: 6, tg: 0, foo: 2 })
+      const _doc1 = await d.insertAsync({ tf: 4, tg: 1, foo: 3 })
+      await d.insertAsync({ tf: 6, tg: 1, foo: 4 })
+      const data = await d._getCandidatesAsync({ tf: 4, tg: 1 })
+      const doc1 = data.find(d => d._id === _doc1._id)
+      assert.equal(data.length, 1)
+      assert.deepEqual(doc1, { _id: doc1._id, tf: 4, tg: 1, foo: 3 })
+    })
+
     it('Can use an index to get docs with a $in match', async () => {
       await d.ensureIndexAsync({ fieldName: 'tf' })
       await d.insertAsync({ tf: 4 })
@@ -1313,6 +1325,67 @@ describe('Database async', function () {
         assert.equal(Object.keys(d.indexes)[1], 'planet')
 
         assert.equal(d.indexes.planet.getAll().length, 2)
+      })
+
+      it('ensureIndex can be called twice on the same compound field, the second call will ahve no effect', async () => {
+        assert.equal(Object.keys(d.indexes).length, 1)
+        assert.equal(Object.keys(d.indexes)[0], '_id')
+
+        await d.insertAsync({ star: 'sun', planet: 'Earth' })
+        await d.insertAsync({ star: 'sun', planet: 'Mars' })
+        const docs = await d.findAsync({})
+        assert.equal(docs.length, 2)
+
+        await d.ensureIndexAsync({ fieldName: ['star', 'planet'] })
+        assert.equal(Object.keys(d.indexes).length, 2)
+        assert.equal(Object.keys(d.indexes)[0], '_id')
+        assert.equal(Object.keys(d.indexes)[1], 'planet,star')
+
+        assert.equal(d.indexes['planet,star'].getAll().length, 2)
+
+        // This second call has no effect, documents don't get inserted twice in the index
+        await d.ensureIndexAsync({ fieldName: ['star', 'planet'] })
+        assert.equal(Object.keys(d.indexes).length, 2)
+        assert.equal(Object.keys(d.indexes)[0], '_id')
+        assert.equal(Object.keys(d.indexes)[1], 'planet,star')
+
+        assert.equal(d.indexes['planet,star'].getAll().length, 2)
+      })
+
+      it('ensureIndex can be called twice on the same compound field with a different order, the second call will ahve no effect', async () => {
+        assert.equal(Object.keys(d.indexes).length, 1)
+        assert.equal(Object.keys(d.indexes)[0], '_id')
+
+        await d.insertAsync({ star: 'sun', planet: 'Earth' })
+        await d.insertAsync({ star: 'sun', planet: 'Mars' })
+        const docs = await d.findAsync({})
+        assert.equal(docs.length, 2)
+
+        await d.ensureIndexAsync({ fieldName: ['star', 'planet'] })
+        assert.equal(Object.keys(d.indexes).length, 2)
+        assert.equal(Object.keys(d.indexes)[0], '_id')
+        assert.equal(Object.keys(d.indexes)[1], 'planet,star')
+
+        assert.equal(d.indexes['planet,star'].getAll().length, 2)
+
+        // This second call has no effect, documents don't get inserted twice in the index
+        await d.ensureIndexAsync({ fieldName: ['planet', 'star'] })
+        assert.equal(Object.keys(d.indexes).length, 2)
+        assert.equal(Object.keys(d.indexes)[0], '_id')
+        assert.equal(Object.keys(d.indexes)[1], 'planet,star')
+
+        assert.equal(d.indexes['planet,star'].getAll().length, 2)
+      })
+
+      it('ensureIndex cannot be called with an illegal field name', async () => {
+        await assert.rejects(() => d.ensureIndexAsync({ fieldName: 'star,planet' }), err => {
+          assert.notEqual(err, null)
+          return true
+        })
+        await assert.rejects(() => d.ensureIndexAsync({ fieldName: ['star,planet', 'other'] }), err => {
+          assert.notEqual(err, null)
+          return true
+        })
       })
 
       it('ensureIndex can be called after the data set was modified and the index still be correct', async () => {

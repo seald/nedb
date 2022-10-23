@@ -144,7 +144,7 @@ If the document does not contain an `_id` field, NeDB will automatically
 generate one for you (a 16-characters alphanumerical string). The `_id` of a
 document, once set, cannot be modified.
 
-Field names cannot begin by '$' or contain a '.'.
+Field names cannot start with '$' or contain the characters '.' and ','.
 
 ```javascript
 const doc = {
@@ -698,6 +698,15 @@ fields in nested documents using the dot notation. For now, indexes are only
 used to speed up basic queries and queries using `$in`, `$lt`, `$lte`, `$gt`
 and `$gte`. The indexed values cannot be of type array of object.
 
+**Breaking change**: [since v3.2.0](./CHANGELOG.md), comma can no longer be used in indexed field names.
+
+The following is illegal:
+```javascript
+db.ensureIndexAsync({ fieldName: 'some,field' })
+db.ensureIndexAsync({ fieldName: ['some,field', 'other,field'] })
+```
+This is a side effect of the compound index implementation.
+
 To create an index, use [`datastore#ensureIndexAsync(options)`](./API.md#Datastore+ensureIndexAsync).
 It resolves when the index is persisted on disk (if the database is persistent)
 and may throw an Error (usually a unique constraint that was violated). It can
@@ -705,7 +714,7 @@ be called when you want, even after some data was inserted, though it's best to
 call it at application startup. The options are:
 
 * **fieldName** (required): name of the field to index. Use the dot notation to
-  index a field in a nested document.
+  index a field in a nested document. For a compound index, use an array of field names.
 * **unique** (optional, defaults to `false`): enforce field uniqueness.
 * **sparse** (optional, defaults to `false`): don't index documents for which
   the field is not defined.
@@ -734,6 +743,9 @@ await db.ensureIndexAsync({
   unique: true,
   sparse: true
 })
+
+// Using a compound index
+await db.ensureIndexAsync({ fieldName: ["field1", "field2"] });
 
 try {
   // Format of the error message when the unique constraint is not met

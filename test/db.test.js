@@ -490,6 +490,30 @@ describe('Database', function () {
       })
     })
 
+    it('Can use a compound index to get docs with a basic match', function (done) {
+      // eslint-disable-next-line node/handle-callback-err
+      d.ensureIndex({ fieldName: ['tf', 'tg'] }, function (err) {
+        d.insert({ tf: 4, tg: 0, foo: 1 }, function () {
+          d.insert({ tf: 6, tg: 0, foo: 2 }, function () {
+            // eslint-disable-next-line node/handle-callback-err
+            d.insert({ tf: 4, tg: 1, foo: 3 }, function (err, _doc1) {
+              d.insert({ tf: 6, tg: 1, foo: 4 }, function () {
+                // eslint-disable-next-line node/handle-callback-err
+                callbackify(query => d._getCandidatesAsync(query))({ tf: 4, tg: 1 }, function (err, data) {
+                  const doc1 = data.find(function (d) { return d._id === _doc1._id })
+
+                  data.length.should.equal(1)
+                  assert.deepEqual(doc1, { _id: doc1._id, tf: 4, tg: 1, foo: 3 })
+
+                  done()
+                })
+              })
+            })
+          })
+        })
+      })
+    })
+
     it('Can use an index to get docs with a $in match', function (done) {
       // eslint-disable-next-line node/handle-callback-err
       d.ensureIndex({ fieldName: 'tf' }, function (err) {
@@ -2082,7 +2106,7 @@ describe('Database', function () {
         })
       })
 
-      it('ensureIndex can be called twice on the same field, the second call will ahve no effect', function (done) {
+      it('ensureIndex can be called twice on the same field, the second call will have no effect', function (done) {
         Object.keys(d.indexes).length.should.equal(1)
         Object.keys(d.indexes)[0].should.equal('_id')
 
@@ -2113,6 +2137,86 @@ describe('Database', function () {
                 })
               })
             })
+          })
+        })
+      })
+
+      it('ensureIndex can be called twice on the same compound fields, the second call will have no effect', function (done) {
+        Object.keys(d.indexes).length.should.equal(1)
+        Object.keys(d.indexes)[0].should.equal('_id')
+
+        d.insert({ star: 'sun', planet: 'Earth' }, function () {
+          d.insert({ star: 'sun', planet: 'Mars' }, function () {
+            // eslint-disable-next-line node/handle-callback-err
+            d.find({}, function (err, docs) {
+              docs.length.should.equal(2)
+
+              d.ensureIndex({ fieldName: ['star', 'planet'] }, function (err) {
+                assert.isNull(err)
+                Object.keys(d.indexes).length.should.equal(2)
+                Object.keys(d.indexes)[0].should.equal('_id')
+                Object.keys(d.indexes)[1].should.equal('planet,star')
+
+                d.indexes['planet,star'].getAll().length.should.equal(2)
+
+                // This second call has no effect, documents don't get inserted twice in the index
+                d.ensureIndex({ fieldName: ['star', 'planet'] }, function (err) {
+                  assert.isNull(err)
+                  Object.keys(d.indexes).length.should.equal(2)
+                  Object.keys(d.indexes)[0].should.equal('_id')
+                  Object.keys(d.indexes)[1].should.equal('planet,star')
+
+                  d.indexes['planet,star'].getAll().length.should.equal(2)
+
+                  done()
+                })
+              })
+            })
+          })
+        })
+      })
+
+      it('ensureIndex can be called twice on the same compound fields with a different order, the second call will have no effect', function (done) {
+        Object.keys(d.indexes).length.should.equal(1)
+        Object.keys(d.indexes)[0].should.equal('_id')
+
+        d.insert({ star: 'sun', planet: 'Earth' }, function () {
+          d.insert({ star: 'sun', planet: 'Mars' }, function () {
+            // eslint-disable-next-line node/handle-callback-err
+            d.find({}, function (err, docs) {
+              docs.length.should.equal(2)
+
+              d.ensureIndex({ fieldName: ['star', 'planet'] }, function (err) {
+                assert.isNull(err)
+                Object.keys(d.indexes).length.should.equal(2)
+                Object.keys(d.indexes)[0].should.equal('_id')
+                Object.keys(d.indexes)[1].should.equal('planet,star')
+
+                d.indexes['planet,star'].getAll().length.should.equal(2)
+
+                // This second call has no effect, documents don't get inserted twice in the index
+                d.ensureIndex({ fieldName: ['planet', 'star'] }, function (err) {
+                  assert.isNull(err)
+                  Object.keys(d.indexes).length.should.equal(2)
+                  Object.keys(d.indexes)[0].should.equal('_id')
+                  Object.keys(d.indexes)[1].should.equal('planet,star')
+
+                  d.indexes['planet,star'].getAll().length.should.equal(2)
+
+                  done()
+                })
+              })
+            })
+          })
+        })
+      })
+
+      it('ensureIndex cannot be called with an illegal field name', function (done) {
+        d.ensureIndex({ fieldName: 'star,planet' }, function (err) {
+          assert.isNotNull(err)
+          d.ensureIndex({ fieldName: ['star,planet', 'other'] }, function (err) {
+            assert.isNotNull(err)
+            done()
           })
         })
       })
