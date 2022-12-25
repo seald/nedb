@@ -13,7 +13,7 @@ import { EventEmitter } from "events";
 
 export default Nedb;
 
-declare class Nedb<G = any> extends EventEmitter {
+declare class Nedb<Schema = any> extends EventEmitter {
   constructor(pathOrOptions?: string | Nedb.DataStoreOptions);
 
   persistence: Nedb.Persistence;
@@ -36,7 +36,7 @@ declare class Nedb<G = any> extends EventEmitter {
 
   stopAutocompaction(): void;
 
-  getAllData<T extends G>(): T[];
+  getAllData<T extends Schema>(): T[];
 
   ensureIndex(
     options: Nedb.EnsureIndexOptions,
@@ -49,49 +49,49 @@ declare class Nedb<G = any> extends EventEmitter {
 
   removeIndexAsync(fieldName: string | string[]): Promise<void>;
 
-  insert<T extends G>(
+  insert<T extends Schema>(
     newDoc: T,
     callback?: (err: Error | null, document: T) => void
   ): void;
-  insert<T extends G>(
+  insert<T extends Schema>(
     newDocs: T[],
     callback?: (err: Error | null, documents: T[]) => void
   ): void;
 
-  insertAsync<T extends G>(newDoc: T): Promise<T>;
-  insertAsync<T extends G>(newDocs: T[]): Promise<T[]>;
+  insertAsync<T extends Schema>(newDoc: T): Promise<T>;
+  insertAsync<T extends Schema>(newDocs: T[]): Promise<T[]>;
 
   count(query: any, callback: (err: Error | null, n: number) => void): void;
   count(query: any): Nedb.CursorCount;
 
   countAsync(query: any): Nedb.Cursor<number>;
 
-  find<T extends G>(
+  find<T extends Schema>(
     query: any,
     projection: any,
     callback?: (err: Error | null, documents: T[]) => void
   ): void;
-  find<T extends G>(query: any, projection?: any): Nedb.Cursor<T>;
-  find<T extends G>(
+  find<T extends Schema>(query: any, projection?: any): Nedb.Cursor<T>;
+  find<T extends Schema>(
     query: any,
     callback: (err: Error | null, documents: T[]) => void
   ): void;
 
-  findAsync<T extends G>(query: any, projection?: any): Nedb.Cursor<T[]>;
+  findAsync<T extends Schema>(query: any, projection?: any): Nedb.Cursor<T[]>;
 
-  findOne<T extends G>(
+  findOne<T extends Schema>(
     query: any,
     projection: any,
     callback: (err: Error | null, document: T) => void
   ): void;
-  findOne<T extends G>(
+  findOne<T extends Schema>(
     query: any,
     callback: (err: Error | null, document: T) => void
   ): void;
 
-  findOneAsync<T extends G>(query: any, projection?: any): Nedb.Cursor<T>;
+  findOneAsync<T extends Schema>(query: any, projection?: any): Nedb.Cursor<T>;
 
-  update<T extends G>(
+  update<T extends Schema>(
     query: any,
     updateQuery: any,
     options?: Nedb.UpdateOptions,
@@ -103,7 +103,7 @@ declare class Nedb<G = any> extends EventEmitter {
     ) => void
   ): void;
 
-  updateAsync<T extends G>(
+  updateAsync<T extends Schema>(
     query: any,
     updateQuery: any,
     options?: Nedb.UpdateOptions
