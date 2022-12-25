@@ -5,7 +5,8 @@
 //                 Stefan Steinhart <https://github.com/reppners>
 //                 Anthony Nichols <https://github.com/anthonynichols>
 //                 Alejandro Fernandez Haro <https://github.com/afharo>
-// TypeScript Version: 4.4
+//                 Pierre de la Martinière <https://github.com/martpie>
+// TypeScript Version: 4.9
 
 /// <reference types="node" />
 
@@ -13,7 +14,11 @@ import { EventEmitter } from "events";
 
 export default Nedb;
 
-declare class Nedb<Schema = any> extends EventEmitter {
+export type Document<Schema> = Schema & {
+  _id: string;
+};
+
+declare class Nedb<Schema = Record<string, any>> extends EventEmitter {
   constructor(pathOrOptions?: string | Nedb.DataStoreOptions);
 
   persistence: Nedb.Persistence;
@@ -36,7 +41,7 @@ declare class Nedb<Schema = any> extends EventEmitter {
 
   stopAutocompaction(): void;
 
-  getAllData<T extends Schema>(): T[];
+  getAllData<T extends Schema>(): Document<T>[];
 
   ensureIndex(
     options: Nedb.EnsureIndexOptions,
@@ -51,15 +56,15 @@ declare class Nedb<Schema = any> extends EventEmitter {
 
   insert<T extends Schema>(
     newDoc: T,
-    callback?: (err: Error | null, document: T) => void
+    callback?: (err: Error | null, document: Document<T>) => void
   ): void;
   insert<T extends Schema>(
     newDocs: T[],
-    callback?: (err: Error | null, documents: T[]) => void
+    callback?: (err: Error | null, documents: Document<T>[]) => void
   ): void;
 
-  insertAsync<T extends Schema>(newDoc: T): Promise<T>;
-  insertAsync<T extends Schema>(newDocs: T[]): Promise<T[]>;
+  insertAsync<T extends Schema>(newDoc: T): Promise<Document<T>>;
+  insertAsync<T extends Schema>(newDocs: T[]): Promise<Document<T>[]>;
 
   count(query: any, callback: (err: Error | null, n: number) => void): void;
   count(query: any): Nedb.CursorCount;
@@ -69,27 +74,36 @@ declare class Nedb<Schema = any> extends EventEmitter {
   find<T extends Schema>(
     query: any,
     projection: any,
-    callback?: (err: Error | null, documents: T[]) => void
+    callback?: (err: Error | null, documents: Document<T>[]) => void
   ): void;
-  find<T extends Schema>(query: any, projection?: any): Nedb.Cursor<T>;
   find<T extends Schema>(
     query: any,
-    callback: (err: Error | null, documents: T[]) => void
+    projection?: any
+  ): Nedb.Cursor<T>;
+  find<T extends Schema>(
+    query: any,
+    callback: (err: Error | null, documents: Document<T>[]) => void
   ): void;
 
-  findAsync<T extends Schema>(query: any, projection?: any): Nedb.Cursor<T[]>;
+  findAsync<T extends Schema>(
+    query: any,
+    projection?: any
+  ): Nedb.Cursor<T[]>;
 
   findOne<T extends Schema>(
     query: any,
     projection: any,
-    callback: (err: Error | null, document: T) => void
+    callback: (err: Error | null, document: Document<T>) => void
   ): void;
   findOne<T extends Schema>(
     query: any,
-    callback: (err: Error | null, document: T) => void
+    callback: (err: Error | null, document: Document<T>) => void
   ): void;
 
-  findOneAsync<T extends Schema>(query: any, projection?: any): Nedb.Cursor<T>;
+  findOneAsync<T extends Schema>(
+    query: any,
+    projection?: any
+  ): Nedb.Cursor<T>;
 
   update<T extends Schema>(
     query: any,
@@ -98,7 +112,7 @@ declare class Nedb<Schema = any> extends EventEmitter {
     callback?: (
       err: Error | null,
       numberOfUpdated: number,
-      affectedDocuments: T | T[] | null,
+      affectedDocuments: Document<T> | Document<T>[] | null,
       upsert: boolean | null
     ) => void
   ): void;
@@ -109,7 +123,7 @@ declare class Nedb<Schema = any> extends EventEmitter {
     options?: Nedb.UpdateOptions
   ): Promise<{
     numAffected: number;
-    affectedDocuments: T | T[] | null;
+    affectedDocuments: Document<T> | Document<T>[] | null;
     upsert: boolean;
   }>;
 
@@ -140,8 +154,8 @@ declare namespace Nedb {
     skip(n: number): Cursor<T>;
     limit(n: number): Cursor<T>;
     projection(query: any): Cursor<T>;
-    exec(callback: (err: Error | null, documents: T[]) => void): void;
-    execAsync(): Promise<T>;
+    exec(callback: (err: Error | null, documents: Document<T>[]) => void): void;
+    execAsync(): Promise<Document<T>>;
   }
 
   interface CursorCount {

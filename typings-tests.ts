@@ -3,7 +3,7 @@
  * Modified my arantes555 on 19.10.2021.
  */
 
-import Datastore from './'
+import Datastore, { Document } from './'
 import { mkdirSync } from 'fs'
 
 mkdirSync('./workspace/typings/', { recursive: true })
@@ -36,7 +36,18 @@ dbContainer.robots = new Datastore('path/to/robots.db')
 dbContainer.users.loadDatabase()
 dbContainer.robots.loadDatabase()
 
-const doc: any = {
+type Schema = {
+  hello: string,
+  n: number,
+  today: Date,
+  nedbIsAwesome: boolean,
+  notthere: null,
+  notToBeSaved: undefined,
+  fruits:  string[];
+  infos: { name: string }
+}
+
+const doc: Schema = {
   hello: 'world',
   n: 5,
   today: new Date(),
@@ -52,7 +63,7 @@ db.insert(doc, (err: Error | null, newDoc: any) => {   // Callback is optional
   // newDoc has no key called notToBeSaved since its value was undefined
 })
 
-db.insert([{ a: 5 }, { a: 42 }], (err: Error | null, newdocs: any[]) => {
+db.insert([{ a: 5 }, { a: 42 }], (err: Error | null, newdocs) => {
   // Two documents were inserted in the database
   // newDocs is an array with these documents, augmented with their _id
 })
@@ -386,3 +397,14 @@ db.off('compaction.done', () => {})
 db.listeners('compaction.done') // $ExpectType (() => void)[]
 db.rawListeners('compaction.done') // $ExpectType (() => void)[]
 db.listenerCount('compaction.done') // $ExpectType number
+
+// Test Generics and types
+const db2 = new Datastore<Schema>({ filename: 'path/to/datafile' })
+db2.loadDatabase();
+
+db2.findOne({ _id: 'id1' }, (err, doc) => {
+  doc._id; // added by nedb
+  doc.hello; // provided by user
+  // @ts-expect-error
+  doc.notExistingKey; // should fail
+});
