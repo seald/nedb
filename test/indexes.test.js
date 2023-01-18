@@ -30,7 +30,7 @@ describe('Indexes', function () {
     })
 
     it('Can insert pointers to documents in the index correctly when they have compound fields', function () {
-      const idx = new Index({ fieldName: ['tf', 'tg'] })
+      const idx = new Index({ fieldName: 'tf,tg' })
       const doc1 = { a: 5, tf: 'hello', tg: 'world' }
       const doc2 = { a: 8, tf: 'hello', tg: 'bloup' }
       const doc3 = { a: 2, tf: 'bloup', tg: 'bloup' }
@@ -81,7 +81,7 @@ describe('Indexes', function () {
     })
 
     it('Inserting twice for the same compound fieldName in a unique index will result in an error thrown', function () {
-      const idx = new Index({ fieldName: ['tf', 'tg'], unique: true })
+      const idx = new Index({ fieldName: 'tf,tg', unique: true })
       const doc1 = { a: 5, tf: 'hello', tg: 'world' }
 
       idx.insert(doc1)
@@ -90,7 +90,7 @@ describe('Indexes', function () {
     })
 
     it('Inserting twice for a compound fieldName the docs dont have with a unique and sparse index will not throw, since the docs will be non indexed', function () {
-      const idx = new Index({ fieldName: ['nope', 'nopeNope'], unique: true, sparse: true })
+      const idx = new Index({ fieldName: 'nope,nopeNope', unique: true, sparse: true })
       const doc1 = { a: 5, tf: 'hello' }
       const doc2 = { a: 5, tf: 'world' }
 
@@ -245,8 +245,8 @@ describe('Indexes', function () {
     }) // ==== End of 'Array fields' ==== //
 
     describe('Compound Indexes', function () {
-      it('Supports arrays of fieldNames', function () {
-        const idx = new Index({ fieldName: ['tf', 'tf2'] })
+      it('Supports field names separated by commas', function () {
+        const idx = new Index({ fieldName: 'tf,tf2' })
         const doc1 = { a: 5, tf: 'hello', tf2: 7 }
         const doc2 = { a: 8, tf: 'hello', tf2: 6 }
         const doc3 = { a: 2, tf: 'bloup', tf2: 3 }

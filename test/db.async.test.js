@@ -1302,7 +1302,7 @@ describe('Database async', function () {
         assert.equal(d.indexes.z.tree.search('3')[0], d.getAllData()[2])
       })
 
-      it('ensureIndex can be called twice on the same field, the second call will ahve no effect', async () => {
+      it('ensureIndex can be called twice on the same field, the second call will have no effect', async () => {
         assert.equal(Object.keys(d.indexes).length, 1)
         assert.equal(Object.keys(d.indexes)[0], '_id')
 
@@ -1327,7 +1327,7 @@ describe('Database async', function () {
         assert.equal(d.indexes.planet.getAll().length, 2)
       })
 
-      it('ensureIndex can be called twice on the same compound field, the second call will ahve no effect', async () => {
+      it('ensureIndex can be called twice on the same compound field, the second call will have no effect', async () => {
         assert.equal(Object.keys(d.indexes).length, 1)
         assert.equal(Object.keys(d.indexes)[0], '_id')
 
@@ -1352,7 +1352,7 @@ describe('Database async', function () {
         assert.equal(d.indexes['planet,star'].getAll().length, 2)
       })
 
-      it('ensureIndex can be called twice on the same compound field with a different order, the second call will ahve no effect', async () => {
+      it('ensureIndex can be called twice on the same compound field with a different order, the second call will have no effect', async () => {
         assert.equal(Object.keys(d.indexes).length, 1)
         assert.equal(Object.keys(d.indexes)[0], '_id')
 
