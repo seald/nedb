@@ -25,7 +25,7 @@ waterfall([
   apply(commonUtilities.updateDocs, { multi: false }, d, n, profiler),
 
   // Test with multiple documents
-  // eslint-disable-next-line node/handle-callback-err
+  // eslint-disable-next-line n/handle-callback-err
   function (cb) { d.remove({}, { multi: true }, function (err) { return cb() }) },
   apply(commonUtilities.insertDocs, d, n, profiler),
   function (cb) { profiler.step('MULTI: TRUE'); return cb() },

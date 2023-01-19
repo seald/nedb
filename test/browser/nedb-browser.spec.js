@@ -97,16 +97,16 @@ describe('Basic CRUD functionality', function () {
   it('Updating documents', function (done) {
     const db = new Nedb()
 
-    // eslint-disable-next-line node/handle-callback-err
+    // eslint-disable-next-line n/handle-callback-err
     db.insert({ planet: 'Eaaaaarth' }, function (err, newDoc1) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       db.insert({ planet: 'Maaaaars' }, function (err, newDoc2) {
         // Simple update
         db.update({ _id: newDoc2._id }, { $set: { planet: 'Saturn' } }, {}, function (err, nr) {
           assert.isNull(err)
           assert.strictEqual(nr, 1)
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           db.find({}, function (err, docs) {
             assert.strictEqual(docs.length, 2)
             assert.strictEqual(findById(docs, newDoc1._id).planet, 'Eaaaaarth')
@@ -117,7 +117,7 @@ describe('Basic CRUD functionality', function () {
               assert.isNull(err)
               assert.strictEqual(nr, 0)
 
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               db.find({}, function (err, docs) {
                 assert.strictEqual(docs.length, 2)
                 assert.strictEqual(findById(docs, newDoc1._id).planet, 'Eaaaaarth')
@@ -128,7 +128,7 @@ describe('Basic CRUD functionality', function () {
                   assert.isNull(err)
                   assert.strictEqual(nr, 1)
 
-                  // eslint-disable-next-line node/handle-callback-err
+                  // eslint-disable-next-line n/handle-callback-err
                   db.find({}, function (err, docs) {
                     assert.strictEqual(docs.length, 2)
                     assert.strictEqual(findById(docs, newDoc1._id).planet, 'Uranus')
@@ -139,7 +139,7 @@ describe('Basic CRUD functionality', function () {
                       assert.isNull(err)
                       assert.strictEqual(nr, 2)
 
-                      // eslint-disable-next-line node/handle-callback-err
+                      // eslint-disable-next-line n/handle-callback-err
                       db.find({}, function (err, docs) {
                         assert.strictEqual(docs.length, 2)
                         assert.strictEqual(findById(docs, newDoc1._id).planet, 'Uranus')
@@ -163,14 +163,14 @@ describe('Basic CRUD functionality', function () {
   it('Updating documents: special modifiers', function (done) {
     const db = new Nedb()
 
-    // eslint-disable-next-line node/handle-callback-err
+    // eslint-disable-next-line n/handle-callback-err
     db.insert({ planet: 'Earth' }, function (err, newDoc1) {
       // Pushing to an array
       db.update({}, { $push: { satellites: 'Phobos' } }, {}, function (err, nr) {
         assert.isNull(err)
         assert.strictEqual(nr, 1)
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         db.findOne({}, function (err, doc) {
           assert.deepStrictEqual(doc, { planet: 'Earth', _id: newDoc1._id, satellites: ['Phobos'] })
 
@@ -178,7 +178,7 @@ describe('Basic CRUD functionality', function () {
             assert.isNull(err)
             assert.strictEqual(nr, 1)
 
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             db.findOne({}, function (err, doc) {
               assert.deepStrictEqual(doc, { planet: 'Earth', _id: newDoc1._id, satellites: ['Phobos', 'Deimos'] })
 
@@ -200,7 +200,7 @@ describe('Basic CRUD functionality', function () {
       assert.strictEqual(upsert.b, 1)
       assert.strictEqual(nr, 1)
 
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       db.find({}, function (err, docs) {
         assert.strictEqual(docs.length, 1)
         assert.strictEqual(docs[0].a, 4)
@@ -223,7 +223,7 @@ describe('Basic CRUD functionality', function () {
       assert.isNull(err)
       assert.strictEqual(nr, 2)
 
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       db.find({}, function (err, docs) {
         assert.strictEqual(docs.length, 1)
         assert.strictEqual(docs[0].a, 2)
@@ -233,7 +233,7 @@ describe('Basic CRUD functionality', function () {
           assert.isNull(err)
           assert.strictEqual(nr, 0)
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           db.find({}, function (err, docs) {
             assert.strictEqual(docs.length, 1)
             assert.strictEqual(docs[0].a, 2)
@@ -243,7 +243,7 @@ describe('Basic CRUD functionality', function () {
               assert.isNull(err)
               assert.strictEqual(nr, 1)
 
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               db.find({}, function (err, docs) {
                 assert.strictEqual(docs.length, 0)
 
@@ -264,7 +264,7 @@ describe('Indexing', function () {
     db.insert({ a: 4 }, function () {
       db.insert({ a: 6 }, function () {
         db.insert({ a: 7 }, function () {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           testUtils.callbackify(query => db._getCandidatesAsync(query))({ a: 6 }, function (err, candidates) {
             assert.strictEqual(candidates.length, 3)
             assert.isDefined(candidates.find(function (doc) { return doc.a === 4 }))
@@ -273,7 +273,7 @@ describe('Indexing', function () {
 
             db.ensureIndex({ fieldName: 'a' })
 
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             testUtils.callbackify(query => db._getCandidatesAsync(query))({ a: 6 }, function (err, candidates) {
               assert.strictEqual(candidates.length, 1)
               assert.isDefined(candidates.find(function (doc) { return doc.a === 6 }))
@@ -311,7 +311,7 @@ describe("Don't forget to launch persistence tests!", function () {
   const filename = 'test'
 
   before('Clean & write', function (done) {
-    const db = new Nedb({ filename: filename, autoload: true })
+    const db = new Nedb({ filename, autoload: true })
     db.remove({}, { multi: true }, function () {
       db.insert({ hello: 'world' }, function (err) {
         assert.isNull(err)
@@ -321,7 +321,7 @@ describe("Don't forget to launch persistence tests!", function () {
   })
 
   it('Read & check', function (done) {
-    const db = new Nedb({ filename: filename, autoload: true })
+    const db = new Nedb({ filename, autoload: true })
     db.find({}, (err, docs) => {
       assert.isNull(err)
       if (docs.length !== 1) {

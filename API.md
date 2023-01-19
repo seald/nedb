@@ -337,6 +337,8 @@ don't care.</p>
     - [.compareStrings] [<code>compareStrings</code>](#compareStrings) - <p>If specified, it overrides default string comparison which is not
 well adapted to non-US characters in particular accented letters. Native <code>localCompare</code> will most of the time be
 the right choice.</p>
+    - [.testSerializationHooks] <code>boolean</code> <code> = true</code> - <p>Whether to test the serialization hooks or not,
+might be CPU-intensive</p>
 
 <a name="Datastore+inMemoryOnly"></a>
 
@@ -501,7 +503,7 @@ preferable to instantiate a new one.</p>
 **Params**
 
 - options <code>object</code>
-    - .fieldName <code>string</code>
+    - .fieldName <code>string</code> | <code>Array.&lt;string&gt;</code>
     - [.unique] <code>boolean</code> <code> = false</code>
     - [.sparse] <code>boolean</code> <code> = false</code>
     - [.expireAfterSeconds] <code>number</code>
@@ -518,8 +520,8 @@ executor.</p>
 **Params**
 
 - options <code>object</code>
-    - .fieldName <code>string</code> - <p>Name of the field to index. Use the dot notation to index a field in a nested
-document.</p>
+    - .fieldName <code>string</code> | <code>Array.&lt;string&gt;</code> - <p>Name of the field to index. Use the dot notation to index a field in a nested
+document. For a compound index, use an array of field names. Using a comma in a field name is not permitted.</p>
     - [.unique] <code>boolean</code> <code> = false</code> - <p>Enforce field uniqueness. Note that a unique index will raise an error
 if you try to index two documents for which the field is not defined.</p>
     - [.sparse] <code>boolean</code> <code> = false</code> - <p>Don't index documents for which the field is not defined. Use this option
@@ -840,6 +842,7 @@ with <code>appendfsync</code> option set to <code>no</code>.</p>
     - [.modes] <code>object</code> - <p>Modes to use for FS permissions. Will not work on Windows.</p>
         - [.fileMode] <code>number</code> <code> = 0o644</code> - <p>Mode to use for files.</p>
         - [.dirMode] <code>number</code> <code> = 0o755</code> - <p>Mode to use for directories.</p>
+    - [.testSerializationHooks] <code>boolean</code> <code> = true</code> - <p>Whether to test the serialization hooks or not, might be CPU-intensive</p>
 
 <a name="Persistence+compactDatafile"></a>
 

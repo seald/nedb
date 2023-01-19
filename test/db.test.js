@@ -90,9 +90,9 @@ describe('Database', function () {
         done()
       }
 
-      const db = new Datastore({ filename: autoDb, autoload: true, onload: onload })
+      const db = new Datastore({ filename: autoDb, autoload: true, onload })
 
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       db.find({}, function (err, docs) {
         done(new Error('Find should not be executed since autoload failed'))
       })
@@ -101,11 +101,11 @@ describe('Database', function () {
 
   describe('Insert', function () {
     it('Able to insert a document in the database, setting an _id if none provided, and retrieve it even after a reload', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.find({}, function (err, docs) {
         docs.length.should.equal(0)
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ somedata: 'ok' }, function (err) {
           // The data was correctly updated
           d.find({}, function (err, docs) {
@@ -116,7 +116,7 @@ describe('Database', function () {
             assert.isDefined(docs[0]._id)
 
             // After a reload the data has been correctly persisted
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.loadDatabase(function (err) {
               d.find({}, function (err, docs) {
                 assert.isNull(err)
@@ -134,17 +134,17 @@ describe('Database', function () {
     })
 
     it('Can insert multiple documents in the database', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.find({}, function (err, docs) {
         docs.length.should.equal(0)
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ somedata: 'ok' }, function (err) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ somedata: 'another' }, function (err) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ somedata: 'again' }, function (err) {
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.find({}, function (err, docs) {
                 docs.length.should.equal(3)
                 docs.map(x => x.somedata).should.contain('ok')
@@ -162,7 +162,7 @@ describe('Database', function () {
       const da = new Date()
       const obj = { a: ['ee', 'ff', 42], date: da, subobj: { a: 'b', b: 'c' } }
 
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert(obj, function (err) {
         d.findOne({}, function (err, res) {
           assert.isNull(err)
@@ -181,21 +181,21 @@ describe('Database', function () {
 
     it('If an object returned from the DB is modified and refetched, the original value should be found', function (done) {
       d.insert({ a: 'something' }, function () {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.findOne({}, function (err, doc) {
           doc.a.should.equal('something')
           doc.a = 'another thing'
           doc.a.should.equal('another thing')
 
           // Re-fetching with findOne should yield the persisted value
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.findOne({}, function (err, doc) {
             doc.a.should.equal('something')
             doc.a = 'another thing'
             doc.a.should.equal('another thing')
 
             // Re-fetching with find should yield the persisted value
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               docs[0].a.should.equal('something')
 
@@ -229,11 +229,11 @@ describe('Database', function () {
     })
 
     it('Modifying the insertedDoc after an insert doesnt change the copy saved in the database', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 2, hello: 'world' }, function (err, newDoc) {
         newDoc.hello = 'changed'
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.findOne({ a: 2 }, function (err, doc) {
           doc.hello.should.equal('world')
           done()
@@ -244,9 +244,9 @@ describe('Database', function () {
     it('Can insert an array of documents at once', function (done) {
       const docs = [{ a: 5, b: 'hello' }, { a: 42, b: 'world' }]
 
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert(docs, function (err) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           docs.length.should.equal(2)
           docs.find(function (doc) { return doc.a === 5 }).b.should.equal('hello')
@@ -272,7 +272,7 @@ describe('Database', function () {
         d.insert(docs, function (err) {
           err.errorType.should.equal('uniqueViolated')
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.find({}, function (err, docs) {
             // Datafile only contains index definition
             const datafileContents = model.deserialize(fs.readFileSync(testDb, 'utf8'))
@@ -293,7 +293,7 @@ describe('Database', function () {
         assert.isNull(err)
         docs.length.should.equal(0)
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert(newDoc, function (err, insertedDoc) {
           // No side effect on given input
           assert.deepStrictEqual(newDoc, { hello: 'world' })
@@ -310,7 +310,7 @@ describe('Database', function () {
           insertedDoc.bloup = 'another'
           Object.keys(insertedDoc).length.should.equal(5)
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.find({}, function (err, docs) {
             docs.length.should.equal(1)
             assert.deepStrictEqual(newDoc, { hello: 'world' })
@@ -323,7 +323,7 @@ describe('Database', function () {
 
             // All data correctly persisted on disk
             d.loadDatabase(function () {
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.find({}, function (err, docs) {
                 docs.length.should.equal(1)
                 assert.deepStrictEqual(newDoc, { hello: 'world' })
@@ -343,13 +343,13 @@ describe('Database', function () {
     })
 
     it('If timestampData option not set, don\'t create a createdAt and a updatedAt field', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ hello: 'world' }, function (err, insertedDoc) {
         Object.keys(insertedDoc).length.should.equal(2)
         assert.isUndefined(insertedDoc.createdAt)
         assert.isUndefined(insertedDoc.updatedAt)
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           docs.length.should.equal(1)
           assert.deepStrictEqual(docs[0], insertedDoc)
@@ -362,18 +362,18 @@ describe('Database', function () {
     it('If timestampData is set but createdAt is specified by user, don\'t change it', function (done) {
       const newDoc = { hello: 'world', createdAt: new Date(234) }; const beginning = Date.now()
       d = new Datastore({ filename: testDb, timestampData: true, autoload: true })
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert(newDoc, function (err, insertedDoc) {
         Object.keys(insertedDoc).length.should.equal(4)
         insertedDoc.createdAt.getTime().should.equal(234) // Not modified
         assert.isBelow(insertedDoc.updatedAt.getTime() - beginning, reloadTimeUpperBound) // Created
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           assert.deepStrictEqual(insertedDoc, docs[0])
 
           d.loadDatabase(function () {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               assert.deepStrictEqual(insertedDoc, docs[0])
 
@@ -387,18 +387,18 @@ describe('Database', function () {
     it('If timestampData is set but updatedAt is specified by user, don\'t change it', function (done) {
       const newDoc = { hello: 'world', updatedAt: new Date(234) }; const beginning = Date.now()
       d = new Datastore({ filename: testDb, timestampData: true, autoload: true })
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert(newDoc, function (err, insertedDoc) {
         Object.keys(insertedDoc).length.should.equal(4)
         insertedDoc.updatedAt.getTime().should.equal(234) // Not modified
         assert.isBelow(insertedDoc.createdAt.getTime() - beginning, reloadTimeUpperBound) // Created
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           assert.deepStrictEqual(insertedDoc, docs[0])
 
           d.loadDatabase(function () {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               assert.deepStrictEqual(insertedDoc, docs[0])
 
@@ -410,7 +410,7 @@ describe('Database', function () {
     })
 
     it('Can insert a doc with id 0', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ _id: 0, hello: 'world' }, function (err, doc) {
         doc._id.should.equal(0)
         doc.hello.should.equal('world')
@@ -449,7 +449,7 @@ describe('Database', function () {
       })
 
       d.insert({ a: 5 }, function () {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.findOne({ a: 5 }, function (err, doc) {
           if (tryCount === 0) {
             tryCount += 1
@@ -464,15 +464,15 @@ describe('Database', function () {
 
   describe('#getCandidates', function () {
     it('Can use an index to get docs with a basic match', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.ensureIndex({ fieldName: 'tf' }, function (err) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ tf: 4 }, function (err, _doc1) {
           d.insert({ tf: 6 }, function () {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ tf: 4, an: 'other' }, function (err, _doc2) {
               d.insert({ tf: 9 }, function () {
-                // eslint-disable-next-line node/handle-callback-err
+                // eslint-disable-next-line n/handle-callback-err
                 callbackify(query => d._getCandidatesAsync(query))({ r: 6, tf: 4 }, function (err, data) {
                   const doc1 = data.find(function (d) { return d._id === _doc1._id })
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
@@ -491,14 +491,14 @@ describe('Database', function () {
     })
 
     it('Can use a compound index to get docs with a basic match', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.ensureIndex({ fieldName: ['tf', 'tg'] }, function (err) {
         d.insert({ tf: 4, tg: 0, foo: 1 }, function () {
           d.insert({ tf: 6, tg: 0, foo: 2 }, function () {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ tf: 4, tg: 1, foo: 3 }, function (err, _doc1) {
               d.insert({ tf: 6, tg: 1, foo: 4 }, function () {
-                // eslint-disable-next-line node/handle-callback-err
+                // eslint-disable-next-line n/handle-callback-err
                 callbackify(query => d._getCandidatesAsync(query))({ tf: 4, tg: 1 }, function (err, data) {
                   const doc1 = data.find(function (d) { return d._id === _doc1._id })
 
@@ -515,17 +515,17 @@ describe('Database', function () {
     })
 
     it('Can use an index to get docs with a $in match', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.ensureIndex({ fieldName: 'tf' }, function (err) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ tf: 4 }, function (err) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ tf: 6 }, function (err, _doc1) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ tf: 4, an: 'other' }, function (err) {
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.insert({ tf: 9 }, function (err, _doc2) {
-                // eslint-disable-next-line node/handle-callback-err
+                // eslint-disable-next-line n/handle-callback-err
                 callbackify(query => d._getCandidatesAsync(query))({ r: 6, tf: { $in: [6, 9, 5] } }, function (err, data) {
                   const doc1 = data.find(function (d) { return d._id === _doc1._id })
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
@@ -544,17 +544,17 @@ describe('Database', function () {
     })
 
     it('If no index can be used, return the whole database', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.ensureIndex({ fieldName: 'tf' }, function (err) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ tf: 4 }, function (err, _doc1) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ tf: 6 }, function (err, _doc2) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ tf: 4, an: 'other' }, function (err, _doc3) {
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.insert({ tf: 9 }, function (err, _doc4) {
-                // eslint-disable-next-line node/handle-callback-err
+                // eslint-disable-next-line n/handle-callback-err
                 callbackify(query => d._getCandidatesAsync(query))({ r: 6, notf: { $in: [6, 9, 5] } }, function (err, data) {
                   const doc1 = data.find(function (d) { return d._id === _doc1._id })
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
@@ -577,17 +577,17 @@ describe('Database', function () {
     })
 
     it('Can use indexes for comparison matches', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.ensureIndex({ fieldName: 'tf' }, function (err) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ tf: 4 }, function (err, _doc1) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ tf: 6 }, function (err, _doc2) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ tf: 4, an: 'other' }, function (err, _doc3) {
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.insert({ tf: 9 }, function (err, _doc4) {
-                // eslint-disable-next-line node/handle-callback-err
+                // eslint-disable-next-line n/handle-callback-err
                 callbackify(query => d._getCandidatesAsync(query))({ r: 6, tf: { $lte: 9, $gte: 6 } }, function (err, data) {
                   const doc2 = data.find(function (d) { return d._id === _doc2._id })
                   const doc4 = data.find(function (d) { return d._id === _doc4._id })
@@ -711,9 +711,9 @@ describe('Database', function () {
     it('Can find all documents if an empty query is used', function (done) {
       waterfall([
         function (cb) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ somedata: 'another', plus: 'additional data' }, function (err) {
               d.insert({ somedata: 'again' }, function (err) { return cb(err) })
             })
@@ -736,9 +736,9 @@ describe('Database', function () {
     it('Can find all documents matching a basic query', function (done) {
       waterfall([
         function (cb) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ somedata: 'again', plus: 'additional data' }, function (err) {
               d.insert({ somedata: 'again' }, function (err) { return cb(err) })
             })
@@ -765,9 +765,9 @@ describe('Database', function () {
     it('Can find one document matching a basic query and return null if none is found', function (done) {
       waterfall([
         function (cb) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ somedata: 'again', plus: 'additional data' }, function (err) {
               d.insert({ somedata: 'again' }, function (err) { return cb(err) })
             })
@@ -843,11 +843,11 @@ describe('Database', function () {
     })
 
     it('Array fields match if any element matches', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ fruits: ['pear', 'apple', 'banana'] }, function (err, doc1) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ fruits: ['coconut', 'orange', 'pear'] }, function (err, doc2) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ fruits: ['banana'] }, function (err, doc3) {
             d.find({ fruits: 'pear' }, function (err, docs) {
               assert.isNull(err)
@@ -892,19 +892,19 @@ describe('Database', function () {
 
     it('Changing the documents returned by find or findOne do not change the database state', function (done) {
       d.insert({ a: 2, hello: 'world' }, function () {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.findOne({ a: 2 }, function (err, doc) {
           doc.hello = 'changed'
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.findOne({ a: 2 }, function (err, doc) {
             doc.hello.should.equal('world')
 
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({ a: 2 }, function (err, docs) {
               docs[0].hello = 'changed'
 
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.findOne({ a: 2 }, function (err, doc) {
                 doc.hello.should.equal('world')
 
@@ -971,9 +971,9 @@ describe('Database', function () {
     })
 
     it('Can use projections in find, normal or cursor way', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 2, hello: 'world' }, function (err, doc0) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 24, hello: 'earth' }, function (err, doc1) {
           d.find({ a: 2 }, { a: 0, _id: 0 }, function (err, docs) {
             assert.isNull(err)
@@ -1004,9 +1004,9 @@ describe('Database', function () {
     })
 
     it('Can use projections in findOne, normal or cursor way', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 2, hello: 'world' }, function (err, doc0) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 24, hello: 'earth' }, function (err, doc1) {
           d.findOne({ a: 2 }, { a: 0, _id: 0 }, function (err, doc) {
             assert.isNull(err)
@@ -1039,9 +1039,9 @@ describe('Database', function () {
     it('Count all documents if an empty query is used', function (done) {
       waterfall([
         function (cb) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ somedata: 'another', plus: 'additional data' }, function (err) {
               d.insert({ somedata: 'again' }, function (err) { return cb(err) })
             })
@@ -1060,9 +1060,9 @@ describe('Database', function () {
     it('Count all documents matching a basic query', function (done) {
       waterfall([
         function (cb) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ somedata: 'again', plus: 'additional data' }, function (err) {
               d.insert({ somedata: 'again' }, function (err) { return cb(err) })
             })
@@ -1086,11 +1086,11 @@ describe('Database', function () {
     })
 
     it('Array fields match if any element matches', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ fruits: ['pear', 'apple', 'banana'] }, function (err, doc1) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ fruits: ['coconut', 'orange', 'pear'] }, function (err, doc2) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ fruits: ['banana'] }, function (err, doc3) {
             d.count({ fruits: 'pear' }, function (err, docs) {
               assert.isNull(err)
@@ -1129,9 +1129,9 @@ describe('Database', function () {
     it('If the query doesn\'t match anything, database is not modified', function (done) {
       waterfall([
         function (cb) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ somedata: 'again', plus: 'additional data' }, function (err) {
               d.insert({ somedata: 'another' }, function (err) { return cb(err) })
             })
@@ -1142,7 +1142,7 @@ describe('Database', function () {
             assert.isNull(err)
             n.should.equal(0)
 
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               const doc1 = docs.find(function (d) { return d.somedata === 'ok' })
               const doc2 = docs.find(function (d) { return d.somedata === 'again' })
@@ -1165,7 +1165,7 @@ describe('Database', function () {
     it('If timestampData option is set, update the updatedAt field', function (done) {
       const beginning = Date.now()
       d = new Datastore({ filename: testDb, autoload: true, timestampData: true })
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ hello: 'world' }, function (err, insertedDoc) {
         assert.isBelow(insertedDoc.updatedAt.getTime() - beginning, reloadTimeUpperBound)
         assert.isBelow(insertedDoc.createdAt.getTime() - beginning, reloadTimeUpperBound)
@@ -1175,7 +1175,7 @@ describe('Database', function () {
         setTimeout(function () {
           const step1 = Date.now()
           d.update({ _id: insertedDoc._id }, { $set: { hello: 'mars' } }, {}, function () {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({ _id: insertedDoc._id }, function (err, docs) {
               docs.length.should.equal(1)
               Object.keys(docs[0]).length.should.equal(4)
@@ -1199,7 +1199,7 @@ describe('Database', function () {
 
       // Test DB state after update and reload
       function testPostUpdateState (cb) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           const doc1 = docs.find(function (d) { return d._id === id1 })
           const doc2 = docs.find(function (d) { return d._id === id2 })
@@ -1226,10 +1226,10 @@ describe('Database', function () {
       // Actually launch the tests
       waterfall([
         function (cb) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err, doc1) {
             id1 = doc1._id
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ somedata: 'again', plus: 'additional data' }, function (err, doc2) {
               id2 = doc2._id
               d.insert({ somedata: 'again' }, function (err, doc3) {
@@ -1261,7 +1261,7 @@ describe('Database', function () {
 
       // Test DB state after update and reload
       function testPostUpdateState (cb) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           const doc1 = docs.find(function (d) { return d._id === id1 })
           const doc2 = docs.find(function (d) { return d._id === id2 })
@@ -1288,10 +1288,10 @@ describe('Database', function () {
       // Actually launch the test
       waterfall([
         function (cb) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err, doc1) {
             id1 = doc1._id
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ somedata: 'again', plus: 'additional data' }, function (err, doc2) {
               id2 = doc2._id
               d.insert({ somedata: 'again' }, function (err, doc3) {
@@ -1323,7 +1323,7 @@ describe('Database', function () {
           nr.should.equal(0)
           assert.isNull(affectedDocuments)
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.find({}, function (err, docs) {
             docs.length.should.equal(0) // Default option for upsert is false
 
@@ -1333,14 +1333,14 @@ describe('Database', function () {
               newDoc.something.should.equal('created ok')
               assert.isDefined(newDoc._id)
 
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.find({}, function (err, docs) {
                 docs.length.should.equal(1) // Default option for upsert is false
                 docs[0].something.should.equal('created ok')
 
                 // Modifying the returned upserted document doesn't modify the database
                 newDoc.newField = true
-                // eslint-disable-next-line node/handle-callback-err
+                // eslint-disable-next-line n/handle-callback-err
                 d.find({}, function (err, docs) {
                   docs[0].something.should.equal('created ok')
                   assert.isUndefined(docs[0].newField)
@@ -1354,7 +1354,7 @@ describe('Database', function () {
       })
 
       it('If the update query is a normal object with no modifiers, it is the doc that will be upserted', function (done) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.update({ $or: [{ a: 4 }, { a: 5 }] }, { hello: 'world', bloup: 'blap' }, { upsert: true }, function (err) {
           d.find({}, function (err, docs) {
             assert.isNull(err)
@@ -1372,7 +1372,7 @@ describe('Database', function () {
         d.update({ $or: [{ a: 4 }, { a: 5 }] }, {
           $set: { hello: 'world' },
           $inc: { bloup: 3 }
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
         }, { upsert: true }, function (err) {
           d.find({ hello: 'world' }, function (err, docs) {
             assert.isNull(err)
@@ -1390,7 +1390,7 @@ describe('Database', function () {
         d.update({ $or: [{ a: 4 }, { a: 5 }], cac: 'rrr' }, {
           $set: { hello: 'world' },
           $inc: { bloup: 3 }
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
         }, { upsert: true }, function (err) {
           d.find({ hello: 'world' }, function (err, docs) {
             assert.isNull(err)
@@ -1438,7 +1438,7 @@ describe('Database', function () {
     it('Can update documents using multiple modifiers', function (done) {
       let id
 
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ something: 'yup', other: 40 }, function (err, newDoc) {
         id = newDoc._id
 
@@ -1446,7 +1446,7 @@ describe('Database', function () {
           assert.isNull(err)
           nr.should.equal(1)
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.findOne({ _id: id }, function (err, doc) {
             Object.keys(doc).length.should.equal(3)
             doc._id.should.equal(id)
@@ -1467,7 +1467,7 @@ describe('Database', function () {
         newDoc.hello.should.equal('world')
         assert.isDefined(newDoc._id)
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           docs.length.should.equal(1)
           Object.keys(docs[0]).length.should.equal(3)
@@ -1484,14 +1484,14 @@ describe('Database', function () {
       d.insert({ bloup: { blip: 'blap', other: true } }, function () {
         // Correct methos
         d.update({}, { $set: { 'bloup.blip': 'hello' } }, {}, function () {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.findOne({}, function (err, doc) {
             doc.bloup.blip.should.equal('hello')
             doc.bloup.other.should.equal(true)
 
             // Wrong
             d.update({}, { $set: { bloup: { blip: 'ola' } } }, {}, function () {
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.findOne({}, function (err, doc) {
                 doc.bloup.blip.should.equal('ola')
                 assert.isUndefined(doc.bloup.other) // This information was lost
@@ -1517,13 +1517,13 @@ describe('Database', function () {
     })
 
     it('If an error is thrown by a modifier, the database state is not changed', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ hello: 'world' }, function (err, newDoc) {
         d.update({}, { $inc: { hello: 4 } }, {}, function (err, nr) {
           assert.isDefined(err)
           assert.isUndefined(nr)
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.find({}, function (err, docs) {
             assert.deepStrictEqual(docs, [{ _id: newDoc._id, hello: 'world' }])
 
@@ -1534,12 +1534,12 @@ describe('Database', function () {
     })
 
     it('Cant change the _id of a document', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 2 }, function (err, newDoc) {
         d.update({ a: 2 }, { a: 2, _id: 'nope' }, {}, function (err) {
           assert.isDefined(err)
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.find({}, function (err, docs) {
             docs.length.should.equal(1)
             Object.keys(docs[0]).length.should.equal(2)
@@ -1549,7 +1549,7 @@ describe('Database', function () {
             d.update({ a: 2 }, { $set: { _id: 'nope' } }, {}, function (err) {
               assert.isDefined(err)
 
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.find({}, function (err, docs) {
                 docs.length.should.equal(1)
                 Object.keys(docs[0]).length.should.equal(2)
@@ -1565,14 +1565,14 @@ describe('Database', function () {
     })
 
     it('Non-multi updates are persistent', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 1, hello: 'world' }, function (err, doc1) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 2, hello: 'earth' }, function (err, doc2) {
           d.update({ a: 2 }, { $set: { hello: 'changed' } }, {}, function (err) {
             assert.isNull(err)
 
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               docs.sort(function (a, b) { return a.a - b.a })
               docs.length.should.equal(2)
@@ -1583,7 +1583,7 @@ describe('Database', function () {
               d.loadDatabase(function (err) {
                 assert.isNull(err)
 
-                // eslint-disable-next-line node/handle-callback-err
+                // eslint-disable-next-line n/handle-callback-err
                 d.find({}, function (err, docs) {
                   docs.sort(function (a, b) { return a.a - b.a })
                   docs.length.should.equal(2)
@@ -1600,16 +1600,16 @@ describe('Database', function () {
     })
 
     it('Multi updates are persistent', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 1, hello: 'world' }, function (err, doc1) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 2, hello: 'earth' }, function (err, doc2) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 5, hello: 'pluton' }, function (err, doc3) {
             d.update({ a: { $in: [1, 2] } }, { $set: { hello: 'changed' } }, { multi: true }, function (err) {
               assert.isNull(err)
 
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.find({}, function (err, docs) {
                 docs.sort(function (a, b) { return a.a - b.a })
                 docs.length.should.equal(3)
@@ -1621,7 +1621,7 @@ describe('Database', function () {
                 d.loadDatabase(function (err) {
                   assert.isNull(err)
 
-                  // eslint-disable-next-line node/handle-callback-err
+                  // eslint-disable-next-line n/handle-callback-err
                   d.find({}, function (err, docs) {
                     docs.sort(function (a, b) { return a.a - b.a })
                     docs.length.should.equal(3)
@@ -1640,16 +1640,16 @@ describe('Database', function () {
     })
 
     it('Can update without the options arg (will use defaults then)', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 1, hello: 'world' }, function (err, doc1) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 2, hello: 'earth' }, function (err, doc2) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 5, hello: 'pluton' }, function (err, doc3) {
             d.update({ a: 2 }, { $inc: { a: 10 } }, function (err, nr) {
               assert.isNull(err)
               nr.should.equal(1)
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.find({}, function (err, docs) {
                 const d1 = docs.find(function (doc) { return doc._id === doc1._id })
                 const d2 = docs.find(function (doc) { return doc._id === doc2._id })
@@ -1669,11 +1669,11 @@ describe('Database', function () {
 
     it('If a multi update fails on one document, previous updates should be rolled back', function (done) {
       d.ensureIndex({ fieldName: 'a' })
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 4 }, function (err, doc1) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 5 }, function (err, doc2) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 'abc' }, function (err, doc3) {
             // With this query, candidates are always returned in the order 4, 5, 'abc' so it's always the last one which fails
             d.update({ a: { $in: [4, 5, 'abc'] } }, { $inc: { a: 10 } }, { multi: true }, function (err) {
@@ -1703,9 +1703,9 @@ describe('Database', function () {
 
     it('If an index constraint is violated by an update, all changes should be rolled back', function (done) {
       d.ensureIndex({ fieldName: 'a', unique: true })
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 4 }, function (err, doc1) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 5 }, function (err, doc2) {
           // With this query, candidates are always returned in the order 4, 5, 'abc' so it's always the last one which fails
           d.update({ a: { $in: [4, 5, 'abc'] } }, { $set: { a: 10 } }, { multi: true }, function (err) {
@@ -1730,14 +1730,14 @@ describe('Database', function () {
     })
 
     it('If options.returnUpdatedDocs is true, return all matched docs', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert([{ a: 4 }, { a: 5 }, { a: 6 }], function (err, docs) {
         docs.length.should.equal(3)
 
         d.update({ a: 7 }, { $set: { u: 1 } }, {
           multi: true,
           returnUpdatedDocs: true
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
         }, function (err, num, updatedDocs) {
           num.should.equal(0)
           updatedDocs.length.should.equal(0)
@@ -1745,7 +1745,7 @@ describe('Database', function () {
           d.update({ a: 5 }, { $set: { u: 2 } }, {
             multi: true,
             returnUpdatedDocs: true
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
           }, function (err, num, updatedDocs) {
             num.should.equal(1)
             updatedDocs.length.should.equal(1)
@@ -1755,7 +1755,7 @@ describe('Database', function () {
             d.update({ a: { $in: [4, 6] } }, { $set: { u: 3 } }, {
               multi: true,
               returnUpdatedDocs: true
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
             }, function (err, num, updatedDocs) {
               num.should.equal(2)
               updatedDocs.length.should.equal(2)
@@ -1779,14 +1779,14 @@ describe('Database', function () {
     it('createdAt property is unchanged and updatedAt correct after an update, even a complete document replacement', function (done) {
       const d2 = new Datastore({ inMemoryOnly: true, timestampData: true })
       d2.insert({ a: 1 })
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d2.findOne({ a: 1 }, function (err, doc) {
         const createdAt = doc.createdAt.getTime()
 
         // Modifying update
         setTimeout(function () {
           d2.update({ a: 1 }, { $set: { b: 2 } }, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d2.findOne({ a: 1 }, function (err, doc) {
             doc.createdAt.getTime().should.equal(createdAt)
             assert.isBelow(Date.now() - doc.updatedAt.getTime(), 5)
@@ -1794,7 +1794,7 @@ describe('Database', function () {
             // Complete replacement
             setTimeout(function () {
               d2.update({ a: 1 }, { c: 3 }, {})
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d2.findOne({ c: 3 }, function (err, doc) {
                 doc.createdAt.getTime().should.equal(createdAt)
                 assert.isBelow(Date.now() - doc.updatedAt.getTime(), 5)
@@ -1877,7 +1877,7 @@ describe('Database', function () {
             affectedDocuments.b.should.equal(21)
             upsert.should.equal(true)
 
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               docs.length.should.equal(3)
               done()
@@ -1894,7 +1894,7 @@ describe('Database', function () {
 
       // Test DB status
       function testPostUpdateState (cb) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           docs.length.should.equal(1)
 
@@ -1909,10 +1909,10 @@ describe('Database', function () {
       // Actually launch the test
       waterfall([
         function (cb) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ somedata: 'ok' }, function (err, doc1) {
             id1 = doc1._id
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ somedata: 'again', plus: 'additional data' }, function (err, doc2) {
               d.insert({ somedata: 'again' }, function (err, doc3) {
                 return cb(err)
@@ -1940,17 +1940,17 @@ describe('Database', function () {
       d.insert({ planet: 'Earth' }, function () {
         d.insert({ planet: 'Mars' }, function () {
           d.insert({ planet: 'Saturn' }, function () {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               docs.length.should.equal(3)
 
               // Remove two docs simultaneously
               const toRemove = ['Mars', 'Saturn']
               each(toRemove, function (planet, cb) {
-                d.remove({ planet: planet }, function (err) { return cb(err) })
-                // eslint-disable-next-line node/handle-callback-err
+                d.remove({ planet }, function (err) { return cb(err) })
+                // eslint-disable-next-line n/handle-callback-err
               }, function (err) {
-                // eslint-disable-next-line node/handle-callback-err
+                // eslint-disable-next-line n/handle-callback-err
                 d.find({}, function (err, docs) {
                   docs.length.should.equal(1)
 
@@ -1976,16 +1976,16 @@ describe('Database', function () {
     })
 
     it('Non-multi removes are persistent', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 1, hello: 'world' }, function (err, doc1) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 2, hello: 'earth' }, function (err, doc2) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 3, hello: 'moto' }, function (err, doc3) {
             d.remove({ a: 2 }, {}, function (err) {
               assert.isNull(err)
 
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.find({}, function (err, docs) {
                 docs.sort(function (a, b) { return a.a - b.a })
                 docs.length.should.equal(2)
@@ -1996,7 +1996,7 @@ describe('Database', function () {
                 d.loadDatabase(function (err) {
                   assert.isNull(err)
 
-                  // eslint-disable-next-line node/handle-callback-err
+                  // eslint-disable-next-line n/handle-callback-err
                   d.find({}, function (err, docs) {
                     docs.sort(function (a, b) { return a.a - b.a })
                     docs.length.should.equal(2)
@@ -2014,16 +2014,16 @@ describe('Database', function () {
     })
 
     it('Multi removes are persistent', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 1, hello: 'world' }, function (err, doc1) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 2, hello: 'earth' }, function (err, doc2) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 3, hello: 'moto' }, function (err, doc3) {
             d.remove({ a: { $in: [1, 3] } }, { multi: true }, function (err) {
               assert.isNull(err)
 
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.find({}, function (err, docs) {
                 docs.length.should.equal(1)
                 assert.deepStrictEqual(docs[0], { _id: doc2._id, a: 2, hello: 'earth' })
@@ -2032,7 +2032,7 @@ describe('Database', function () {
                 d.loadDatabase(function (err) {
                   assert.isNull(err)
 
-                  // eslint-disable-next-line node/handle-callback-err
+                  // eslint-disable-next-line n/handle-callback-err
                   d.find({}, function (err, docs) {
                     docs.length.should.equal(1)
                     assert.deepStrictEqual(docs[0], { _id: doc2._id, a: 2, hello: 'earth' })
@@ -2048,16 +2048,16 @@ describe('Database', function () {
     })
 
     it('Can remove without the options arg (will use defaults then)', function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ a: 1, hello: 'world' }, function (err, doc1) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 2, hello: 'earth' }, function (err, doc2) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 5, hello: 'pluton' }, function (err, doc3) {
             d.remove({ a: 2 }, function (err, nr) {
               assert.isNull(err)
               nr.should.equal(1)
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.find({}, function (err, docs) {
                 const d1 = docs.find(function (doc) { return doc._id === doc1._id })
                 const d2 = docs.find(function (doc) { return doc._id === doc2._id })
@@ -2112,7 +2112,7 @@ describe('Database', function () {
 
         d.insert({ planet: 'Earth' }, function () {
           d.insert({ planet: 'Mars' }, function () {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               docs.length.should.equal(2)
 
@@ -2147,7 +2147,7 @@ describe('Database', function () {
 
         d.insert({ star: 'sun', planet: 'Earth' }, function () {
           d.insert({ star: 'sun', planet: 'Mars' }, function () {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               docs.length.should.equal(2)
 
@@ -2182,7 +2182,7 @@ describe('Database', function () {
 
         d.insert({ star: 'sun', planet: 'Earth' }, function () {
           d.insert({ star: 'sun', planet: 'Mars' }, function () {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               docs.length.should.equal(2)
 
@@ -2233,9 +2233,9 @@ describe('Database', function () {
 
             assert.deepStrictEqual(Object.keys(d.indexes), ['_id'])
 
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ z: '12', yes: 'yes' }, function (err, newDoc1) {
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.insert({ z: '14', nope: 'nope' }, function (err, newDoc2) {
                 d.remove({ z: '2' }, {}, function () {
                   d.update({ z: '1' }, { $set: { yes: 'yep' } }, {}, function () {
@@ -2253,7 +2253,7 @@ describe('Database', function () {
                     d.indexes.z.tree.search('14')[0].should.equal(d.indexes._id.getMatching(newDoc2._id)[0])
 
                     // The data in the z index is correct
-                    // eslint-disable-next-line node/handle-callback-err
+                    // eslint-disable-next-line n/handle-callback-err
                     d.find({}, function (err, docs) {
                       const doc0 = docs.find(function (doc) { return doc._id === 'aaa' })
                       const doc1 = docs.find(function (doc) { return doc._id === newDoc1._id })
@@ -2413,12 +2413,12 @@ describe('Database', function () {
         d.ensureIndex({ fieldName: 'z' })
         d.indexes.z.tree.getNumberOfKeys().should.equal(0)
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 2, z: 'yes' }, function (err, newDoc) {
           d.indexes.z.tree.getNumberOfKeys().should.equal(1)
           assert.deepStrictEqual(d.indexes.z.getMatching('yes'), [newDoc])
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 5, z: 'nope' }, function (err, newDoc) {
             d.indexes.z.tree.getNumberOfKeys().should.equal(2)
             assert.deepStrictEqual(d.indexes.z.getMatching('nope'), [newDoc])
@@ -2433,14 +2433,14 @@ describe('Database', function () {
         d.ensureIndex({ fieldName: 'ya' })
         d.indexes.z.tree.getNumberOfKeys().should.equal(0)
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 2, z: 'yes', ya: 'indeed' }, function (err, newDoc) {
           d.indexes.z.tree.getNumberOfKeys().should.equal(1)
           d.indexes.ya.tree.getNumberOfKeys().should.equal(1)
           assert.deepStrictEqual(d.indexes.z.getMatching('yes'), [newDoc])
           assert.deepStrictEqual(d.indexes.ya.getMatching('indeed'), [newDoc])
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 5, z: 'nope', ya: 'sure' }, function (err, newDoc2) {
             d.indexes.z.tree.getNumberOfKeys().should.equal(2)
             d.indexes.ya.tree.getNumberOfKeys().should.equal(2)
@@ -2456,12 +2456,12 @@ describe('Database', function () {
         d.ensureIndex({ fieldName: 'z' })
         d.indexes.z.tree.getNumberOfKeys().should.equal(0)
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 2, z: 'yes' }, function (err, newDoc) {
           d.indexes.z.tree.getNumberOfKeys().should.equal(1)
           assert.deepStrictEqual(d.indexes.z.getMatching('yes'), [newDoc])
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 5, z: 'yes' }, function (err, newDoc2) {
             d.indexes.z.tree.getNumberOfKeys().should.equal(1)
             assert.deepStrictEqual(d.indexes.z.getMatching('yes'), [newDoc, newDoc2])
@@ -2475,7 +2475,7 @@ describe('Database', function () {
         d.ensureIndex({ fieldName: 'z', unique: true })
         d.indexes.z.tree.getNumberOfKeys().should.equal(0)
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 2, z: 'yes' }, function (err, newDoc) {
           d.indexes.z.tree.getNumberOfKeys().should.equal(1)
           assert.deepStrictEqual(d.indexes.z.getMatching('yes'), [newDoc])
@@ -2532,7 +2532,7 @@ describe('Database', function () {
         d.ensureIndex({ fieldName: 'zzz', unique: true })
         d.indexes.zzz.tree.getNumberOfKeys().should.equal(0)
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 2, z: 'yes' }, function (err, newDoc) {
           d.indexes.zzz.tree.getNumberOfKeys().should.equal(1)
           assert.deepStrictEqual(d.indexes.zzz.getMatching(undefined), [newDoc])
@@ -2558,11 +2558,11 @@ describe('Database', function () {
         d.ensureIndex({ fieldName: 'a' })
         d.ensureIndex({ fieldName: 'b' })
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 1, b: 'hello' }, function (err, doc1) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 2, b: 'si' }, function (err, doc2) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               assert.deepStrictEqual(doc1, docs.find(function (d) { return d._id === doc1._id }))
               assert.deepStrictEqual(doc2, docs.find(function (d) { return d._id === doc2._id }))
@@ -2576,11 +2576,11 @@ describe('Database', function () {
       it('All indexes point to the same data as the main index on _id', function (done) {
         d.ensureIndex({ fieldName: 'a' })
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 1, b: 'hello' }, function (err, doc1) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 2, b: 'si' }, function (err, doc2) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               docs.length.should.equal(2)
               d.getAllData().length.should.equal(2)
@@ -2602,12 +2602,12 @@ describe('Database', function () {
       it('If a unique constraint is violated, no index is changed, including the main one', function (done) {
         d.ensureIndex({ fieldName: 'a', unique: true })
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 1, b: 'hello' }, function (err, doc1) {
           d.insert({ a: 1, b: 'si' }, function (err) {
             assert.isDefined(err)
 
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.find({}, function (err, docs) {
               docs.length.should.equal(1)
               d.getAllData().length.should.equal(1)
@@ -2629,9 +2629,9 @@ describe('Database', function () {
       it('Updating docs still works as before with indexing', function (done) {
         d.ensureIndex({ fieldName: 'a' })
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 1, b: 'hello' }, function (err, _doc1) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 2, b: 'si' }, function (err, _doc2) {
             d.update({ a: 1 }, { $set: { a: 456, b: 'no' } }, {}, function (err, nr) {
               const data = d.getAllData()
@@ -2668,9 +2668,9 @@ describe('Database', function () {
         d.ensureIndex({ fieldName: 'a' })
         d.ensureIndex({ fieldName: 'b' })
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 1, b: 'hello' }, function (err, doc1) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 2, b: 'si' }, function (err, doc2) {
             // Simple update
             d.update({ a: 1 }, { $set: { a: 456, b: 'no' } }, {}, function (err, nr) {
@@ -2729,11 +2729,11 @@ describe('Database', function () {
         d.ensureIndex({ fieldName: 'b', unique: true })
         d.ensureIndex({ fieldName: 'c', unique: true })
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 1, b: 10, c: 100 }, function (err, _doc1) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 2, b: 20, c: 200 }, function (err, _doc2) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ a: 3, b: 30, c: 300 }, function (err, _doc3) {
               // Will conflict with doc3
               d.update({ a: 2 }, { $inc: { a: 10, c: 1000 }, $set: { b: 30 } }, {}, function (err) {
@@ -2778,11 +2778,11 @@ describe('Database', function () {
         d.ensureIndex({ fieldName: 'b', unique: true })
         d.ensureIndex({ fieldName: 'c', unique: true })
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 1, b: 10, c: 100 }, function (err, _doc1) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 2, b: 20, c: 200 }, function (err, _doc2) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ a: 3, b: 30, c: 300 }, function (err, _doc3) {
               // Will conflict with doc3
               d.update({ a: { $in: [1, 2] } }, {
@@ -2830,11 +2830,11 @@ describe('Database', function () {
       it('Removing docs still works as before with indexing', function (done) {
         d.ensureIndex({ fieldName: 'a' })
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 1, b: 'hello' }, function (err, _doc1) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 2, b: 'si' }, function (err, _doc2) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ a: 3, b: 'coin' }, function (err, _doc3) {
               d.remove({ a: 1 }, {}, function (err, nr) {
                 const data = d.getAllData()
@@ -2867,11 +2867,11 @@ describe('Database', function () {
         d.ensureIndex({ fieldName: 'a' })
         d.ensureIndex({ fieldName: 'b' })
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ a: 1, b: 'hello' }, function (err, doc1) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ a: 2, b: 'si' }, function (err, doc2) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ a: 3, b: 'coin' }, function (err, doc3) {
               // Simple remove
               d.remove({ a: 1 }, {}, function (err, nr) {
@@ -2929,7 +2929,7 @@ describe('Database', function () {
           db.insert({ planet: 'Mars' }, function (err) {
             assert.isNull(err)
 
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             db.ensureIndex({ fieldName: 'planet' }, function (err) {
               Object.keys(db.indexes).length.should.equal(2)
               Object.keys(db.indexes)[0].should.equal('_id')
@@ -2983,7 +2983,7 @@ describe('Database', function () {
           db.insert({ planet: 'Mars' }, function (err) {
             assert.isNull(err)
 
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             db.ensureIndex({ fieldName: 'planet', unique: true, sparse: false }, function (err) {
               Object.keys(db.indexes).length.should.equal(2)
               Object.keys(db.indexes)[0].should.equal('_id')
@@ -3128,7 +3128,7 @@ describe('Database', function () {
     it('Results of getMatching should never contain duplicates', function (done) {
       d.ensureIndex({ fieldName: 'bad' })
       d.insert({ bad: ['a', 'b'] }, function () {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         callbackify(query => d._getCandidatesAsync(query))({ bad: { $in: ['a', 'b'] } }, function (err, res) {
           res.length.should.equal(1)
           done()

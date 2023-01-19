@@ -668,7 +668,7 @@ describe('Persistence', function () {
           beforeDeserialization: bd
         })
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ hello: 'world' }, function (err, doc) {
           const _id = doc._id
           d.insert({ yo: 'ya' }, function () {
@@ -687,7 +687,7 @@ describe('Persistence', function () {
                     beforeDeserialization: bd
                   })
                   d.loadDatabase(function () {
-                    // eslint-disable-next-line node/handle-callback-err
+                    // eslint-disable-next-line n/handle-callback-err
                     d.find({}, function (err, docs) {
                       docs.length.should.equal(1)
                       docs[0].hello.should.equal('earth')
@@ -823,7 +823,7 @@ describe('Persistence', function () {
 
     it('persistCachedDatabase should update the contents of the datafile and leave a clean state', function (done) {
       d.insert({ hello: 'world' }, function () {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           docs.length.should.equal(1)
 
@@ -850,7 +850,7 @@ describe('Persistence', function () {
 
     it('After a persistCachedDatabase, there should be no temp or old filename', function (done) {
       d.insert({ hello: 'world' }, function () {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           docs.length.should.equal(1)
 
@@ -878,7 +878,7 @@ describe('Persistence', function () {
 
     it('persistCachedDatabase should update the contents of the datafile and leave a clean state even if there is a temp datafile', function (done) {
       d.insert({ hello: 'world' }, function () {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           docs.length.should.equal(1)
 
@@ -1037,7 +1037,7 @@ describe('Persistence', function () {
           fs.existsSync('workspace/lac.db~').should.equal(false)
           fs.readFileSync('workspace/lac.db', 'utf8').length.should.equal(datafileLength)
 
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           db.find({}, function (err, docs) {
             docs.length.should.equal(N)
             for (i = 0; i < N; i += 1) {

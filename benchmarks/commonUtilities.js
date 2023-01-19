@@ -39,7 +39,7 @@ module.exports.getConfiguration = function (benchDb) {
     inMemoryOnly: program.inMemory
   })
 
-  return { n: n, d: d, program: program }
+  return { n, d, program }
 }
 
 /**
@@ -96,7 +96,7 @@ module.exports.insertDocs = function (d, n, profiler, cb) {
       return cb()
     }
 
-    // eslint-disable-next-line node/handle-callback-err
+    // eslint-disable-next-line n/handle-callback-err
     d.insert({ docNumber: order[i] }, function (err) {
       executeAsap(function () {
         runFrom(i + 1)
@@ -122,7 +122,7 @@ module.exports.findDocs = function (d, n, profiler, cb) {
       return cb()
     }
 
-    // eslint-disable-next-line node/handle-callback-err
+    // eslint-disable-next-line n/handle-callback-err
     d.find({ docNumber: order[i] }, function (err, docs) {
       if (docs.length !== 1 || docs[0].docNumber !== order[i]) { return cb(new Error('One find didnt work')) }
       executeAsap(function () {
@@ -159,7 +159,7 @@ module.exports.findDocsWithIn = function (d, n, profiler, cb) {
       return cb()
     }
 
-    // eslint-disable-next-line node/handle-callback-err
+    // eslint-disable-next-line n/handle-callback-err
     d.find({ docNumber: { $in: ins[i] } }, function (err, docs) {
       if (docs.length !== arraySize) { return cb(new Error('One find didnt work')) }
       executeAsap(function () {
@@ -186,7 +186,7 @@ module.exports.findOneDocs = function (d, n, profiler, cb) {
       return cb()
     }
 
-    // eslint-disable-next-line node/handle-callback-err
+    // eslint-disable-next-line n/handle-callback-err
     d.findOne({ docNumber: order[i] }, function (err, doc) {
       if (!doc || doc.docNumber !== order[i]) { return cb(new Error('One find didnt work')) }
       executeAsap(function () {
@@ -250,7 +250,7 @@ module.exports.removeDocs = function (options, d, n, profiler, cb) {
     d.remove({ docNumber: order[i] }, options, function (err, nr) {
       if (err) { return cb(err) }
       if (nr !== 1) { return cb(new Error('One remove didnt work')) }
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ docNumber: order[i] }, function (err) { // We need to reinsert the doc so that we keep the collection's size at n
         // So actually we're calculating the average time taken by one insert + one remove
         executeAsap(function () {
@@ -276,7 +276,7 @@ module.exports.loadDatabase = function (d, n, profiler, cb) {
       return cb()
     }
 
-    // eslint-disable-next-line node/handle-callback-err
+    // eslint-disable-next-line n/handle-callback-err
     d.loadDatabase(function (err) {
       executeAsap(function () {
         runFrom(i + 1)

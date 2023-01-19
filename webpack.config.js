@@ -14,7 +14,7 @@ module.exports = (env, argv) => {
       global: true
     },
     optimization: {
-      minimize: minimize
+      minimize
     },
     resolve: {
       fallback: {

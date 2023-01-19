@@ -277,7 +277,7 @@ describe('Cursor Async', function () {
       await d.insertAsync({ name: 'henry', other: 4 })
 
       const cursor = new Cursor(d, {})
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       const docs = await cursor.sort({ other: 1 })
       assert.equal(docs.length, 4)
       assert.equal(docs[0].name, 'sue')
@@ -320,7 +320,7 @@ describe('Cursor Async', function () {
       await d.insertAsync({ name: 'zoe', age: 23, nid: 4 })
       await d.insertAsync({ name: 'jako', age: 35, nid: 5 })
       const cursor = new Cursor(d, {})
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       const docs = await cursor.sort({ name: 1, age: -1 })
       assert.equal(docs.length, 5)
 

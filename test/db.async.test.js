@@ -810,7 +810,7 @@ describe('Database async', function () {
       await d.updateAsync({ $or: [{ a: 4 }, { a: 5 }] }, {
         $set: { hello: 'world' },
         $inc: { bloup: 3 }
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
       }, { upsert: true })
       const docs = await d.findAsync({ hello: 'world' })
       assert.equal(docs.length, 1)
@@ -824,7 +824,7 @@ describe('Database async', function () {
       await d.updateAsync({ $or: [{ a: 4 }, { a: 5 }], cac: 'rrr' }, {
         $set: { hello: 'world' },
         $inc: { bloup: 3 }
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
       }, { upsert: true })
       const docs = await d.findAsync({ hello: 'world' })
       assert.equal(docs.length, 1)
@@ -1400,9 +1400,9 @@ describe('Database async', function () {
 
         assert.deepEqual(Object.keys(d.indexes), ['_id'])
 
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         const newDoc1 = await d.insertAsync({ z: '12', yes: 'yes' })
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         const newDoc2 = await d.insertAsync({ z: '14', nope: 'nope' })
         await d.removeAsync({ z: '2' }, {})
         await d.updateAsync({ z: '1' }, { $set: { yes: 'yep' } }, {})

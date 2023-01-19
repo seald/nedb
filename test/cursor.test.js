@@ -40,15 +40,15 @@ describe('Cursor', function () {
 
   describe('Without sorting', function () {
     beforeEach(function (done) {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ age: 5 }, function (err) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ age: 57 }, function (err) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ age: 52 }, function (err) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ age: 23 }, function (err) {
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.insert({ age: 89 }, function (err) {
                 return done()
               })
@@ -152,15 +152,15 @@ describe('Cursor', function () {
   describe('Sorting of the results', function () {
     beforeEach(function (done) {
       // We don't know the order in which docs wil be inserted but we ensure correctness by testing both sort orders
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ age: 5 }, function (err) {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ age: 57 }, function (err) {
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ age: 52 }, function (err) {
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ age: 23 }, function (err) {
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.insert({ age: 89 }, function (err) {
                 return done()
               })
@@ -204,14 +204,14 @@ describe('Cursor', function () {
       db.insert({ name: 'charlie' })
       db.insert({ name: 'zulu' })
 
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       db.find({}).sort({ name: 1 }).exec(function (err, docs) {
         docs.map(x => x.name)[0].should.equal('zulu')
         docs.map(x => x.name)[1].should.equal('alpha')
         docs.map(x => x.name)[2].should.equal('charlie')
 
         delete db.compareStrings
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         db.find({}).sort({ name: 1 }).exec(function (err, docs) {
           docs.map(x => x.name)[0].should.equal('alpha')
           docs.map(x => x.name)[1].should.equal('charlie')
@@ -416,7 +416,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ name: 1 }).exec(function (err, docs) {
             docs.length.should.equal(3)
             docs[0].name.should.equal('jakeb')
@@ -427,7 +427,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ name: -1 }).exec(function (err, docs) {
             docs.length.should.equal(3)
             docs[0].name.should.equal('sue')
@@ -449,13 +449,13 @@ describe('Cursor', function () {
           d.remove({}, { multi: true }, function (err) {
             if (err) { return cb(err) }
 
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ event: { recorded: new Date(400) } }, function (err, _doc1) {
               doc1 = _doc1
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.insert({ event: { recorded: new Date(60000) } }, function (err, _doc2) {
                 doc2 = _doc2
-                // eslint-disable-next-line node/handle-callback-err
+                // eslint-disable-next-line n/handle-callback-err
                 d.insert({ event: { recorded: new Date(32) } }, function (err, _doc3) {
                   doc3 = _doc3
                   return cb()
@@ -466,7 +466,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ 'event.recorded': 1 }).exec(function (err, docs) {
             docs.length.should.equal(3)
             docs[0]._id.should.equal(doc3._id)
@@ -477,7 +477,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ 'event.recorded': -1 }).exec(function (err, docs) {
             docs.length.should.equal(3)
             docs[0]._id.should.equal(doc2._id)
@@ -508,7 +508,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ other: 1 }).exec(function (err, docs) {
             docs.length.should.equal(4)
             docs[0].name.should.equal('sue')
@@ -524,7 +524,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, { name: { $in: ['suzy', 'jakeb', 'jako'] } })
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ other: -1 }).exec(function (err, docs) {
             docs.length.should.equal(2)
             docs[0].name.should.equal('jakeb')
@@ -554,7 +554,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ other: 1 }).exec(function (err, docs) {
             docs.length.should.equal(3)
             return cb()
@@ -562,7 +562,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, { name: { $in: ['sue', 'jakeb', 'jakob'] } })
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ other: -1 }).exec(function (err, docs) {
             docs.length.should.equal(2)
             return cb()
@@ -592,7 +592,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ name: 1, age: -1 }).exec(function (err, docs) {
             docs.length.should.equal(5)
 
@@ -606,7 +606,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ name: 1, age: 1 }).exec(function (err, docs) {
             docs.length.should.equal(5)
 
@@ -620,7 +620,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ age: 1, name: 1 }).exec(function (err, docs) {
             docs.length.should.equal(5)
 
@@ -634,7 +634,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ age: 1, name: -1 }).exec(function (err, docs) {
             docs.length.should.equal(5)
 
@@ -677,7 +677,7 @@ describe('Cursor', function () {
               d.insert(entity, function () {
                 callback()
               })
-            }, // eslint-disable-next-line node/handle-callback-err
+            }, // eslint-disable-next-line n/handle-callback-err
             function (err) {
               return cb()
             })
@@ -685,7 +685,7 @@ describe('Cursor', function () {
         },
         function (cb) {
           const cursor = new Cursor(d, {})
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           cursor.sort({ company: 1, cost: 1 }).exec(function (err, docs) {
             docs.length.should.equal(60)
 
@@ -709,19 +709,19 @@ describe('Cursor', function () {
 
     beforeEach(function (done) {
       // We don't know the order in which docs wil be inserted but we ensure correctness by testing both sort orders
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ age: 5, name: 'Jo', planet: 'B', toys: { bebe: true, ballon: 'much' } }, function (err, _doc0) {
         doc0 = _doc0
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.insert({ age: 57, name: 'Louis', planet: 'R', toys: { ballon: 'yeah', bebe: false } }, function (err, _doc1) {
           doc1 = _doc1
-          // eslint-disable-next-line node/handle-callback-err
+          // eslint-disable-next-line n/handle-callback-err
           d.insert({ age: 52, name: 'Grafitti', planet: 'C', toys: { bebe: 'kind of' } }, function (err, _doc2) {
             doc2 = _doc2
-            // eslint-disable-next-line node/handle-callback-err
+            // eslint-disable-next-line n/handle-callback-err
             d.insert({ age: 23, name: 'LM', planet: 'S' }, function (err, _doc3) {
               doc3 = _doc3
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.insert({ age: 89, planet: 'Earth' }, function (err, _doc4) {
                 doc4 = _doc4
                 return done()
@@ -853,7 +853,7 @@ describe('Cursor', function () {
       const cursor = new Cursor(d, {})
       cursor.sort({ age: 1 }) // For easier finding
       cursor.projection({ name: 0, planet: 0, 'toys.bebe': 0, _id: 0 })
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       cursor.exec(function (err, docs) {
         assert.deepStrictEqual(docs[0], { age: 5, toys: { ballon: 'much' } })
         assert.deepStrictEqual(docs[1], { age: 23 })
@@ -869,7 +869,7 @@ describe('Cursor', function () {
       const cursor = new Cursor(d, {})
       cursor.sort({ age: 1 }) // For easier finding
       cursor.projection({ name: 1, 'toys.ballon': 1, _id: 0 })
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       cursor.exec(function (err, docs) {
         assert.deepStrictEqual(docs[0], { name: 'Jo', toys: { ballon: 'much' } })
         assert.deepStrictEqual(docs[1], { name: 'LM' })

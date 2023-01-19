@@ -20,7 +20,7 @@ function testThrowInCallback (d, done) {
   process.removeAllListeners('uncaughtException')
   process.removeAllListeners('unhandledRejection')
 
-  // eslint-disable-next-line node/handle-callback-err
+  // eslint-disable-next-line n/handle-callback-err
   process.on('uncaughtException', function (err) {
     // Do nothing with the error which is only there to test we stay on track
   })
@@ -29,10 +29,10 @@ function testThrowInCallback (d, done) {
     // Do nothing with the error which is only there to test we stay on track
   })
 
-  // eslint-disable-next-line node/handle-callback-err
+  // eslint-disable-next-line n/handle-callback-err
   d.find({}, function (err) {
     process.nextTick(function () {
-      // eslint-disable-next-line node/handle-callback-err
+      // eslint-disable-next-line n/handle-callback-err
       d.insert({ bar: 1 }, function (err) {
         process.removeAllListeners('uncaughtException')
         process.removeAllListeners('unhandledRejection')
@@ -78,24 +78,24 @@ function testRightOrder (d, done) {
 
   process.removeAllListeners('uncaughtException')
 
-  // eslint-disable-next-line node/handle-callback-err
+  // eslint-disable-next-line n/handle-callback-err
   process.on('uncaughtException', function (err) {
     // Do nothing with the error which is only there to test we stay on track
   })
 
-  // eslint-disable-next-line node/handle-callback-err
+  // eslint-disable-next-line n/handle-callback-err
   d.find({}, function (err, docs) {
     docs.length.should.equal(0)
 
     d.insert({ a: 1 }, function () {
       d.update({ a: 1 }, { a: 2 }, {}, function () {
-        // eslint-disable-next-line node/handle-callback-err
+        // eslint-disable-next-line n/handle-callback-err
         d.find({}, function (err, docs) {
           docs[0].a.should.equal(2)
 
           process.nextTick(function () {
             d.update({ a: 2 }, { a: 3 }, {}, function () {
-              // eslint-disable-next-line node/handle-callback-err
+              // eslint-disable-next-line n/handle-callback-err
               d.find({}, function (err, docs) {
                 docs[0].a.should.equal(3)
 
@@ -125,7 +125,7 @@ const testEventLoopStarvation = function (d, done) {
   let i = 0
   while (i < times) {
     i++
-    // eslint-disable-next-line node/handle-callback-err
+    // eslint-disable-next-line n/handle-callback-err
     d.find({ bogus: 'search' }, function (err, docs) {
     })
   }
@@ -136,7 +136,7 @@ const testEventLoopStarvation = function (d, done) {
 function testExecutorWorksWithoutCallback (d, done) {
   d.insert({ a: 1 })
   d.insert({ a: 2 }, false)
-  // eslint-disable-next-line node/handle-callback-err
+  // eslint-disable-next-line n/handle-callback-err
   d.find({}, function (err, docs) {
     docs.length.should.equal(2)
     done()

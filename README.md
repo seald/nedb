@@ -29,7 +29,7 @@ const Datastore = require('@seald-io/nedb')
 ## Documentation
 The API is a subset of MongoDB's API (the most used operations).
 
-Since version [3.0.0](./CHANGELOG.md#300---unreleased), NeDB provides a Promise-based equivalent for each function
+Since version [3.0.0](./CHANGELOG.md#300---2022-03-16), NeDB provides a Promise-based equivalent for each function
 which is suffixed with `Async`, for example `loadDatabaseAsync`.
 
 The original callback-based interface is still available, fully retro-compatible
@@ -698,7 +698,7 @@ fields in nested documents using the dot notation. For now, indexes are only
 used to speed up basic queries and queries using `$in`, `$lt`, `$lte`, `$gt`
 and `$gte`. The indexed values cannot be of type array of object.
 
-**Breaking change**: [since v3.2.0](./CHANGELOG.md), comma can no longer be used in indexed field names.
+**Breaking change**: [since v4.0.0](./CHANGELOG.md#400---2023-01-19), commas (`,`) can no longer be used in indexed field names.
 
 The following is illegal:
 ```javascript
