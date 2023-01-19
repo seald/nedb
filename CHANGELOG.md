@@ -15,6 +15,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Updated dev dependencies, including `standard@17.0.0` which changed some linting rules.
 - Updated API docs.
 
+### Changed
+- No longer execute `test-typings.ts` to check typings, just compile it.
+
 ## [3.1.0] - 2022-09-02
 ### Added
 - Added a `testSerializationHooks` option which defaults to `true`. Setting to `false` allows to skip the test of the hooks, which may be slow.
