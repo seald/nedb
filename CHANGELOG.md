@@ -17,6 +17,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 - No longer execute `test-typings.ts` to check typings, just compile it.
+- Update `actions/checkout` and `actions/setup-node` to v3.
 
 ## [3.1.0] - 2022-09-02
 ### Added
