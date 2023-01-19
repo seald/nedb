@@ -29,6 +29,28 @@ describe('Indexes', function () {
       doc3.a.should.equal(42)
     })
 
+    it('Can insert pointers to documents in the index correctly when they have compound fields', function () {
+      const idx = new Index({ fieldName: 'tf,tg' })
+      const doc1 = { a: 5, tf: 'hello', tg: 'world' }
+      const doc2 = { a: 8, tf: 'hello', tg: 'bloup' }
+      const doc3 = { a: 2, tf: 'bloup', tg: 'bloup' }
+
+      idx.insert(doc1)
+      idx.insert(doc2)
+      idx.insert(doc3)
+
+      // The underlying BST now has 3 nodes which contain the docs where it's expected
+      idx.tree.getNumberOfKeys().should.equal(3)
+      assert.deepEqual(idx.tree.search({ tf: 'hello', tg: 'world' }), [{ a: 5, tf: 'hello', tg: 'world' }])
+      assert.deepEqual(idx.tree.search({ tf: 'hello', tg: 'bloup' }), [{ a: 8, tf: 'hello', tg: 'bloup' }])
+      assert.deepEqual(idx.tree.search({ tf: 'bloup', tg: 'bloup' }), [{ a: 2, tf: 'bloup', tg: 'bloup' }])
+
+      // The nodes contain pointers to the actual documents
+      idx.tree.search({ tf: 'hello', tg: 'bloup' })[0].should.equal(doc2)
+      idx.tree.search({ tf: 'bloup', tg: 'bloup' })[0].a = 42
+      doc3.a.should.equal(42)
+    })
+
     it('Inserting twice for the same fieldName in a unique index will result in an error thrown', function () {
       const idx = new Index({ fieldName: 'tf', unique: true })
       const doc1 = { a: 5, tf: 'hello' }
@@ -50,6 +72,25 @@ describe('Indexes', function () {
 
     it('Inserting twice for a fieldName the docs dont have with a unique and sparse index will not throw, since the docs will be non indexed', function () {
       const idx = new Index({ fieldName: 'nope', unique: true, sparse: true })
+      const doc1 = { a: 5, tf: 'hello' }
+      const doc2 = { a: 5, tf: 'world' }
+
+      idx.insert(doc1)
+      idx.insert(doc2)
+      idx.tree.getNumberOfKeys().should.equal(0) // Docs are not indexed
+    })
+
+    it('Inserting twice for the same compound fieldName in a unique index will result in an error thrown', function () {
+      const idx = new Index({ fieldName: 'tf,tg', unique: true })
+      const doc1 = { a: 5, tf: 'hello', tg: 'world' }
+
+      idx.insert(doc1)
+      idx.tree.getNumberOfKeys().should.equal(1);
+      (function () { idx.insert(doc1) }).should.throw()
+    })
+
+    it('Inserting twice for a compound fieldName the docs dont have with a unique and sparse index will not throw, since the docs will be non indexed', function () {
+      const idx = new Index({ fieldName: 'nope,nopeNope', unique: true, sparse: true })
       const doc1 = { a: 5, tf: 'hello' }
       const doc2 = { a: 5, tf: 'world' }
 
@@ -202,6 +243,30 @@ describe('Indexes', function () {
         idx.getMatching('ee').length.should.equal(0)
       })
     }) // ==== End of 'Array fields' ==== //
+
+    describe('Compound Indexes', function () {
+      it('Supports field names separated by commas', function () {
+        const idx = new Index({ fieldName: 'tf,tf2' })
+        const doc1 = { a: 5, tf: 'hello', tf2: 7 }
+        const doc2 = { a: 8, tf: 'hello', tf2: 6 }
+        const doc3 = { a: 2, tf: 'bloup', tf2: 3 }
+
+        idx.insert(doc1)
+        idx.insert(doc2)
+        idx.insert(doc3)
+
+        // The underlying BST now has 3 nodes which contain the docs where it's expected
+        idx.tree.getNumberOfKeys().should.equal(3)
+        assert.deepEqual(idx.tree.search({ tf: 'hello', tf2: 7 }), [{ a: 5, tf: 'hello', tf2: 7 }])
+        assert.deepEqual(idx.tree.search({ tf: 'hello', tf2: 6 }), [{ a: 8, tf: 'hello', tf2: 6 }])
+        assert.deepEqual(idx.tree.search({ tf: 'bloup', tf2: 3 }), [{ a: 2, tf: 'bloup', tf2: 3 }])
+
+        // The nodes contain pointers to the actual documents
+        idx.tree.search({ tf: 'hello', tf2: 6 })[0].should.equal(doc2)
+        idx.tree.search({ tf: 'bloup', tf2: 3 })[0].a = 42
+        doc3.a.should.equal(42)
+      })
+    })
   }) // ==== End of 'Insertion' ==== //
 
   describe('Removal', function () {

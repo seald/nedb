@@ -42,9 +42,9 @@ declare class Nedb<G = any> extends EventEmitter {
 
   ensureIndexAsync(options: Nedb.EnsureIndexOptions): Promise<void>;
 
-  removeIndex(fieldName: string, callback?: (err: Error | null) => void): void;
+  removeIndex(fieldName: string | string[], callback?: (err: Error | null) => void): void;
 
-  removeIndexAsync(fieldName: string): Promise<void>;
+  removeIndexAsync(fieldName: string | string[]): Promise<void>;
 
   insert<T extends G>(newDoc: T, callback?: (err: Error | null, document: T) => void): void;
   insert<T extends G>(newDocs: T[], callback?: (err: Error | null, documents: T[]) => void): void;
@@ -128,7 +128,7 @@ declare namespace Nedb {
   }
 
   interface EnsureIndexOptions {
-    fieldName: string;
+    fieldName: string | string[];
     unique?: boolean;
     sparse?: boolean;
     expireAfterSeconds?: number;
