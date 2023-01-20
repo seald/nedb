@@ -698,7 +698,7 @@ fields in nested documents using the dot notation. For now, indexes are only
 used to speed up basic queries and queries using `$in`, `$lt`, `$lte`, `$gt`
 and `$gte`. The indexed values cannot be of type array of object.
 
-**Breaking change**: [since v4.0.0](./CHANGELOG.md#400---2023-01-19), commas (`,`) can no longer be used in indexed field names.
+**Breaking change**: [since v4.0.0](./CHANGELOG.md#400---2023-01-20), commas (`,`) can no longer be used in indexed field names.
 
 The following is illegal:
 ```javascript
