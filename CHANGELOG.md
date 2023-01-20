@@ -6,12 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.0.0] - 2023-01-19
+## [4.0.0] - 2023-01-20
 ### Added
-- \[**BREAKING**\] Implement compound indexes [#27](https://github.com/seald/nedb/pull/27). Commas (`,`) can no longer be used in indexed field names.
+- \[**BREAKING**\] Implement compound indexes [#27](https://github.com/seald/nedb/pull/27). **Commas (`,`) can no longer be used in indexed field names.**
 
 ### Updated
-- Updated [@seald-io/binary-search-tree](https://github.com/seald/binary-search-tree) to `v1.0.3`.
+- \[**BREAKING**\] Updated [@seald-io/binary-search-tree](https://github.com/seald/binary-search-tree) to `v1.0.3`, which changes syntax of some error messages, in particular the key constraint violation.
 - Updated dev dependencies, including `standard@17.0.0` which changed some linting rules.
 - Updated API docs.
 
