@@ -1169,7 +1169,7 @@ describe('Model', function () {
     })
 
     // General behaviour is tested in the block about $lt. Here we just test operators work
-    describe('Other comparison operators: $lte, $gt, $gte, $ne, $in, $stat', function () {
+    describe('Other comparison operators: $lte, $gt, $gte, $ne, $in, $exists', function () {
       it('$lte', function () {
         model.match({ a: 5 }, { a: { $lte: 6 } }).should.equal(true)
         model.match({ a: 5 }, { a: { $lte: 5 } }).should.equal(true)
