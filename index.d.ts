@@ -5,30 +5,35 @@
 //                 Stefan Steinhart <https://github.com/reppners>
 //                 Anthony Nichols <https://github.com/anthonynichols>
 //                 Alejandro Fernandez Haro <https://github.com/afharo>
-// TypeScript Version: 4.4
+//                 Pierre de la Martinière <https://github.com/martpie>
+// TypeScript Version: 4.9
 
 /// <reference types="node" />
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 
 export default Nedb;
 
-declare class Nedb<G = any> extends EventEmitter {
+export type Document<Schema> = Schema & {
+  _id: string;
+};
+
+declare class Nedb<Schema = Record<string, any>> extends EventEmitter {
   constructor(pathOrOptions?: string | Nedb.DataStoreOptions);
 
   persistence: Nedb.Persistence;
 
-  autoloadPromise: Promise<void>|null;
+  autoloadPromise: Promise<void> | null;
 
   loadDatabase(callback?: (err: Error | null) => void): void;
 
   loadDatabaseAsync(): Promise<void>;
 
-  dropDatabase(callback?: (err: Error |null) => void): void;
+  dropDatabase(callback?: (err: Error | null) => void): void;
 
   dropDatabaseAsync(): Promise<void>;
 
-  compactDatafile(callback?: (err: Error |null) => void): void;
+  compactDatafile(callback?: (err: Error | null) => void): void;
 
   compactDatafileAsync(): Promise<void>;
 
@@ -36,9 +41,12 @@ declare class Nedb<G = any> extends EventEmitter {
 
   stopAutocompaction(): void;
 
-  getAllData<T extends G>(): T[];
+  getAllData<T extends Schema>(): Document<T>[];
 
-  ensureIndex(options: Nedb.EnsureIndexOptions, callback?: (err: Error | null) => void): void;
+  ensureIndex(
+    options: Nedb.EnsureIndexOptions,
+    callback?: (err: Error | null) => void
+  ): void;
 
   ensureIndexAsync(options: Nedb.EnsureIndexOptions): Promise<void>;
 
@@ -46,47 +54,98 @@ declare class Nedb<G = any> extends EventEmitter {
 
   removeIndexAsync(fieldName: string | string[]): Promise<void>;
 
-  insert<T extends G>(newDoc: T, callback?: (err: Error | null, document: T) => void): void;
-  insert<T extends G>(newDocs: T[], callback?: (err: Error | null, documents: T[]) => void): void;
+  insert<T extends Schema>(
+    newDoc: T,
+    callback?: (err: Error | null, document: Document<T>) => void
+  ): void;
+  insert<T extends Schema>(
+    newDocs: T[],
+    callback?: (err: Error | null, documents: Document<T>[]) => void
+  ): void;
 
-  insertAsync<T extends G>(newDoc: T): Promise<T>;
-  insertAsync<T extends G>(newDocs: T[]): Promise<T[]>;
+  insertAsync<T extends Schema>(newDoc: T): Promise<Document<T>>;
+  insertAsync<T extends Schema>(newDocs: T[]): Promise<Document<T>[]>;
 
   count(query: any, callback: (err: Error | null, n: number) => void): void;
   count(query: any): Nedb.CursorCount;
 
   countAsync(query: any): Nedb.Cursor<number>;
 
-  find<T extends G>(query: any, projection: any, callback?: (err: Error | null, documents: T[]) => void): void;
-  find<T extends G>(query: any, projection?: any): Nedb.Cursor<T>;
-  find<T extends G>(query: any, callback: (err: Error | null, documents: T[]) => void): void;
+  find<T extends Schema>(
+    query: any,
+    projection: any,
+    callback?: (err: Error | null, documents: Document<T>[]) => void
+  ): void;
+  find<T extends Schema>(
+    query: any,
+    projection?: any
+  ): Nedb.Cursor<T>;
+  find<T extends Schema>(
+    query: any,
+    callback: (err: Error | null, documents: Document<T>[]) => void
+  ): void;
 
-  findAsync<T extends G>(query: any, projection?: any): Nedb.Cursor<T[]>;
+  findAsync<T extends Schema>(
+    query: any,
+    projection?: any
+  ): Nedb.Cursor<T[]>;
 
-  findOne<T extends G>(query: any, projection: any, callback: (err: Error | null, document: T) => void): void;
-  findOne<T extends G>(query: any, callback: (err: Error | null, document: T) => void): void;
+  findOne<T extends Schema>(
+    query: any,
+    projection: any,
+    callback: (err: Error | null, document: Document<T>) => void
+  ): void;
+  findOne<T extends Schema>(
+    query: any,
+    callback: (err: Error | null, document: Document<T>) => void
+  ): void;
 
-  findOneAsync<T extends G>(query: any, projection?: any): Nedb.Cursor<T>;
+  findOneAsync<T extends Schema>(
+    query: any,
+    projection?: any
+  ): Nedb.Cursor<T>;
 
-  update<T extends G>(query: any, updateQuery: any, options?: Nedb.UpdateOptions, callback?: (err: Error | null, numberOfUpdated: number, affectedDocuments: T | T[] | null, upsert: boolean | null) => void): void;
+  update<T extends Schema>(
+    query: any,
+    updateQuery: any,
+    options?: Nedb.UpdateOptions,
+    callback?: (
+      err: Error | null,
+      numberOfUpdated: number,
+      affectedDocuments: Document<T> | Document<T>[] | null,
+      upsert: boolean | null
+    ) => void
+  ): void;
 
-  updateAsync<T extends G>(query: any, updateQuery: any, options?: Nedb.UpdateOptions): Promise<{numAffected: number, affectedDocuments: T|T[]|null, upsert: boolean}>;
+  updateAsync<T extends Schema>(
+    query: any,
+    updateQuery: any,
+    options?: Nedb.UpdateOptions
+  ): Promise<{
+    numAffected: number;
+    affectedDocuments: Document<T> | Document<T>[] | null;
+    upsert: boolean;
+  }>;
 
-  remove(query: any, options: Nedb.RemoveOptions, callback?: (err: Error | null, n: number) => void): void;
+  remove(
+    query: any,
+    options: Nedb.RemoveOptions,
+    callback?: (err: Error | null, n: number) => void
+  ): void;
   remove(query: any, callback?: (err: Error | null, n: number) => void): void;
 
   removeAsync(query: any, options: Nedb.RemoveOptions): Promise<number>;
 
-  addListener(event: 'compaction.done', listener: () => void): this;
-  on(event: 'compaction.done', listener: () => void): this;
-  once(event: 'compaction.done', listener: () => void): this;
-  prependListener(event: 'compaction.done', listener: () => void): this;
-  prependOnceListener(event: 'compaction.done', listener: () => void): this;
-  removeListener(event: 'compaction.done', listener: () => void): this;
-  off(event: 'compaction.done', listener: () => void): this;
-  listeners(event: 'compaction.done'): Array<() => void>;
-  rawListeners(event: 'compaction.done'): Array<() => void>;
-  listenerCount(type: 'compaction.done'): number;
+  addListener(event: "compaction.done", listener: () => void): this;
+  on(event: "compaction.done", listener: () => void): this;
+  once(event: "compaction.done", listener: () => void): this;
+  prependListener(event: "compaction.done", listener: () => void): this;
+  prependOnceListener(event: "compaction.done", listener: () => void): this;
+  removeListener(event: "compaction.done", listener: () => void): this;
+  off(event: "compaction.done", listener: () => void): this;
+  listeners(event: "compaction.done"): Array<() => void>;
+  rawListeners(event: "compaction.done"): Array<() => void>;
+  listenerCount(type: "compaction.done"): number;
 }
 
 declare namespace Nedb {
@@ -95,8 +154,8 @@ declare namespace Nedb {
     skip(n: number): Cursor<T>;
     limit(n: number): Cursor<T>;
     projection(query: any): Cursor<T>;
-    exec(callback: (err: Error | null, documents: T[]) => void): void;
-    execAsync(): Promise<T>;
+    exec(callback: (err: Error | null, documents: Document<T>[]) => void): void;
+    execAsync(): Promise<Document<T>>;
   }
 
   interface CursorCount {
@@ -113,7 +172,7 @@ declare namespace Nedb {
     afterSerialization?(line: string): string;
     corruptAlertThreshold?: number;
     compareStrings?(a: string, b: string): number;
-    modes?: {fileMode: number, dirMode: number};
+    modes?: { fileMode: number; dirMode: number };
     testSerializationHooks?: boolean;
   }
 
