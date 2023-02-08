@@ -3,7 +3,7 @@
  * Modified my arantes555 on 19.10.2021.
  */
 
-import Datastore, { Document } from './'
+import Datastore from './'
 import { mkdirSync } from 'fs'
 
 mkdirSync('./workspace/typings/', { recursive: true })
