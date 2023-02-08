@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2023-02-08
+### Fixed
+- Replace `$stat` from documentation with `$exists` [#32](https://github.com/seald/nedb/pull/32)
+
+### Added
+- Add `_id` to the TS typings [#30](https://github.com/seald/nedb/pull/30)
+
+### Changed
+- Updated devDependencies
+
 ## [4.0.0] - 2023-01-20
 ### Added
 - \[**BREAKING**\] Implement compound indexes [#27](https://github.com/seald/nedb/pull/27). **Commas (`,`) can no longer be used in indexed field names.**
