@@ -70,7 +70,7 @@ documents, arrays, arrays of subdocuments and to match a specific element of an 
 <li><code>$gt</code>, <code>$gte</code>: greater than, greater than or equal</li>
 <li><code>$in</code>: member of. <code>value</code> must be an array of values</li>
 <li><code>$ne</code>, <code>$nin</code>: not equal, not a member of</li>
-<li><code>$stat</code>: checks whether the document posses the property <code>field</code>. <code>value</code> should be true or false</li>
+<li><code>$exists</code>: checks whether the document posses the property <code>field</code>. <code>value</code> should be true or false</li>
 <li><code>$regex</code>: checks whether a string is matched by the regular expression. Contrary to MongoDB, the use of
 <code>$options</code> with <code>$regex</code> is not supported, because it doesn't give you more power than regex flags. Basic
 queries are more readable so only use the <code>$regex</code> operator when you need to use another operator with it</li>
@@ -972,7 +972,7 @@ documents, arrays, arrays of subdocuments and to match a specific element of an 
 <li><code>$gt</code>, <code>$gte</code>: greater than, greater than or equal</li>
 <li><code>$in</code>: member of. <code>value</code> must be an array of values</li>
 <li><code>$ne</code>, <code>$nin</code>: not equal, not a member of</li>
-<li><code>$stat</code>: checks whether the document posses the property <code>field</code>. <code>value</code> should be true or false</li>
+<li><code>$exists</code>: checks whether the document posses the property <code>field</code>. <code>value</code> should be true or false</li>
 <li><code>$regex</code>: checks whether a string is matched by the regular expression. Contrary to MongoDB, the use of
 <code>$options</code> with <code>$regex</code> is not supported, because it doesn't give you more power than regex flags. Basic
 queries are more readable so only use the <code>$regex</code> operator when you need to use another operator with it</li>
