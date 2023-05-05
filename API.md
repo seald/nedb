@@ -684,7 +684,7 @@ We return the [Cursor](#Cursor) that the user can either <code>await</code> dire
 <li>If <code>options.returnUpdatedDocs</code> is <code>true</code>:
 <ul>
 <li>If <code>options.multi</code> is <code>false</code>, the updated document;</li>
-<li>If <code>options.multi</code> is <code>false</code>, the array of updated documents.</li>
+<li>If <code>options.multi</code> is <code>true</code>, the array of updated documents.</li>
 </ul>
 </li>
 </ul>
