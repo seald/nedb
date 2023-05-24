@@ -547,16 +547,16 @@ It resolves into an  Object with the following properties:
 // { _id: 'id4', planet: 'Omicron Persia 8', system: 'futurama', inhabited: true }
 
 // Replace a document by another
-const { numReplaced } = await db.updateAsync({ planet: 'Jupiter' }, { planet: 'Pluton' }, {})
-// numReplaced = 1
+const { numAffected } = await db.updateAsync({ planet: 'Jupiter' }, { planet: 'Pluton' }, {})
+// numAffected = 1
 // The doc #3 has been replaced by { _id: 'id3', planet: 'Pluton' }
 // Note that the _id is kept unchanged, and the document has been replaced
 // (the 'system' and inhabited fields are not here anymore)
 
 
 // Set an existing field's value
-const { numReplaced } = await db.updateAsync({ system: 'solar' }, { $set: { system: 'solar system' } }, { multi: true })
-// numReplaced = 3
+const { numAffected } = await db.updateAsync({ system: 'solar' }, { $set: { system: 'solar system' } }, { multi: true })
+// numAffected = 3
 // Field 'system' on Mars, Earth, Jupiter now has value 'solar system'
 
 
@@ -586,11 +586,11 @@ await db.updateAsync({ planet: 'Mars' }, { $unset: { planet: true } }, {})
 
 
 // Upserting a document
-const { numReplaced, affectedDocuments, upsert } = await db.updateAsync({ planet: 'Pluton' }, {
+const { numAffected, affectedDocuments, upsert } = await db.updateAsync({ planet: 'Pluton' }, {
   planet: 'Pluton',
   inhabited: false
 }, { upsert: true })
-// numReplaced = 1, affectedDocuments = { _id: 'id5', planet: 'Pluton', inhabited: false }, upsert = true
+// numAffected = 1, affectedDocuments = { _id: 'id5', planet: 'Pluton', inhabited: false }, upsert = true
 // A new document { _id: 'id5', planet: 'Pluton', inhabited: false } has been added to the collection
 
 
