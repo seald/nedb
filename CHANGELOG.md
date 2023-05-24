@@ -8,7 +8,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [4.0.2] - 2023-05-05
 ### Fixed
-- Fixed typo in documentation [#32](https://github.com/seald/nedb/pull/36)
+- Fixed typo in documentation [#36](https://github.com/seald/nedb/pull/36)
 
 ## [4.0.1] - 2023-02-08
 ### Fixed
