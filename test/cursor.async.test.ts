@@ -1,14 +1,14 @@
 /* eslint-env mocha */
 const testDb = "workspace/test.db";
-const { promises: fs } = require("fs");
+import { promises as fs } from "fs";
 const assert = require("assert").strict;
-const path = require("path");
-const Datastore = require("../src/datastore");
-const Persistence = require("../src/persistence");
-const Cursor = require("../src/cursor");
-const { exists } = require("./utils.test");
+import path from "path";
+import Datastore from "../src/datastore";
+import Persistence from "../src/persistence";
+import Cursor from "../src/cursor";
+import { exists } from "./utils.test";
 
-describe("Cursor Async", function() {
+describe("Cursor Async", function () {
   let d;
 
   beforeEach(async () => {
@@ -21,7 +21,7 @@ describe("Cursor Async", function() {
     assert.equal(d.getAllData().length, 0);
   });
 
-  describe("Without sorting", function() {
+  describe("Without sorting", function () {
     beforeEach(async () => {
       await d.insertAsync({ age: 5 });
       await d.insertAsync({ age: 57 });
@@ -35,31 +35,31 @@ describe("Cursor Async", function() {
       const docs = await cursor;
       assert.equal(docs.length, 5);
       assert.equal(
-        docs.filter(function(doc) {
+        docs.filter(function (doc) {
           return doc.age === 5;
         })[0].age,
         5
       );
       assert.equal(
-        docs.filter(function(doc) {
+        docs.filter(function (doc) {
           return doc.age === 57;
         })[0].age,
         57
       );
       assert.equal(
-        docs.filter(function(doc) {
+        docs.filter(function (doc) {
           return doc.age === 52;
         })[0].age,
         52
       );
       assert.equal(
-        docs.filter(function(doc) {
+        docs.filter(function (doc) {
           return doc.age === 23;
         })[0].age,
         23
       );
       assert.equal(
-        docs.filter(function(doc) {
+        docs.filter(function (doc) {
           return doc.age === 89;
         })[0].age,
         89
@@ -68,31 +68,31 @@ describe("Cursor Async", function() {
       const docs2 = await cursor2;
       assert.equal(docs2.length, 5);
       assert.equal(
-        docs2.filter(function(doc) {
+        docs2.filter(function (doc) {
           return doc.age === 5;
         })[0].age,
         5
       );
       assert.equal(
-        docs2.filter(function(doc) {
+        docs2.filter(function (doc) {
           return doc.age === 57;
         })[0].age,
         57
       );
       assert.equal(
-        docs2.filter(function(doc) {
+        docs2.filter(function (doc) {
           return doc.age === 52;
         })[0].age,
         52
       );
       assert.equal(
-        docs2.filter(function(doc) {
+        docs2.filter(function (doc) {
           return doc.age === 23;
         })[0].age,
         23
       );
       assert.equal(
-        docs2.filter(function(doc) {
+        docs2.filter(function (doc) {
           return doc.age === 89;
         })[0].age,
         89
@@ -101,19 +101,19 @@ describe("Cursor Async", function() {
       const docs3 = await cursor3;
       assert.equal(docs3.length, 3);
       assert.equal(
-        docs3.filter(function(doc) {
+        docs3.filter(function (doc) {
           return doc.age === 57;
         })[0].age,
         57
       );
       assert.equal(
-        docs3.filter(function(doc) {
+        docs3.filter(function (doc) {
           return doc.age === 52;
         })[0].age,
         52
       );
       assert.equal(
-        docs3.filter(function(doc) {
+        docs3.filter(function (doc) {
           return doc.age === 89;
         })[0].age,
         89
@@ -151,7 +151,7 @@ describe("Cursor Async", function() {
     });
   }); // ===== End of 'Without sorting' =====
 
-  describe("Sorting of the results", function() {
+  describe("Sorting of the results", function () {
     beforeEach(async () => {
       // We don't know the order in which docs will be inserted but we ensure correctness by testing both sort orders
       await d.insertAsync({ age: 5 });
@@ -182,7 +182,7 @@ describe("Cursor Async", function() {
       const db = new Datastore({
         inMemoryOnly: true,
         autoload: true,
-        compareStrings: function(a, b) {
+        compareStrings: function (a, b) {
           return a.length - b.length;
         },
       });
@@ -459,7 +459,7 @@ describe("Cursor Async", function() {
     });
   }); // ===== End of 'Sorting' =====
 
-  describe("Projections", function() {
+  describe("Projections", function () {
     let doc1;
     let doc2;
     let doc3;

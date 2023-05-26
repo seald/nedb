@@ -1,6 +1,6 @@
-const BinarySearchTree = require("@seald-io/binary-search-tree").AVLTree;
-const model = require("./model");
-const { uniq, isDate } = require("./utils");
+import { AVLTree as BinarySearchTree } from "@seald-io/binary-search-tree";
+import * as model from "./model"; // todo split up
+import { uniq, isDate } from "./utils";
 
 /**
  * Two indexed pointers are equal if they point to the same place
@@ -9,7 +9,7 @@ const { uniq, isDate } = require("./utils");
  * @return {boolean}
  * @private
  */
-const checkValueEquality = (a, b) => a === b;
+export const checkValueEquality = (a, b) => a === b;
 
 /**
  * Type-aware projection
@@ -17,7 +17,7 @@ const checkValueEquality = (a, b) => a === b;
  * @return {string|*}
  * @private
  */
-const projectForUnique = (elt) => {
+export const projectForUnique = (elt) => {
   if (elt === null) return "$null";
   if (typeof elt === "string") return "$string" + elt;
   if (typeof elt === "boolean") return "$boolean" + elt;
@@ -32,7 +32,7 @@ const projectForUnique = (elt) => {
  * fields to be undefined
  * @private
  */
-class Index {
+export class Index {
   /**
    * Create a new index
    * All methods on an index guarantee that either the whole operation was successful and the index changed
@@ -342,6 +342,3 @@ class Index {
     return res;
   }
 }
-
-// Interface
-module.exports = Index;

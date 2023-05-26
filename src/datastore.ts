@@ -1,12 +1,12 @@
-const { EventEmitter } = require("events");
-const { callbackify, deprecate } = require("util");
-const Cursor = require("./cursor");
-const customUtils = require("./customUtils");
-const Executor = require("./executor");
-const Index = require("./indexes");
-const model = require("./model");
-const Persistence = require("./persistence");
-const { isDate, pick, filterIndexNames } = require("./utils");
+import { EventEmitter } from "events";
+import { callbackify, deprecate } from "util";
+import { Cursor } from "./cursor";
+import * as customUtils from "./customUtils"; // TODO split up
+import { Executor } from "./executor";
+import { Index } from "./indexes";
+import * as model from "./model"; // TODO split up
+import { Persistence } from "./persistence";
+import { isDate, pick, filterIndexNames } from "./utils";
 
 /**
  * Callback with no parameter
@@ -145,7 +145,7 @@ const { isDate, pick, filterIndexNames } = require("./utils");
  * @emits Datastore#event:"compaction.done"
  * @typicalname NeDB
  */
-class Datastore extends EventEmitter {
+export class Datastore extends EventEmitter {
   /**
    * Create a new collection, either persistent or in-memory.
    *
@@ -512,7 +512,7 @@ class Datastore extends EventEmitter {
    * @param {NoParamCallback} [callback]
    * @see Datastore#removeIndexAsync
    */
-  removeIndex(fieldName, callback = () => { }) {
+  removeIndex(fieldName, callback = () => {}) {
     const promise = this.removeIndexAsync(fieldName);
     callbackify(() => promise)(callback);
   }
@@ -1192,7 +1192,7 @@ class Datastore extends EventEmitter {
       cb = options;
       options = {};
     }
-    const callback = cb || (() => { });
+    const callback = cb || (() => {});
     callbackify((query, options) => this.removeAsync(query, options))(
       query,
       options,
@@ -1212,5 +1212,3 @@ class Datastore extends EventEmitter {
     return this.executor.pushAsync(() => this._removeAsync(query, options));
   }
 }
-
-module.exports = Datastore;

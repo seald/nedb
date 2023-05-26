@@ -2,11 +2,11 @@
  * Responsible for sequentially executing actions on the database
  * @private
  */
-class Waterfall {
+export class Waterfall {
   /**
    * Instantiate a new Waterfall.
    */
-  constructor () {
+  constructor() {
     /**
      * This is the internal Promise object which resolves when all the tasks of the `Waterfall` are done.
      *
@@ -14,7 +14,7 @@ class Waterfall {
      *
      * @type {Promise}
      */
-    this.guardian = Promise.resolve()
+    this.guardian = Promise.resolve();
   }
 
   /**
@@ -22,17 +22,19 @@ class Waterfall {
    * @param {AsyncFunction} func
    * @return {AsyncFunction}
    */
-  waterfall (func) {
+  waterfall<ARGS, RETURN>(func: (...args: ARGS) => Promise<RETURN>) {
     return (...args) => {
       this.guardian = this.guardian.then(() => {
-        return func(...args)
-          .then(result => ({ error: false, result }), result => ({ error: true, result }))
-      })
+        return func(...args).then(
+          (result) => ({ error: false, result }),
+          (result) => ({ error: true, result })
+        );
+      });
       return this.guardian.then(({ error, result }) => {
-        if (error) return Promise.reject(result)
-        else return Promise.resolve(result)
-      })
-    }
+        if (error) return Promise.reject(result);
+        else return Promise.resolve(result);
+      });
+    };
   }
 
   /**
@@ -40,9 +42,7 @@ class Waterfall {
    * @param {Promise} promise
    * @return {Promise}
    */
-  chain (promise) {
-    return this.waterfall(() => promise)()
+  chain<T>(promise: Promise<T>): Promise<any> {
+    return this.waterfall(() => promise)();
   }
 }
-
-module.exports = Waterfall

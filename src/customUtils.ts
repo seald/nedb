@@ -4,7 +4,7 @@
  * @module customUtilsNode
  * @private
  */
-const crypto = require('crypto')
+import crypto from "crypto";
 
 /**
  * Return a random alphanumerical string of length len
@@ -17,10 +17,9 @@ const crypto = require('crypto')
  * @return {string}
  * @alias module:customUtilsNode.uid
  */
-const uid = len => crypto.randomBytes(Math.ceil(Math.max(8, len * 2)))
-  .toString('base64')
-  .replace(/[+/]/g, '')
-  .slice(0, len)
-
-// Interface
-module.exports.uid = uid
+export const uid = (len: number) =>
+  crypto
+    .randomBytes(Math.ceil(Math.max(8, len * 2)))
+    .toString("base64")
+    .replace(/[+/]/g, "")
+    .slice(0, len);

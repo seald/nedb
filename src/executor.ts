@@ -1,33 +1,33 @@
-const Waterfall = require('./waterfall')
+import { Waterfall } from "./waterfall";
 
 /**
  * Executes operations sequentially.
  * Has an option for a buffer that can be triggered afterwards.
  * @private
  */
-class Executor {
+export class Executor {
   /**
    * Instantiates a new Executor.
    */
-  constructor () {
+  constructor() {
     /**
      * If this.ready is `false`, then every task pushed will be buffered until this.processBuffer is called.
      * @type {boolean}
      * @private
      */
-    this.ready = false
+    this.ready = false;
     /**
      * The main queue
      * @type {Waterfall}
      * @private
      */
-    this.queue = new Waterfall()
+    this.queue = new Waterfall();
     /**
      * The buffer queue
      * @type {Waterfall}
      * @private
      */
-    this.buffer = null
+    this.buffer = null;
     /**
      * Method to trigger the buffer processing.
      *
@@ -35,8 +35,8 @@ class Executor {
      * @function
      * @private
      */
-    this._triggerBuffer = null
-    this.resetBuffer()
+    this._triggerBuffer = null;
+    this.resetBuffer();
   }
 
   /**
@@ -48,32 +48,31 @@ class Executor {
    * @async
    * @see Executor#push
    */
-  pushAsync (task, forceQueuing = false) {
-    if (this.ready || forceQueuing) return this.queue.waterfall(task)()
-    else return this.buffer.waterfall(task)()
+  pushAsync(task, forceQueuing = false) {
+    if (this.ready || forceQueuing) return this.queue.waterfall(task)();
+    else return this.buffer.waterfall(task)();
   }
 
   /**
    * Queue all tasks in buffer (in the same order they came in)
    * Automatically sets executor as ready
    */
-  processBuffer () {
-    this.ready = true
-    this._triggerBuffer()
-    this.queue.waterfall(() => this.buffer.guardian)
+  processBuffer() {
+    this.ready = true;
+    this._triggerBuffer();
+    this.queue.waterfall(() => this.buffer.guardian);
   }
 
   /**
    * Removes all tasks queued up in the buffer
    */
-  resetBuffer () {
-    this.buffer = new Waterfall()
-    this.buffer.chain(new Promise(resolve => {
-      this._triggerBuffer = resolve
-    }))
-    if (this.ready) this._triggerBuffer()
+  resetBuffer() {
+    this.buffer = new Waterfall();
+    this.buffer.chain(
+      new Promise((resolve) => {
+        this._triggerBuffer = resolve;
+      })
+    );
+    if (this.ready) this._triggerBuffer();
   }
 }
-
-// Interface
-module.exports = Executor

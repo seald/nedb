@@ -1,5 +1,5 @@
-const model = require("./model");
-const { callbackify } = require("util");
+import * as model from "./model"; // todo split up
+import { callbackify } from "util";
 
 /**
  * Has a callback
@@ -14,7 +14,7 @@ const { callbackify } = require("util");
  * It extends `Promise` so that its methods (which return `this`) are chainable & awaitable.
  * @extends Promise
  */
-class Cursor {
+export class Cursor {
   /**
    * Create a new cursor for this collection.
    * @param {Datastore} db - The datastore this cursor is bound to
@@ -262,6 +262,3 @@ class Cursor {
     return this.execAsync().finally(onFinally);
   }
 }
-
-// Interface
-module.exports = Cursor;

@@ -6,7 +6,7 @@
  * @module model
  * @private
  */
-const { uniq, isDate, isRegExp } = require("./utils");
+import { uniq, isDate, isRegExp } from "./utils";
 
 /**
  * Check a key, throw an error if the key is non valid
@@ -17,7 +17,7 @@ const { uniq, isDate, isRegExp } = require("./utils");
  * But you really need to want it to trigger such behaviour, even when warned not to use '$' at the beginning of the field names...
  * @private
  */
-const checkKey = (k, v) => {
+export const checkKey = (k, v) => {
   if (typeof k === "number") k = k.toString();
 
   if (
@@ -38,7 +38,7 @@ const checkKey = (k, v) => {
  * @param {document|document[]} obj
  * @alias module:model.checkObject
  */
-const checkObject = (obj) => {
+export const checkObject = (obj) => {
   if (Array.isArray(obj)) {
     obj.forEach((o) => {
       checkObject(o);
@@ -66,7 +66,7 @@ const checkObject = (obj) => {
  * @return {string}
  * @alias module:model.serialize
  */
-const serialize = (obj) => {
+export const serialize = (obj) => {
   return JSON.stringify(obj, function(k, v) {
     checkKey(k, v);
 
@@ -89,7 +89,7 @@ const serialize = (obj) => {
  * @return {document}
  * @alias module:model.deserialize
  */
-const deserialize = (rawData) =>
+export const deserialize = (rawData) =>
   JSON.parse(rawData, function(k, v) {
     if (k === "$$date") return new Date(v);
     if (
@@ -113,7 +113,7 @@ const deserialize = (rawData) =>
  * @return {?document}
  * @alias module:modelel:(.*)
  */
-function deepCopy(obj, strictKeys) {
+export const deepCopy = (obj, strictKeys) => {
   if (
     typeof obj === "boolean" ||
     typeof obj === "number" ||
@@ -139,7 +139,7 @@ function deepCopy(obj, strictKeys) {
   }
 
   return undefined; // For now everything else is undefined. We should probably throw an error instead
-}
+};
 
 /**
  * Tells if an object is a primitive type or a "real" object
@@ -148,7 +148,7 @@ function deepCopy(obj, strictKeys) {
  * @return {boolean}
  * @alias module:modelel:(.*)
  */
-const isPrimitiveType = (obj) =>
+export const isPrimitiveType = (obj) =>
   typeof obj === "boolean" ||
   typeof obj === "number" ||
   typeof obj === "string" ||
@@ -165,7 +165,7 @@ const isPrimitiveType = (obj) =>
  * @return {number} 0 if a == b, 1 i a > b, -1 if a < b
  * @private
  */
-const compareNSB = (a, b) => {
+export const compareNSB = (a, b) => {
   if (a < b) return -1;
   if (a > b) return 1;
   return 0;
@@ -180,7 +180,7 @@ const compareNSB = (a, b) => {
  * @return {number} 0 if arrays have the same length and all elements equal one another. Else either 1 or -1.
  * @private
  */
-const compareArrays = (a, b) => {
+export const compareArrays = (a, b) => {
   const minLength = Math.min(a.length, b.length);
   for (let i = 0; i < minLength; i += 1) {
     const comp = compareThings(a[i], b[i]);
@@ -205,7 +205,7 @@ const compareArrays = (a, b) => {
  * @return {number}
  * @alias module:model.compareThings
  */
-const compareThings = (a, b, _compareStrings) => {
+export const compareThings = (a, b, _compareStrings) => {
   const compareStrings = _compareStrings || compareNSB;
 
   // undefined
@@ -276,7 +276,7 @@ const compareThings = (a, b, _compareStrings) => {
  * @return {modifierFunction}
  * @private
  */
-const createModifierFunction =
+export const createModifierFunction =
   (lastStepModifierFunction, unset = false) =>
     (obj, field, value) => {
       const func = (obj, field, value) => {
@@ -294,7 +294,7 @@ const createModifierFunction =
       return func(obj, field, value);
     };
 
-const $addToSetPartial = (obj, field, value) => {
+export const $addToSetPartial = (obj, field, value) => {
   // Create the array if it doesn't exist
   if (!Object.prototype.hasOwnProperty.call(obj, field)) {
     obj[field] = [];
@@ -324,7 +324,7 @@ const $addToSetPartial = (obj, field, value) => {
 /**
  * @enum {modifierFunction}
  */
-const modifierFunctions = {
+export const modifierFunctions = {
   /**
    * Set a field to a new value
    */
@@ -459,7 +459,7 @@ const modifierFunctions = {
  * @return {document}
  * @alias module:model.modify
  */
-const modify = (obj, updateQuery) => {
+export const modify = (obj, updateQuery) => {
   const keys = Object.keys(updateQuery);
   const firstChars = keys.map((item) => item[0]);
   const dollarFirstChars = firstChars.filter((c) => c === "$");
@@ -517,7 +517,7 @@ const modify = (obj, updateQuery) => {
  * @return {*}
  * @alias module:model.getDotValue
  */
-const getDotValue = (obj, field) => {
+export const getDotValue = (obj, field) => {
   const fieldParts = typeof field === "string" ? field.split(".") : field;
 
   if (!obj) return undefined; // field cannot be empty so that means we should return undefined so that nothing can match
@@ -540,7 +540,7 @@ const getDotValue = (obj, field) => {
 /**
  * Get dot values for either a bunch of fields or just one.
  */
-const getDotValues = (obj, fields) => {
+export const getDotValues = (obj, fields) => {
   if (!Array.isArray(fields)) throw new Error("fields must be an Array");
   if (fields.length > 1) {
     const key = {};
@@ -561,7 +561,7 @@ const getDotValues = (obj, fields) => {
  * @return {boolean}
  * @alias module:model.areThingsEqual
  */
-const areThingsEqual = (a, b) => {
+export const areThingsEqual = (a, b) => {
   // Strings, booleans, numbers, null
   if (
     a === null ||
@@ -615,7 +615,7 @@ const areThingsEqual = (a, b) => {
  * @return {boolean}
  * @private
  */
-const areComparable = (a, b) => {
+export const areComparable = (a, b) => {
   if (
     typeof a !== "string" &&
     typeof a !== "number" &&
@@ -642,7 +642,7 @@ const areComparable = (a, b) => {
 /**
  * @enum {comparisonOperator}
  */
-const comparisonFunctions = {
+export const comparisonFunctions = {
   /** Lower than */
   $lt: (a, b) => areComparable(a, b) && a < b,
   /** Lower than or equals */
@@ -704,12 +704,12 @@ const comparisonFunctions = {
   },
 };
 
-const arrayComparisonFunctions = { $size: true, $elemMatch: true };
+export const arrayComparisonFunctions = { $size: true, $elemMatch: true };
 
 /**
  * @enum
  */
-const logicalOperators = {
+export const logicalOperators = {
   /**
    * Match any of the subqueries
    * @param {document} obj
@@ -781,7 +781,7 @@ const logicalOperators = {
  * @return {boolean}
  * @alias module:model.match
  */
-const match = (obj, query) => {
+export const match = (obj, query) => {
   // Primitive query against a primitive type
   // This is a bit of a hack since we construct an object with an arbitrary key only to dereference it later
   // But I don't have time for a cleaner implementation now
@@ -813,7 +813,7 @@ const match = (obj, query) => {
  * @return {boolean}
  * @private
  */
-function matchQueryPart(obj, queryKey, queryValue, treatObjAsValue) {
+export const matchQueryPart = (obj, queryKey, queryValue, treatObjAsValue) => {
   const objValue = getDotValue(obj, queryKey);
 
   // Check if the value is an array if we don't force a treatment as value
@@ -882,17 +882,4 @@ function matchQueryPart(obj, queryKey, queryValue, treatObjAsValue) {
   // queryValue is either a native value or a normal object
   // Basic matching is possible
   return areThingsEqual(objValue, queryValue);
-}
-
-// Interface
-module.exports.serialize = serialize;
-module.exports.deserialize = deserialize;
-module.exports.deepCopy = deepCopy;
-module.exports.checkObject = checkObject;
-module.exports.isPrimitiveType = isPrimitiveType;
-module.exports.modify = modify;
-module.exports.getDotValue = getDotValue;
-module.exports.getDotValues = getDotValues;
-module.exports.match = match;
-module.exports.areThingsEqual = areThingsEqual;
-module.exports.compareThings = compareThings;
+};

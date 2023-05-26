@@ -24,10 +24,14 @@
  * @return {Array}
  * @alias module:utils.uniq
  */
-const uniq = (array, iteratee) => {
-  if (iteratee) return [...(new Map(array.map(x => [iteratee(x), x]))).values()]
-  else return [...new Set(array)]
-}
+export const uniq = <T>(
+  array: Array<T>,
+  iteratee: (v: T) => boolean
+): Array<T> => {
+  if (iteratee)
+    return [...new Map(array.map((x) => [iteratee(x), x])).values()];
+  else return [...new Set(array)];
+};
 /**
  * Returns true if arg is an Object. Note that JavaScript arrays and functions are objects, while (normal) strings
  * and numbers are not.
@@ -36,7 +40,8 @@ const uniq = (array, iteratee) => {
  * @param {*} arg
  * @return {boolean}
  */
-const isObject = arg => typeof arg === 'object' && arg !== null
+export const isObject = (arg: any): boolean =>
+  typeof arg === "object" && arg !== null;
 
 /**
  * Returns true if d is a Date.
@@ -46,7 +51,8 @@ const isObject = arg => typeof arg === 'object' && arg !== null
  * @return {boolean}
  * @alias module:utils.isDate
  */
-const isDate = d => isObject(d) && Object.prototype.toString.call(d) === '[object Date]'
+export const isDate = (d: any): boolean =>
+  isObject(d) && Object.prototype.toString.call(d) === "[object Date]";
 
 /**
  * Returns true if re is a RegExp.
@@ -56,7 +62,8 @@ const isDate = d => isObject(d) && Object.prototype.toString.call(d) === '[objec
  * @return {boolean}
  * @alias module:utils.isRegExp
  */
-const isRegExp = re => isObject(re) && Object.prototype.toString.call(re) === '[object RegExp]'
+export const isRegExp = (re: any): boolean =>
+  isObject(re) && Object.prototype.toString.call(re) === "[object RegExp]";
 
 /**
  * Return a copy of the object filtered using the given keys.
@@ -65,20 +72,25 @@ const isRegExp = re => isObject(re) && Object.prototype.toString.call(re) === '[
  * @param {string[]} keys
  * @return {object}
  */
-const pick = (object, keys) => {
+export const pick = (
+  object: Record<string, any>,
+  keys: string[]
+): Record<string, any> => {
   return keys.reduce((obj, key) => {
     if (object && Object.prototype.hasOwnProperty.call(object, key)) {
-      obj[key] = object[key]
+      obj[key] = object[key];
     }
-    return obj
-  }, {})
-}
+    return obj;
+  }, {} as Record<string, any>);
+};
 
-const filterIndexNames = (indexNames) => ([k, v]) => !!(typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean' || isDate(v) || v === null) &&
-indexNames.includes(k)
-
-module.exports.uniq = uniq
-module.exports.isDate = isDate
-module.exports.isRegExp = isRegExp
-module.exports.pick = pick
-module.exports.filterIndexNames = filterIndexNames
+export const filterIndexNames =
+  (indexNames: string[]) =>
+    ([k, v]: [string, any]) =>
+      !!(
+        typeof v === "string" ||
+        typeof v === "number" ||
+        typeof v === "boolean" ||
+        isDate(v) ||
+        v === null
+      ) && indexNames.includes(k);

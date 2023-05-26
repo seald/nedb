@@ -8,13 +8,14 @@
  * @module storage
  * @private
  */
-const fs = require('fs')
-const fsPromises = fs.promises
-const path = require('path')
-const { Readable } = require('stream')
+import fs from "fs";
+import path from "path";
+import { Readable } from "stream";
 
-const DEFAULT_DIR_MODE = 0o755
-const DEFAULT_FILE_MODE = 0o644
+const fsPromises = fs.promises;
+
+const DEFAULT_DIR_MODE = 0o755;
+const DEFAULT_FILE_MODE = 0o644;
 
 /**
  * Returns true if file exists.
@@ -24,7 +25,11 @@ const DEFAULT_FILE_MODE = 0o644
  * @alias module:storage.existsAsync
  * @see module:storage.exists
  */
-const existsAsync = file => fsPromises.access(file, fs.constants.F_OK).then(() => true, () => false)
+export const existsAsync = (file) =>
+  fsPromises.access(file, fs.constants.F_OK).then(
+    () => true,
+    () => false
+  );
 
 /**
  * Node.js' [fsPromises.rename]{@link https://nodejs.org/api/fs.html#fspromisesrenameoldpath-newpath}
@@ -35,7 +40,7 @@ const existsAsync = file => fsPromises.access(file, fs.constants.F_OK).then(() =
  * @alias module:storage.renameAsync
  * @async
  */
-const renameAsync = fsPromises.rename
+export const renameAsync = fsPromises.rename;
 
 /**
  * Node.js' [fsPromises.writeFile]{@link https://nodejs.org/api/fs.html#fspromiseswritefilefile-data-options}.
@@ -47,7 +52,7 @@ const renameAsync = fsPromises.rename
  * @alias module:storage.writeFileAsync
  * @async
  */
-const writeFileAsync = fsPromises.writeFile
+export const writeFileAsync = fsPromises.writeFile;
 
 /**
  * Node.js' [fs.createWriteStream]{@link https://nodejs.org/api/fs.html#fscreatewritestreampath-options}.
@@ -57,7 +62,7 @@ const writeFileAsync = fsPromises.writeFile
  * @return {fs.WriteStream}
  * @alias module:storage.writeFileStream
  */
-const writeFileStream = fs.createWriteStream
+export const writeFileStream = fs.createWriteStream;
 
 /**
  * Node.js' [fsPromises.unlink]{@link https://nodejs.org/api/fs.html#fspromisesunlinkpath}.
@@ -67,7 +72,7 @@ const writeFileStream = fs.createWriteStream
  * @async
  * @alias module:storage.unlinkAsync
  */
-const unlinkAsync = fsPromises.unlink
+export const unlinkAsync = fsPromises.unlink;
 
 /**
  * Node.js' [fsPromises.appendFile]{@link https://nodejs.org/api/fs.html#fspromisesappendfilepath-data-options}.
@@ -79,7 +84,7 @@ const unlinkAsync = fsPromises.unlink
  * @alias module:storage.appendFileAsync
  * @async
  */
-const appendFileAsync = fsPromises.appendFile
+export const appendFileAsync = fsPromises.appendFile;
 
 /**
  * Node.js' [fsPromises.readFile]{@link https://nodejs.org/api/fs.html#fspromisesreadfilepath-options}.
@@ -90,7 +95,7 @@ const appendFileAsync = fsPromises.appendFile
  * @alias module:storage.readFileAsync
  * @async
  */
-const readFileAsync = fsPromises.readFile
+export const readFileAsync = fsPromises.readFile;
 
 /**
  * Node.js' [fs.createReadStream]{@link https://nodejs.org/api/fs.html#fscreatereadstreampath-options}.
@@ -100,7 +105,7 @@ const readFileAsync = fsPromises.readFile
  * @return {fs.ReadStream}
  * @alias module:storage.readFileStream
  */
-const readFileStream = fs.createReadStream
+export const readFileStream = fs.createReadStream;
 
 /**
  * Node.js' [fsPromises.mkdir]{@link https://nodejs.org/api/fs.html#fspromisesmkdirpath-options}.
@@ -111,7 +116,7 @@ const readFileStream = fs.createReadStream
  * @alias module:storage.mkdirAsync
  * @async
  */
-const mkdirAsync = fsPromises.mkdir
+export const mkdirAsync = fsPromises.mkdir;
 
 /**
  * Removes file if it exists.
@@ -120,9 +125,9 @@ const mkdirAsync = fsPromises.mkdir
  * @alias module:storage.ensureFileDoesntExistAsync
  * @async
  */
-const ensureFileDoesntExistAsync = async file => {
-  if (await existsAsync(file)) await unlinkAsync(file)
-}
+export const ensureFileDoesntExistAsync = async (file) => {
+  if (await existsAsync(file)) await unlinkAsync(file);
+};
 
 /**
  * Flush data in OS buffer to storage if corresponding option is set.
@@ -134,18 +139,18 @@ const ensureFileDoesntExistAsync = async file => {
  * @alias module:storage.flushToStorageAsync
  * @async
  */
-const flushToStorageAsync = async (options) => {
-  let filename
-  let flags
-  let mode
-  if (typeof options === 'string') {
-    filename = options
-    flags = 'r+'
-    mode = DEFAULT_FILE_MODE
+export const flushToStorageAsync = async (options) => {
+  let filename;
+  let flags;
+  let mode;
+  if (typeof options === "string") {
+    filename = options;
+    flags = "r+";
+    mode = DEFAULT_FILE_MODE;
   } else {
-    filename = options.filename
-    flags = options.isDir ? 'r' : 'r+'
-    mode = options.mode !== undefined ? options.mode : DEFAULT_FILE_MODE
+    filename = options.filename;
+    flags = options.isDir ? "r" : "r+";
+    mode = options.mode !== undefined ? options.mode : DEFAULT_FILE_MODE;
   }
   /**
    * Some OSes and/or storage backends (augmented node fs) do not support fsync (FlushFileBuffers) directories,
@@ -159,30 +164,36 @@ const flushToStorageAsync = async (options) => {
    * database is loaded and a crash happens.
    */
 
-  let filehandle, errorOnFsync, errorOnClose
+  let filehandle, errorOnFsync, errorOnClose;
   try {
-    filehandle = await fsPromises.open(filename, flags, mode)
+    filehandle = await fsPromises.open(filename, flags, mode);
     try {
-      await filehandle.sync()
+      await filehandle.sync();
     } catch (errFS) {
-      errorOnFsync = errFS
+      errorOnFsync = errFS;
     }
   } catch (error) {
-    if (error.code !== 'EISDIR' || !options.isDir) throw error
+    if (error.code !== "EISDIR" || !options.isDir) throw error;
   } finally {
     try {
-      await filehandle.close()
+      await filehandle.close();
     } catch (errC) {
-      errorOnClose = errC
+      errorOnClose = errC;
     }
   }
-  if ((errorOnFsync || errorOnClose) && !((errorOnFsync.code === 'EPERM' || errorOnClose.code === 'EISDIR') && options.isDir)) {
-    const e = new Error('Failed to flush to storage')
-    e.errorOnFsync = errorOnFsync
-    e.errorOnClose = errorOnClose
-    throw e
+  if (
+    (errorOnFsync || errorOnClose) &&
+    !(
+      (errorOnFsync.code === "EPERM" || errorOnClose.code === "EISDIR") &&
+      options.isDir
+    )
+  ) {
+    const e = new Error("Failed to flush to storage");
+    e.errorOnFsync = errorOnFsync;
+    e.errorOnClose = errorOnClose;
+    throw e;
   }
-}
+};
 
 /**
  * Fully write or rewrite the datafile.
@@ -193,35 +204,40 @@ const flushToStorageAsync = async (options) => {
  * @alias module:storage.writeFileLinesAsync
  * @async
  */
-const writeFileLinesAsync = (filename, lines, mode = DEFAULT_FILE_MODE) => new Promise((resolve, reject) => {
-  try {
-    const stream = writeFileStream(filename, { mode })
-    const readable = Readable.from(lines)
-    readable.on('data', (line) => {
-      try {
-        stream.write(line + '\n')
-      } catch (err) {
-        reject(err)
-      }
-    })
-    readable.on('end', () => {
-      stream.close(err => {
-        if (err) reject(err)
-        else resolve()
-      })
-    })
+export const writeFileLinesAsync = (
+  filename,
+  lines,
+  mode = DEFAULT_FILE_MODE
+) =>
+  new Promise((resolve, reject) => {
+    try {
+      const stream = writeFileStream(filename, { mode });
+      const readable = Readable.from(lines);
+      readable.on("data", (line) => {
+        try {
+          stream.write(line + "\n");
+        } catch (err) {
+          reject(err);
+        }
+      });
+      readable.on("end", () => {
+        stream.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
 
-    readable.on('error', err => {
-      reject(err)
-    })
+      readable.on("error", (err) => {
+        reject(err);
+      });
 
-    stream.on('error', err => {
-      reject(err)
-    })
-  } catch (err) {
-    reject(err)
-  }
-})
+      stream.on("error", (err) => {
+        reject(err);
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
 
 /**
  * Fully write or rewrite the datafile, immune to crashes during the write operation (data will not be lost).
@@ -233,22 +249,34 @@ const writeFileLinesAsync = (filename, lines, mode = DEFAULT_FILE_MODE) => new P
  * @return {Promise<void>}
  * @alias module:storage.crashSafeWriteFileLinesAsync
  */
-const crashSafeWriteFileLinesAsync = async (filename, lines, modes = { fileMode: DEFAULT_FILE_MODE, dirMode: DEFAULT_DIR_MODE }) => {
-  const tempFilename = filename + '~'
+export const crashSafeWriteFileLinesAsync = async (
+  filename,
+  lines,
+  modes = { fileMode: DEFAULT_FILE_MODE, dirMode: DEFAULT_DIR_MODE }
+) => {
+  const tempFilename = filename + "~";
 
-  await flushToStorageAsync({ filename: path.dirname(filename), isDir: true, mode: modes.dirMode })
+  await flushToStorageAsync({
+    filename: path.dirname(filename),
+    isDir: true,
+    mode: modes.dirMode,
+  });
 
-  const exists = await existsAsync(filename)
-  if (exists) await flushToStorageAsync({ filename, mode: modes.fileMode })
+  const exists = await existsAsync(filename);
+  if (exists) await flushToStorageAsync({ filename, mode: modes.fileMode });
 
-  await writeFileLinesAsync(tempFilename, lines, modes.fileMode)
+  await writeFileLinesAsync(tempFilename, lines, modes.fileMode);
 
-  await flushToStorageAsync({ filename: tempFilename, mode: modes.fileMode })
+  await flushToStorageAsync({ filename: tempFilename, mode: modes.fileMode });
 
-  await renameAsync(tempFilename, filename)
+  await renameAsync(tempFilename, filename);
 
-  await flushToStorageAsync({ filename: path.dirname(filename), isDir: true, mode: modes.dirMode })
-}
+  await flushToStorageAsync({
+    filename: path.dirname(filename),
+    isDir: true,
+    mode: modes.dirMode,
+  });
+};
 
 /**
  * Ensure the datafile contains all the data, even if there was a crash during a full file write.
@@ -257,43 +285,20 @@ const crashSafeWriteFileLinesAsync = async (filename, lines, modes = { fileMode:
  * @return {Promise<void>}
  * @alias module:storage.ensureDatafileIntegrityAsync
  */
-const ensureDatafileIntegrityAsync = async (filename, mode = DEFAULT_FILE_MODE) => {
-  const tempFilename = filename + '~'
+export const ensureDatafileIntegrityAsync = async (
+  filename,
+  mode = DEFAULT_FILE_MODE
+) => {
+  const tempFilename = filename + "~";
 
-  const filenameExists = await existsAsync(filename)
+  const filenameExists = await existsAsync(filename);
   // Write was successful
-  if (filenameExists) return
+  if (filenameExists) return;
 
-  const oldFilenameExists = await existsAsync(tempFilename)
+  const oldFilenameExists = await existsAsync(tempFilename);
   // New database
-  if (!oldFilenameExists) await writeFileAsync(filename, '', { encoding: 'utf8', mode })
+  if (!oldFilenameExists)
+    await writeFileAsync(filename, "", { encoding: "utf8", mode });
   // Write failed, use old version
-  else await renameAsync(tempFilename, filename)
-}
-
-// Interface
-module.exports.existsAsync = existsAsync
-
-module.exports.renameAsync = renameAsync
-
-module.exports.writeFileAsync = writeFileAsync
-
-module.exports.writeFileLinesAsync = writeFileLinesAsync
-
-module.exports.crashSafeWriteFileLinesAsync = crashSafeWriteFileLinesAsync
-
-module.exports.appendFileAsync = appendFileAsync
-
-module.exports.readFileAsync = readFileAsync
-
-module.exports.unlinkAsync = unlinkAsync
-
-module.exports.mkdirAsync = mkdirAsync
-
-module.exports.readFileStream = readFileStream
-
-module.exports.flushToStorageAsync = flushToStorageAsync
-
-module.exports.ensureDatafileIntegrityAsync = ensureDatafileIntegrityAsync
-
-module.exports.ensureFileDoesntExistAsync = ensureFileDoesntExistAsync
+  else await renameAsync(tempFilename, filename);
+};

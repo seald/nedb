@@ -1,10 +1,10 @@
-const path = require("path");
-const { deprecate } = require("util");
-const byline = require("./byline");
-const customUtils = require("./customUtils");
-const Index = require("./indexes");
-const model = require("./model");
-const storage = require("./storage");
+import path from "path";
+import { deprecate } from "util";
+import * as byline from "./byline"; // todo split up
+import * as customUtils from "./customUtils"; // todo split up
+import { Index } from "./indexes";
+import * as model from "./model"; // todo split up
+import * as storage from "./storage"; // todo split up
 
 const DEFAULT_DIR_MODE = 0o755;
 const DEFAULT_FILE_MODE = 0o644;
@@ -39,7 +39,7 @@ const DEFAULT_FILE_MODE = 0o644;
  * explains this in more details, NeDB being very close to Redis AOF persistence
  * with `appendfsync` option set to `no`.
  */
-class Persistence {
+export class Persistence {
   /**
    * Create a new Persistence object for database options.db
    * @param {Datastore} options.db
@@ -342,7 +342,7 @@ class Persistence {
         resolve({ data, indexes });
       });
 
-      lineStream.on("error", function(err) {
+      lineStream.on("error", function (err) {
         reject(err, null);
       });
     });
@@ -448,6 +448,3 @@ class Persistence {
     await storage.mkdirAsync(dir, { recursive: true, mode });
   }
 }
-
-// Interface
-module.exports = Persistence;
