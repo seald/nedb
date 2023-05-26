@@ -1,12 +1,12 @@
-const { EventEmitter } = require('events')
-const { callbackify, deprecate } = require('util')
-const Cursor = require('./cursor.js')
-const customUtils = require('./customUtils.js')
-const Executor = require('./executor.js')
-const Index = require('./indexes.js')
-const model = require('./model.js')
-const Persistence = require('./persistence.js')
-const { isDate, pick, filterIndexNames } = require('./utils.js')
+const { EventEmitter } = require("events");
+const { callbackify, deprecate } = require("util");
+const Cursor = require("./cursor");
+const customUtils = require("./customUtils");
+const Executor = require("./executor");
+const Index = require("./indexes");
+const model = require("./model");
+const Persistence = require("./persistence");
+const { isDate, pick, filterIndexNames } = require("./utils");
 
 /**
  * Callback with no parameter
@@ -196,52 +196,52 @@ class Datastore extends EventEmitter {
    * @param {boolean} [options.testSerializationHooks=true] Whether to test the serialization hooks or not,
    * might be CPU-intensive
    */
-  constructor (options) {
-    super()
-    let filename
+  constructor(options) {
+    super();
+    let filename;
 
     // Retrocompatibility with v0.6 and before
-    if (typeof options === 'string') {
+    if (typeof options === "string") {
       deprecate(() => {
-        filename = options
-        this.inMemoryOnly = false // Default
-      }, '@seald-io/nedb: Giving a string to the Datastore constructor is deprecated and will be removed in the next major version. Please use an options object with an argument \'filename\'.')()
+        filename = options;
+        this.inMemoryOnly = false; // Default
+      }, "@seald-io/nedb: Giving a string to the Datastore constructor is deprecated and will be removed in the next major version. Please use an options object with an argument 'filename'.")();
     } else {
-      options = options || {}
-      filename = options.filename
+      options = options || {};
+      filename = options.filename;
       /**
        * Determines if the `Datastore` keeps data in-memory, or if it saves it in storage. Is not read after
        * instanciation.
        * @type {boolean}
        * @protected
        */
-      this.inMemoryOnly = options.inMemoryOnly || false
+      this.inMemoryOnly = options.inMemoryOnly || false;
       /**
        * Determines if the `Datastore` should autoload the database upon instantiation. Is not read after instanciation.
        * @type {boolean}
        * @protected
        */
-      this.autoload = options.autoload || false
+      this.autoload = options.autoload || false;
       /**
        * Determines if the `Datastore` should add `createdAt` and `updatedAt` fields automatically if not set by the user.
        * @type {boolean}
        * @protected
        */
-      this.timestampData = options.timestampData || false
+      this.timestampData = options.timestampData || false;
     }
 
     // Determine whether in memory or persistent
-    if (!filename || typeof filename !== 'string' || filename.length === 0) {
+    if (!filename || typeof filename !== "string" || filename.length === 0) {
       /**
        * If null, it means `inMemoryOnly` is `true`. The `filename` is the name given to the storage module. Is not read
        * after instanciation.
        * @type {?string}
        * @protected
        */
-      this.filename = null
-      this.inMemoryOnly = true
+      this.filename = null;
+      this.inMemoryOnly = true;
     } else {
-      this.filename = filename
+      this.filename = filename;
     }
 
     // String comparison function
@@ -252,7 +252,7 @@ class Datastore extends EventEmitter {
      * @function
      * @protected
      */
-    this.compareStrings = options.compareStrings
+    this.compareStrings = options.compareStrings;
 
     // Persistence handling
     /**
@@ -265,8 +265,8 @@ class Datastore extends EventEmitter {
       beforeDeserialization: options.beforeDeserialization,
       corruptAlertThreshold: options.corruptAlertThreshold,
       modes: options.modes,
-      testSerializationHooks: options.testSerializationHooks
-    })
+      testSerializationHooks: options.testSerializationHooks,
+    });
 
     // This new executor is ready if we don't use persistence
     // If we do, it will only be ready once loadDatabase is called
@@ -277,8 +277,8 @@ class Datastore extends EventEmitter {
      * @type {Executor}
      * @protected
      */
-    this.executor = new Executor()
-    if (this.inMemoryOnly) this.executor.ready = true
+    this.executor = new Executor();
+    if (this.inMemoryOnly) this.executor.ready = true;
 
     /**
      * Indexed by field name, dot notation can be used.
@@ -286,15 +286,15 @@ class Datastore extends EventEmitter {
      * @type {Object.<string, Index>}
      * @protected
      */
-    this.indexes = {}
-    this.indexes._id = new Index({ fieldName: '_id', unique: true })
+    this.indexes = {};
+    this.indexes._id = new Index({ fieldName: "_id", unique: true });
     /**
      * Stores the time to live (TTL) of the indexes created. The key represents the field name, the value the number of
      * seconds after which data with this index field should be removed.
      * @type {Object.<string, number>}
      * @protected
      */
-    this.ttlIndexes = {}
+    this.ttlIndexes = {};
 
     // Queue a load of the database right away and call the onload handler
     // By default (no onload handler), if there is an error there, no operation will be possible so warn the user by throwing an exception
@@ -305,21 +305,23 @@ class Datastore extends EventEmitter {
        * The onload callback is not awaited by this Promise, it is started immediately after that.
        * @type {?Promise}
        */
-      this.autoloadPromise = this.loadDatabaseAsync()
-      this.autoloadPromise
-        .then(() => {
-          if (options.onload) options.onload()
-        }, err => {
-          if (options.onload) options.onload(err)
-          else throw err
-        })
-    } else this.autoloadPromise = null
+      this.autoloadPromise = this.loadDatabaseAsync();
+      this.autoloadPromise.then(
+        () => {
+          if (options.onload) options.onload();
+        },
+        (err) => {
+          if (options.onload) options.onload(err);
+          else throw err;
+        }
+      );
+    } else this.autoloadPromise = null;
     /**
      * Interval if {@link Datastore#setAutocompactionInterval} was called.
      * @private
      * @type {null|number}
      */
-    this._autocompactionIntervalId = null
+    this._autocompactionIntervalId = null;
   }
 
   /**
@@ -329,8 +331,10 @@ class Datastore extends EventEmitter {
    *
    * @async
    */
-  compactDatafileAsync () {
-    return this.executor.pushAsync(() => this.persistence.persistCachedDatabaseAsync())
+  compactDatafileAsync() {
+    return this.executor.pushAsync(() =>
+      this.persistence.persistCachedDatabaseAsync()
+    );
   }
 
   /**
@@ -338,34 +342,35 @@ class Datastore extends EventEmitter {
    * @param {NoParamCallback} [callback = () => {}]
    * @see Datastore#compactDatafileAsync
    */
-  compactDatafile (callback) {
-    const promise = this.compactDatafileAsync()
-    if (typeof callback === 'function') callbackify(() => promise)(callback)
+  compactDatafile(callback) {
+    const promise = this.compactDatafileAsync();
+    if (typeof callback === "function") callbackify(() => promise)(callback);
   }
 
   /**
    * Set automatic compaction every `interval` ms
    * @param {Number} interval in milliseconds, with an enforced minimum of 5000 milliseconds
    */
-  setAutocompactionInterval (interval) {
-    const minInterval = 5000
-    if (Number.isNaN(Number(interval))) throw new Error('Interval must be a non-NaN number')
-    const realInterval = Math.max(Number(interval), minInterval)
+  setAutocompactionInterval(interval) {
+    const minInterval = 5000;
+    if (Number.isNaN(Number(interval)))
+      throw new Error("Interval must be a non-NaN number");
+    const realInterval = Math.max(Number(interval), minInterval);
 
-    this.stopAutocompaction()
+    this.stopAutocompaction();
 
     this._autocompactionIntervalId = setInterval(() => {
-      this.compactDatafile()
-    }, realInterval)
+      this.compactDatafile();
+    }, realInterval);
   }
 
   /**
    * Stop autocompaction (do nothing if automatic compaction was not running)
    */
-  stopAutocompaction () {
+  stopAutocompaction() {
     if (this._autocompactionIntervalId) {
-      clearInterval(this._autocompactionIntervalId)
-      this._autocompactionIntervalId = null
+      clearInterval(this._autocompactionIntervalId);
+      this._autocompactionIntervalId = null;
     }
   }
 
@@ -374,9 +379,9 @@ class Datastore extends EventEmitter {
    * @param {NoParamCallback} [callback]
    * @see Datastore#loadDatabaseAsync
    */
-  loadDatabase (callback) {
-    const promise = this.loadDatabaseAsync()
-    if (typeof callback === 'function') callbackify(() => promise)(callback)
+  loadDatabase(callback) {
+    const promise = this.loadDatabaseAsync();
+    if (typeof callback === "function") callbackify(() => promise)(callback);
   }
 
   /**
@@ -386,8 +391,8 @@ class Datastore extends EventEmitter {
    * @async
    * @return {Promise}
    */
-  dropDatabaseAsync () {
-    return this.persistence.dropDatabaseAsync() // the executor is exceptionally used by Persistence
+  dropDatabaseAsync() {
+    return this.persistence.dropDatabaseAsync(); // the executor is exceptionally used by Persistence
   }
 
   /**
@@ -395,9 +400,9 @@ class Datastore extends EventEmitter {
    * @param {NoParamCallback} [callback]
    * @see Datastore#dropDatabaseAsync
    */
-  dropDatabase (callback) {
-    const promise = this.dropDatabaseAsync()
-    if (typeof callback === 'function') callbackify(() => promise)(callback)
+  dropDatabase(callback) {
+    const promise = this.dropDatabaseAsync();
+    if (typeof callback === "function") callbackify(() => promise)(callback);
   }
 
   /**
@@ -405,16 +410,19 @@ class Datastore extends EventEmitter {
    * @async
    * @return {Promise}
    */
-  loadDatabaseAsync () {
-    return this.executor.pushAsync(() => this.persistence.loadDatabaseAsync(), true)
+  loadDatabaseAsync() {
+    return this.executor.pushAsync(
+      () => this.persistence.loadDatabaseAsync(),
+      true
+    );
   }
 
   /**
    * Get an array of all the data in the database.
    * @return {document[]}
    */
-  getAllData () {
-    return this.indexes._id.getAll()
+  getAllData() {
+    return this.indexes._id.getAll();
   }
 
   /**
@@ -422,9 +430,9 @@ class Datastore extends EventEmitter {
    * @param {?document|?document[]} [newData]
    * @private
    */
-  _resetIndexes (newData) {
+  _resetIndexes(newData) {
     for (const index of Object.values(this.indexes)) {
-      index.reset(newData)
+      index.reset(newData);
     }
   }
 
@@ -438,9 +446,9 @@ class Datastore extends EventEmitter {
    * @param {NoParamCallback} [callback]
    * @see Datastore#ensureIndex
    */
-  ensureIndex (options = {}, callback) {
-    const promise = this.ensureIndexAsync(options) // to make sure the synchronous part of ensureIndexAsync is executed synchronously
-    if (typeof callback === 'function') callbackify(() => promise)(callback)
+  ensureIndex(options = {}, callback) {
+    const promise = this.ensureIndexAsync(options); // to make sure the synchronous part of ensureIndexAsync is executed synchronously
+    if (typeof callback === "function") callbackify(() => promise)(callback);
   }
 
   /**
@@ -459,38 +467,43 @@ class Datastore extends EventEmitter {
    * `expireAfterSeconds`. Documents where the indexed field is not specified or not a `Date` object are ignored.
    * @return {Promise<void>}
    */
-  async ensureIndexAsync (options = {}) {
+  async ensureIndexAsync(options = {}) {
     if (!options.fieldName) {
-      const err = new Error('Cannot create an index without a fieldName')
-      err.missingFieldName = true
-      throw err
+      const err = new Error("Cannot create an index without a fieldName");
+      err.missingFieldName = true;
+      throw err;
     }
 
-    const _fields = [].concat(options.fieldName).sort()
+    const _fields = [].concat(options.fieldName).sort();
 
-    if (_fields.some(field => field.includes(','))) {
-      throw new Error('Cannot use comma in index fieldName')
+    if (_fields.some((field) => field.includes(","))) {
+      throw new Error("Cannot use comma in index fieldName");
     }
 
     const _options = {
       ...options,
-      fieldName: _fields.join(',')
-    }
+      fieldName: _fields.join(","),
+    };
 
-    if (this.indexes[_options.fieldName]) return
+    if (this.indexes[_options.fieldName]) return;
 
-    this.indexes[_options.fieldName] = new Index(_options)
-    if (options.expireAfterSeconds !== undefined) this.ttlIndexes[_options.fieldName] = _options.expireAfterSeconds // With this implementation index creation is not necessary to ensure TTL but we stick with MongoDB's API here
+    this.indexes[_options.fieldName] = new Index(_options);
+    if (options.expireAfterSeconds !== undefined)
+      this.ttlIndexes[_options.fieldName] = _options.expireAfterSeconds; // With this implementation index creation is not necessary to ensure TTL but we stick with MongoDB's API here
 
     try {
-      this.indexes[_options.fieldName].insert(this.getAllData())
+      this.indexes[_options.fieldName].insert(this.getAllData());
     } catch (e) {
-      delete this.indexes[_options.fieldName]
-      throw e
+      delete this.indexes[_options.fieldName];
+      throw e;
     }
 
     // We may want to force all options to be persisted including defaults, not just the ones passed the index creation function
-    await this.executor.pushAsync(() => this.persistence.persistNewStateAsync([{ $$indexCreated: _options }]), true)
+    await this.executor.pushAsync(
+      () =>
+        this.persistence.persistNewStateAsync([{ $$indexCreated: _options }]),
+      true
+    );
   }
 
   /**
@@ -499,9 +512,9 @@ class Datastore extends EventEmitter {
    * @param {NoParamCallback} [callback]
    * @see Datastore#removeIndexAsync
    */
-  removeIndex (fieldName, callback = () => {}) {
-    const promise = this.removeIndexAsync(fieldName)
-    callbackify(() => promise)(callback)
+  removeIndex(fieldName, callback = () => { }) {
+    const promise = this.removeIndexAsync(fieldName);
+    callbackify(() => promise)(callback);
   }
 
   /**
@@ -511,10 +524,14 @@ class Datastore extends EventEmitter {
    * @return {Promise<void>}
    * @see Datastore#removeIndex
    */
-  async removeIndexAsync (fieldName) {
-    delete this.indexes[fieldName]
+  async removeIndexAsync(fieldName) {
+    delete this.indexes[fieldName];
 
-    await this.executor.pushAsync(() => this.persistence.persistNewStateAsync([{ $$indexRemoved: fieldName }]), true)
+    await this.executor.pushAsync(
+      () =>
+        this.persistence.persistNewStateAsync([{ $$indexRemoved: fieldName }]),
+      true
+    );
   }
 
   /**
@@ -524,28 +541,28 @@ class Datastore extends EventEmitter {
    * @param {document} doc
    * @private
    */
-  _addToIndexes (doc) {
-    let failingIndex
-    let error
-    const keys = Object.keys(this.indexes)
+  _addToIndexes(doc) {
+    let failingIndex;
+    let error;
+    const keys = Object.keys(this.indexes);
 
     for (let i = 0; i < keys.length; i += 1) {
       try {
-        this.indexes[keys[i]].insert(doc)
+        this.indexes[keys[i]].insert(doc);
       } catch (e) {
-        failingIndex = i
-        error = e
-        break
+        failingIndex = i;
+        error = e;
+        break;
       }
     }
 
     // If an error happened, we need to rollback the insert on all other indexes
     if (error) {
       for (let i = 0; i < failingIndex; i += 1) {
-        this.indexes[keys[i]].remove(doc)
+        this.indexes[keys[i]].remove(doc);
       }
 
-      throw error
+      throw error;
     }
   }
 
@@ -556,9 +573,9 @@ class Datastore extends EventEmitter {
    * @param {document} doc
    * @private
    */
-  _removeFromIndexes (doc) {
+  _removeFromIndexes(doc) {
     for (const index of Object.values(this.indexes)) {
-      index.remove(doc)
+      index.remove(doc);
     }
   }
 
@@ -576,28 +593,28 @@ class Datastore extends EventEmitter {
    * `{oldDoc, newDoc}` pairs, this second argument is ignored.
    * @private
    */
-  _updateIndexes (oldDoc, newDoc) {
-    let failingIndex
-    let error
-    const keys = Object.keys(this.indexes)
+  _updateIndexes(oldDoc, newDoc) {
+    let failingIndex;
+    let error;
+    const keys = Object.keys(this.indexes);
 
     for (let i = 0; i < keys.length; i += 1) {
       try {
-        this.indexes[keys[i]].update(oldDoc, newDoc)
+        this.indexes[keys[i]].update(oldDoc, newDoc);
       } catch (e) {
-        failingIndex = i
-        error = e
-        break
+        failingIndex = i;
+        error = e;
+        break;
       }
     }
 
     // If an error happened, we need to rollback the update on all other indexes
     if (error) {
       for (let i = 0; i < failingIndex; i += 1) {
-        this.indexes[keys[i]].revertUpdate(oldDoc, newDoc)
+        this.indexes[keys[i]].revertUpdate(oldDoc, newDoc);
       }
 
-      throw error
+      throw error;
     }
   }
 
@@ -608,47 +625,62 @@ class Datastore extends EventEmitter {
    *
    * @private
    */
-  _getRawCandidates (query) {
-    const indexNames = Object.keys(this.indexes)
+  _getRawCandidates(query) {
+    const indexNames = Object.keys(this.indexes);
 
     // STEP 1: get candidates list by checking indexes from most to least frequent usecase
     // For a basic match
 
-    let usableQuery
+    let usableQuery;
     usableQuery = Object.entries(query)
       .filter(filterIndexNames(indexNames))
-      .pop()
-    if (usableQuery) return this.indexes[usableQuery[0]].getMatching(usableQuery[1])
+      .pop();
+    if (usableQuery)
+      return this.indexes[usableQuery[0]].getMatching(usableQuery[1]);
 
     // For a compound match
     const compoundQueryKeys = indexNames
-      .filter(indexName => indexName.indexOf(',') !== -1)
-      .map(indexName => indexName.split(','))
-      .filter(subIndexNames =>
-        Object.entries(query)
-          .filter(filterIndexNames(subIndexNames)).length === subIndexNames.length
-      )
+      .filter((indexName) => indexName.indexOf(",") !== -1)
+      .map((indexName) => indexName.split(","))
+      .filter(
+        (subIndexNames) =>
+          Object.entries(query).filter(filterIndexNames(subIndexNames))
+            .length === subIndexNames.length
+      );
 
-    if (compoundQueryKeys.length > 0) return this.indexes[compoundQueryKeys[0]].getMatching(pick(query, compoundQueryKeys[0]))
+    if (compoundQueryKeys.length > 0)
+      return this.indexes[compoundQueryKeys[0]].getMatching(
+        pick(query, compoundQueryKeys[0])
+      );
 
     // For a $in match
     usableQuery = Object.entries(query)
-      .filter(([k, v]) =>
-        !!(query[k] && Object.prototype.hasOwnProperty.call(query[k], '$in')) &&
-        indexNames.includes(k)
+      .filter(
+        ([k, v]) =>
+          !!(
+            query[k] && Object.prototype.hasOwnProperty.call(query[k], "$in")
+          ) && indexNames.includes(k)
       )
-      .pop()
-    if (usableQuery) return this.indexes[usableQuery[0]].getMatching(usableQuery[1].$in)
+      .pop();
+    if (usableQuery)
+      return this.indexes[usableQuery[0]].getMatching(usableQuery[1].$in);
     // For a comparison match
     usableQuery = Object.entries(query)
-      .filter(([k, v]) =>
-        !!(query[k] && (Object.prototype.hasOwnProperty.call(query[k], '$lt') || Object.prototype.hasOwnProperty.call(query[k], '$lte') || Object.prototype.hasOwnProperty.call(query[k], '$gt') || Object.prototype.hasOwnProperty.call(query[k], '$gte'))) &&
-        indexNames.includes(k)
+      .filter(
+        ([k, v]) =>
+          !!(
+            query[k] &&
+            (Object.prototype.hasOwnProperty.call(query[k], "$lt") ||
+              Object.prototype.hasOwnProperty.call(query[k], "$lte") ||
+              Object.prototype.hasOwnProperty.call(query[k], "$gt") ||
+              Object.prototype.hasOwnProperty.call(query[k], "$gte"))
+          ) && indexNames.includes(k)
       )
-      .pop()
-    if (usableQuery) return this.indexes[usableQuery[0]].getBetweenBounds(usableQuery[1])
+      .pop();
+    if (usableQuery)
+      return this.indexes[usableQuery[0]].getBetweenBounds(usableQuery[1]);
     // By default, return all the DB data
-    return this.getAllData()
+    return this.getAllData();
   }
 
   /**
@@ -667,25 +699,35 @@ class Datastore extends EventEmitter {
    * @return {Promise<document[]>} candidates
    * @private
    */
-  async _getCandidatesAsync (query, dontExpireStaleDocs = false) {
-    const validDocs = []
+  async _getCandidatesAsync(query, dontExpireStaleDocs = false) {
+    const validDocs = [];
 
     // STEP 1: get candidates list by checking indexes from most to least frequent usecase
-    const docs = this._getRawCandidates(query)
+    const docs = this._getRawCandidates(query);
     // STEP 2: remove all expired documents
     if (!dontExpireStaleDocs) {
-      const expiredDocsIds = []
-      const ttlIndexesFieldNames = Object.keys(this.ttlIndexes)
+      const expiredDocsIds = [];
+      const ttlIndexesFieldNames = Object.keys(this.ttlIndexes);
 
-      docs.forEach(doc => {
-        if (ttlIndexesFieldNames.every(i => !(doc[i] !== undefined && isDate(doc[i]) && Date.now() > doc[i].getTime() + this.ttlIndexes[i] * 1000))) validDocs.push(doc)
-        else expiredDocsIds.push(doc._id)
-      })
+      docs.forEach((doc) => {
+        if (
+          ttlIndexesFieldNames.every(
+            (i) =>
+              !(
+                doc[i] !== undefined &&
+                isDate(doc[i]) &&
+                Date.now() > doc[i].getTime() + this.ttlIndexes[i] * 1000
+              )
+          )
+        )
+          validDocs.push(doc);
+        else expiredDocsIds.push(doc._id);
+      });
       for (const _id of expiredDocsIds) {
-        await this._removeAsync({ _id }, {})
+        await this._removeAsync({ _id }, {});
       }
-    } else validDocs.push(...docs)
-    return validDocs
+    } else validDocs.push(...docs);
+    return validDocs;
   }
 
   /**
@@ -695,12 +737,14 @@ class Datastore extends EventEmitter {
    * @return {Promise<document|document[]>}
    * @private
    */
-  async _insertAsync (newDoc) {
-    const preparedDoc = this._prepareDocumentForInsertion(newDoc)
-    this._insertInCache(preparedDoc)
+  async _insertAsync(newDoc) {
+    const preparedDoc = this._prepareDocumentForInsertion(newDoc);
+    this._insertInCache(preparedDoc);
 
-    await this.persistence.persistNewStateAsync(Array.isArray(preparedDoc) ? preparedDoc : [preparedDoc])
-    return model.deepCopy(preparedDoc)
+    await this.persistence.persistNewStateAsync(
+      Array.isArray(preparedDoc) ? preparedDoc : [preparedDoc]
+    );
+    return model.deepCopy(preparedDoc);
   }
 
   /**
@@ -708,11 +752,12 @@ class Datastore extends EventEmitter {
    * @return {string} id
    * @private
    */
-  _createNewId () {
-    let attemptId = customUtils.uid(16)
+  _createNewId() {
+    let attemptId = customUtils.uid(16);
     // Try as many times as needed to get an unused _id. As explained in customUtils, the probability of this ever happening is extremely small, so this is O(1)
-    if (this.indexes._id.getMatching(attemptId).length > 0) attemptId = this._createNewId()
-    return attemptId
+    if (this.indexes._id.getMatching(attemptId).length > 0)
+      attemptId = this._createNewId();
+    return attemptId;
   }
 
   /**
@@ -722,22 +767,26 @@ class Datastore extends EventEmitter {
    * @return {document|document[]} prepared document, or Array of prepared documents
    * @private
    */
-  _prepareDocumentForInsertion (newDoc) {
-    let preparedDoc
+  _prepareDocumentForInsertion(newDoc) {
+    let preparedDoc;
 
     if (Array.isArray(newDoc)) {
-      preparedDoc = []
-      newDoc.forEach(doc => { preparedDoc.push(this._prepareDocumentForInsertion(doc)) })
+      preparedDoc = [];
+      newDoc.forEach((doc) => {
+        preparedDoc.push(this._prepareDocumentForInsertion(doc));
+      });
     } else {
-      preparedDoc = model.deepCopy(newDoc)
-      if (preparedDoc._id === undefined) preparedDoc._id = this._createNewId()
-      const now = new Date()
-      if (this.timestampData && preparedDoc.createdAt === undefined) preparedDoc.createdAt = now
-      if (this.timestampData && preparedDoc.updatedAt === undefined) preparedDoc.updatedAt = now
-      model.checkObject(preparedDoc)
+      preparedDoc = model.deepCopy(newDoc);
+      if (preparedDoc._id === undefined) preparedDoc._id = this._createNewId();
+      const now = new Date();
+      if (this.timestampData && preparedDoc.createdAt === undefined)
+        preparedDoc.createdAt = now;
+      if (this.timestampData && preparedDoc.updatedAt === undefined)
+        preparedDoc.updatedAt = now;
+      model.checkObject(preparedDoc);
     }
 
-    return preparedDoc
+    return preparedDoc;
   }
 
   /**
@@ -745,9 +794,10 @@ class Datastore extends EventEmitter {
    * @param {document|document[]} preparedDoc
    * @private
    */
-  _insertInCache (preparedDoc) {
-    if (Array.isArray(preparedDoc)) this._insertMultipleDocsInCache(preparedDoc)
-    else this._addToIndexes(preparedDoc)
+  _insertInCache(preparedDoc) {
+    if (Array.isArray(preparedDoc))
+      this._insertMultipleDocsInCache(preparedDoc);
+    else this._addToIndexes(preparedDoc);
   }
 
   /**
@@ -756,26 +806,26 @@ class Datastore extends EventEmitter {
    * @param {document[]} preparedDocs
    * @private
    */
-  _insertMultipleDocsInCache (preparedDocs) {
-    let failingIndex
-    let error
+  _insertMultipleDocsInCache(preparedDocs) {
+    let failingIndex;
+    let error;
 
     for (let i = 0; i < preparedDocs.length; i += 1) {
       try {
-        this._addToIndexes(preparedDocs[i])
+        this._addToIndexes(preparedDocs[i]);
       } catch (e) {
-        error = e
-        failingIndex = i
-        break
+        error = e;
+        failingIndex = i;
+        break;
       }
     }
 
     if (error) {
       for (let i = 0; i < failingIndex; i += 1) {
-        this._removeFromIndexes(preparedDocs[i])
+        this._removeFromIndexes(preparedDocs[i]);
       }
 
-      throw error
+      throw error;
     }
   }
 
@@ -785,9 +835,9 @@ class Datastore extends EventEmitter {
    * @param {SingleDocumentCallback|MultipleDocumentsCallback} [callback]
    * @see Datastore#insertAsync
    */
-  insert (newDoc, callback) {
-    const promise = this.insertAsync(newDoc)
-    if (typeof callback === 'function') callbackify(() => promise)(callback)
+  insert(newDoc, callback) {
+    const promise = this.insertAsync(newDoc);
+    if (typeof callback === "function") callbackify(() => promise)(callback);
   }
 
   /**
@@ -796,8 +846,8 @@ class Datastore extends EventEmitter {
    * @return {Promise<document|document[]>} The document(s) inserted.
    * @async
    */
-  insertAsync (newDoc) {
-    return this.executor.pushAsync(() => this._insertAsync(newDoc))
+  insertAsync(newDoc) {
+    return this.executor.pushAsync(() => this._insertAsync(newDoc));
   }
 
   /**
@@ -814,11 +864,12 @@ class Datastore extends EventEmitter {
    * @return {Cursor<number>|undefined}
    * @see Datastore#countAsync
    */
-  count (query, callback) {
-    const cursor = this.countAsync(query)
+  count(query, callback) {
+    const cursor = this.countAsync(query);
 
-    if (typeof callback === 'function') callbackify(cursor.execAsync.bind(cursor))(callback)
-    else return cursor
+    if (typeof callback === "function")
+      callbackify(cursor.execAsync.bind(cursor))(callback);
+    else return cursor;
   }
 
   /**
@@ -827,8 +878,8 @@ class Datastore extends EventEmitter {
    * @return {Cursor<number>} count
    * @async
    */
-  countAsync (query) {
-    return new Cursor(this, query, docs => docs.length)
+  countAsync(query) {
+    return new Cursor(this, query, (docs) => docs.length);
   }
 
   /**
@@ -839,21 +890,22 @@ class Datastore extends EventEmitter {
    * @return {Cursor<document[]>|undefined}
    * @see Datastore#findAsync
    */
-  find (query, projection, callback) {
+  find(query, projection, callback) {
     if (arguments.length === 1) {
-      projection = {}
+      projection = {};
       // callback is undefined, will return a cursor
     } else if (arguments.length === 2) {
-      if (typeof projection === 'function') {
-        callback = projection
-        projection = {}
+      if (typeof projection === "function") {
+        callback = projection;
+        projection = {};
       } // If not assume projection is an object and callback undefined
     }
 
-    const cursor = this.findAsync(query, projection)
+    const cursor = this.findAsync(query, projection);
 
-    if (typeof callback === 'function') callbackify(cursor.execAsync.bind(cursor))(callback)
-    else return cursor
+    if (typeof callback === "function")
+      callbackify(cursor.execAsync.bind(cursor))(callback);
+    else return cursor;
   }
 
   /**
@@ -865,11 +917,13 @@ class Datastore extends EventEmitter {
    * @return {Cursor<document[]>}
    * @async
    */
-  findAsync (query, projection = {}) {
-    const cursor = new Cursor(this, query, docs => docs.map(doc => model.deepCopy(doc)))
+  findAsync(query, projection = {}) {
+    const cursor = new Cursor(this, query, (docs) =>
+      docs.map((doc) => model.deepCopy(doc))
+    );
 
-    cursor.projection(projection)
-    return cursor
+    cursor.projection(projection);
+    return cursor;
   }
 
   /**
@@ -886,21 +940,22 @@ class Datastore extends EventEmitter {
    * @return {Cursor<document>|undefined}
    * @see Datastore#findOneAsync
    */
-  findOne (query, projection, callback) {
+  findOne(query, projection, callback) {
     if (arguments.length === 1) {
-      projection = {}
+      projection = {};
       // callback is undefined, will return a cursor
     } else if (arguments.length === 2) {
-      if (typeof projection === 'function') {
-        callback = projection
-        projection = {}
+      if (typeof projection === "function") {
+        callback = projection;
+        projection = {};
       } // If not assume projection is an object and callback undefined
     }
 
-    const cursor = this.findOneAsync(query, projection)
+    const cursor = this.findOneAsync(query, projection);
 
-    if (typeof callback === 'function') callbackify(cursor.execAsync.bind(cursor))(callback)
-    else return cursor
+    if (typeof callback === "function")
+      callbackify(cursor.execAsync.bind(cursor))(callback);
+    else return cursor;
   }
 
   /**
@@ -910,11 +965,13 @@ class Datastore extends EventEmitter {
    * @param {projection} projection MongoDB-style projection
    * @return {Cursor<document>}
    */
-  findOneAsync (query, projection = {}) {
-    const cursor = new Cursor(this, query, docs => docs.length === 1 ? model.deepCopy(docs[0]) : null)
+  findOneAsync(query, projection = {}) {
+    const cursor = new Cursor(this, query, (docs) =>
+      docs.length === 1 ? model.deepCopy(docs[0]) : null
+    );
 
-    cursor.projection(projection).limit(1)
-    return cursor
+    cursor.projection(projection).limit(1);
+    return cursor;
   }
 
   /**
@@ -948,67 +1005,80 @@ class Datastore extends EventEmitter {
    * @private
    * @see Datastore#updateAsync
    */
-  async _updateAsync (query, update, options) {
-    const multi = options.multi !== undefined ? options.multi : false
-    const upsert = options.upsert !== undefined ? options.upsert : false
+  async _updateAsync(query, update, options) {
+    const multi = options.multi !== undefined ? options.multi : false;
+    const upsert = options.upsert !== undefined ? options.upsert : false;
 
     // If upsert option is set, check whether we need to insert the doc
     if (upsert) {
-      const cursor = new Cursor(this, query)
+      const cursor = new Cursor(this, query);
 
       // Need to use an internal function not tied to the executor to avoid deadlock
-      const docs = await cursor.limit(1)._execAsync()
+      const docs = await cursor.limit(1)._execAsync();
 
       if (docs.length !== 1) {
-        let toBeInserted
+        let toBeInserted;
 
         try {
-          model.checkObject(update)
+          model.checkObject(update);
           // updateQuery is a simple object with no modifier, use it as the document to insert
-          toBeInserted = update
+          toBeInserted = update;
         } catch (e) {
           // updateQuery contains modifiers, use the find query as the base,
           // strip it from all operators and update it according to updateQuery
-          toBeInserted = model.modify(model.deepCopy(query, true), update)
+          toBeInserted = model.modify(model.deepCopy(query, true), update);
         }
-        const newDoc = await this._insertAsync(toBeInserted)
-        return { numAffected: 1, affectedDocuments: newDoc, upsert: true }
+        const newDoc = await this._insertAsync(toBeInserted);
+        return { numAffected: 1, affectedDocuments: newDoc, upsert: true };
       }
     }
     // Perform the update
-    let numReplaced = 0
-    let modifiedDoc
-    const modifications = []
-    let createdAt
+    let numReplaced = 0;
+    let modifiedDoc;
+    const modifications = [];
+    let createdAt;
 
-    const candidates = await this._getCandidatesAsync(query)
+    const candidates = await this._getCandidatesAsync(query);
     // Preparing update (if an error is thrown here neither the datafile nor
     // the in-memory indexes are affected)
     for (const candidate of candidates) {
       if (model.match(candidate, query) && (multi || numReplaced === 0)) {
-        numReplaced += 1
-        if (this.timestampData) { createdAt = candidate.createdAt }
-        modifiedDoc = model.modify(candidate, update)
+        numReplaced += 1;
         if (this.timestampData) {
-          modifiedDoc.createdAt = createdAt
-          modifiedDoc.updatedAt = new Date()
+          createdAt = candidate.createdAt;
         }
-        modifications.push({ oldDoc: candidate, newDoc: modifiedDoc })
+        modifiedDoc = model.modify(candidate, update);
+        if (this.timestampData) {
+          modifiedDoc.createdAt = createdAt;
+          modifiedDoc.updatedAt = new Date();
+        }
+        modifications.push({ oldDoc: candidate, newDoc: modifiedDoc });
       }
     }
 
     // Change the docs in memory
-    this._updateIndexes(modifications)
+    this._updateIndexes(modifications);
 
     // Update the datafile
-    const updatedDocs = modifications.map(x => x.newDoc)
-    await this.persistence.persistNewStateAsync(updatedDocs)
-    if (!options.returnUpdatedDocs) return { numAffected: numReplaced, upsert: false, affectedDocuments: null }
+    const updatedDocs = modifications.map((x) => x.newDoc);
+    await this.persistence.persistNewStateAsync(updatedDocs);
+    if (!options.returnUpdatedDocs)
+      return {
+        numAffected: numReplaced,
+        upsert: false,
+        affectedDocuments: null,
+      };
     else {
-      let updatedDocsDC = []
-      updatedDocs.forEach(doc => { updatedDocsDC.push(model.deepCopy(doc)) })
-      if (!multi) updatedDocsDC = updatedDocsDC[0]
-      return { numAffected: numReplaced, affectedDocuments: updatedDocsDC, upsert: false }
+      let updatedDocsDC = [];
+      updatedDocs.forEach((doc) => {
+        updatedDocsDC.push(model.deepCopy(doc));
+      });
+      if (!multi) updatedDocsDC = updatedDocsDC[0];
+      return {
+        numAffected: numReplaced,
+        affectedDocuments: updatedDocsDC,
+        upsert: false,
+      };
     }
   }
 
@@ -1024,15 +1094,18 @@ class Datastore extends EventEmitter {
    * @see Datastore#updateAsync
    *
    */
-  update (query, update, options, callback) {
-    if (typeof options === 'function') {
-      callback = options
-      options = {}
+  update(query, update, options, callback) {
+    if (typeof options === "function") {
+      callback = options;
+      options = {};
     }
     const _callback = (err, res = {}) => {
-      if (callback) callback(err, res.numAffected, res.affectedDocuments, res.upsert)
-    }
-    callbackify((query, update, options) => this.updateAsync(query, update, options))(query, update, options, _callback)
+      if (callback)
+        callback(err, res.numAffected, res.affectedDocuments, res.upsert);
+    };
+    callbackify((query, update, options) =>
+      this.updateAsync(query, update, options)
+    )(query, update, options, _callback);
   }
 
   /**
@@ -1065,8 +1138,10 @@ class Datastore extends EventEmitter {
    *      - If `options.multi` is `true`, the array of updated documents.
    * @async
    */
-  updateAsync (query, update, options = {}) {
-    return this.executor.pushAsync(() => this._updateAsync(query, update, options))
+  updateAsync(query, update, options = {}) {
+    return this.executor.pushAsync(() =>
+      this._updateAsync(query, update, options)
+    );
   }
 
   /**
@@ -1085,23 +1160,23 @@ class Datastore extends EventEmitter {
    * @private
    * @see Datastore#removeAsync
    */
-  async _removeAsync (query, options = {}) {
-    const multi = options.multi !== undefined ? options.multi : false
+  async _removeAsync(query, options = {}) {
+    const multi = options.multi !== undefined ? options.multi : false;
 
-    const candidates = await this._getCandidatesAsync(query, true)
-    const removedDocs = []
-    let numRemoved = 0
+    const candidates = await this._getCandidatesAsync(query, true);
+    const removedDocs = [];
+    let numRemoved = 0;
 
-    candidates.forEach(d => {
+    candidates.forEach((d) => {
       if (model.match(d, query) && (multi || numRemoved === 0)) {
-        numRemoved += 1
-        removedDocs.push({ $$deleted: true, _id: d._id })
-        this._removeFromIndexes(d)
+        numRemoved += 1;
+        removedDocs.push({ $$deleted: true, _id: d._id });
+        this._removeFromIndexes(d);
       }
-    })
+    });
 
-    await this.persistence.persistNewStateAsync(removedDocs)
-    return numRemoved
+    await this.persistence.persistNewStateAsync(removedDocs);
+    return numRemoved;
   }
 
   /**
@@ -1112,13 +1187,17 @@ class Datastore extends EventEmitter {
    * @param {Datastore~removeCallback} [cb = () => {}]
    * @see Datastore#removeAsync
    */
-  remove (query, options, cb) {
-    if (typeof options === 'function') {
-      cb = options
-      options = {}
+  remove(query, options, cb) {
+    if (typeof options === "function") {
+      cb = options;
+      options = {};
     }
-    const callback = cb || (() => {})
-    callbackify((query, options) => this.removeAsync(query, options))(query, options, callback)
+    const callback = cb || (() => { });
+    callbackify((query, options) => this.removeAsync(query, options))(
+      query,
+      options,
+      callback
+    );
   }
 
   /**
@@ -1129,9 +1208,9 @@ class Datastore extends EventEmitter {
    * @return {Promise<number>} How many documents were removed
    * @async
    */
-  removeAsync (query, options = {}) {
-    return this.executor.pushAsync(() => this._removeAsync(query, options))
+  removeAsync(query, options = {}) {
+    return this.executor.pushAsync(() => this._removeAsync(query, options));
   }
 }
 
-module.exports = Datastore
+module.exports = Datastore;

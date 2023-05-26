@@ -27,3 +27,5 @@ browser-version/node_modules
 browser-version/out
 test-results
 typings-tests.js
+
+dist

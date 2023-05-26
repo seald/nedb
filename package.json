@@ -1,6 +1,6 @@
 {
-  "name": "@seald-io/nedb",
-  "version": "4.0.2",
+  "name": "@storage-unit/database",
+  "version": "1.0.0",
   "files": [
     "lib/**/*.js",
     "browser-version/**/*.js",
@@ -9,40 +9,20 @@
   ],
   "types": "index.d.ts",
   "author": {
-    "name": "Timothée Rebours",
-    "email": "tim@seald.io",
-    "url": "https://www.seald.io/"
+    "name": "Mitch Myburgh",
+    "email": "mitchmyburgh@gmail.com",
+    "url": "https://mitchmyburgh.com/"
   },
-  "contributors": [
-    {
-      "name": "Louis Chatriot",
-      "email": "louis.chatriot@gmail.com"
-    },
-    {
-      "name": "Timothée Rebours",
-      "email": "tim@seald.io",
-      "url": "https://www.seald.io/"
-    },
-    {
-      "name": "Eliot Akira",
-      "email": "me@eliotakira.com",
-      "url": "https://eliotakira.com/"
-    },
-    {
-      "name": " Loïc Hermann",
-      "email": "loic.hermann@outlook.fr"
-    }
-  ],
   "description": "File-based embedded data store for node.js",
   "keywords": [
     "database",
     "datastore",
     "embedded"
   ],
-  "homepage": "https://github.com/seald/nedb",
+  "homepage": "https://github.com/lazyfyre/database",
   "repository": {
     "type": "git",
-    "url": "git@github.com:seald/nedb.git"
+    "url": "git@github.com:lazyfyre/database.git"
   },
   "dependencies": {
     "@seald-io/binary-search-tree": "^1.0.3",
@@ -51,7 +31,9 @@
   },
   "devDependencies": {
     "@react-native-async-storage/async-storage": "^1.18.1",
+    "@types/expect": "^24.3.0",
     "@types/jest": "^29.5.1",
+    "@types/mocha": "^10.0.1",
     "browser-resolve": "^2.0.0",
     "chai": "^4.3.7",
     "commander": "^10.0.1",
@@ -76,14 +58,17 @@
     "terser-webpack-plugin": "^5.3.9",
     "timers-browserify": "^2.0.12",
     "ts-jest": "^29.1.0",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
     "typescript": "^5.0.4",
     "webpack": "^5.84.1",
     "webpack-cli": "^5.1.1",
     "xvfb-maybe": "^0.2.1"
   },
   "scripts": {
+    "build": "tsc",
     "lint": "standard",
-    "test": "mocha --reporter spec --timeout 10000",
+    "test": "ts-mocha -p tsconfig.json test/**/*.test.ts --reporter spec --timeout 10000",
     "build:browser": "webpack && webpack --optimization-minimize",
     "pretest:browser": "npm run build:browser",
     "test:browser": "xvfb-maybe karma start karma.conf.local.js",
