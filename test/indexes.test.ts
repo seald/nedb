@@ -1,13 +1,13 @@
 /* eslint-env mocha */
-const Index = require("../src/indexes");
-const chai = require("chai");
+import { Index } from "../src/indexes";
+import chai from "chai";
 
 const { assert } = chai;
 chai.should();
 
-describe("Indexes", function() {
-  describe("Insertion", function() {
-    it("Can insert pointers to documents in the index correctly when they have the field", function() {
+describe("Indexes", function () {
+  describe("Insertion", function () {
+    it("Can insert pointers to documents in the index correctly when they have the field", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -29,7 +29,7 @@ describe("Indexes", function() {
       doc3.a.should.equal(42);
     });
 
-    it("Can insert pointers to documents in the index correctly when they have compound fields", function() {
+    it("Can insert pointers to documents in the index correctly when they have compound fields", function () {
       const idx = new Index({ fieldName: "tf,tg" });
       const doc1 = { a: 5, tf: "hello", tg: "world" };
       const doc2 = { a: 8, tf: "hello", tg: "bloup" };
@@ -57,30 +57,30 @@ describe("Indexes", function() {
       doc3.a.should.equal(42);
     });
 
-    it("Inserting twice for the same fieldName in a unique index will result in an error thrown", function() {
+    it("Inserting twice for the same fieldName in a unique index will result in an error thrown", function () {
       const idx = new Index({ fieldName: "tf", unique: true });
       const doc1 = { a: 5, tf: "hello" };
 
       idx.insert(doc1);
       idx.tree.getNumberOfKeys().should.equal(1);
-      (function() {
+      (function () {
         idx.insert(doc1);
       }).should.throw();
     });
 
-    it("Inserting twice for a fieldName the docs dont have with a unique index results in an error thrown", function() {
+    it("Inserting twice for a fieldName the docs dont have with a unique index results in an error thrown", function () {
       const idx = new Index({ fieldName: "nope", unique: true });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 5, tf: "world" };
 
       idx.insert(doc1);
       idx.tree.getNumberOfKeys().should.equal(1);
-      (function() {
+      (function () {
         idx.insert(doc2);
       }).should.throw();
     });
 
-    it("Inserting twice for a fieldName the docs dont have with a unique and sparse index will not throw, since the docs will be non indexed", function() {
+    it("Inserting twice for a fieldName the docs dont have with a unique and sparse index will not throw, since the docs will be non indexed", function () {
       const idx = new Index({ fieldName: "nope", unique: true, sparse: true });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 5, tf: "world" };
@@ -90,18 +90,18 @@ describe("Indexes", function() {
       idx.tree.getNumberOfKeys().should.equal(0); // Docs are not indexed
     });
 
-    it("Inserting twice for the same compound fieldName in a unique index will result in an error thrown", function() {
+    it("Inserting twice for the same compound fieldName in a unique index will result in an error thrown", function () {
       const idx = new Index({ fieldName: "tf,tg", unique: true });
       const doc1 = { a: 5, tf: "hello", tg: "world" };
 
       idx.insert(doc1);
       idx.tree.getNumberOfKeys().should.equal(1);
-      (function() {
+      (function () {
         idx.insert(doc1);
       }).should.throw();
     });
 
-    it("Inserting twice for a compound fieldName the docs dont have with a unique and sparse index will not throw, since the docs will be non indexed", function() {
+    it("Inserting twice for a compound fieldName the docs dont have with a unique and sparse index will not throw, since the docs will be non indexed", function () {
       const idx = new Index({
         fieldName: "nope,nopeNope",
         unique: true,
@@ -115,7 +115,7 @@ describe("Indexes", function() {
       idx.tree.getNumberOfKeys().should.equal(0); // Docs are not indexed
     });
 
-    it("Works with dot notation", function() {
+    it("Works with dot notation", function () {
       const idx = new Index({ fieldName: "tf.nested" });
       const doc1 = { a: 5, tf: { nested: "hello" } };
       const doc2 = { a: 8, tf: { nested: "world", additional: true } };
@@ -136,7 +136,7 @@ describe("Indexes", function() {
       doc3.a.should.equal(42);
     });
 
-    it("Can insert an array of documents", function() {
+    it("Can insert an array of documents", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -149,7 +149,7 @@ describe("Indexes", function() {
       assert.deepStrictEqual(idx.tree.search("bloup"), [doc3]);
     });
 
-    it("When inserting an array of elements, if an error is thrown all inserts need to be rolled back", function() {
+    it("When inserting an array of elements, if an error is thrown all inserts need to be rolled back", function () {
       const idx = new Index({ fieldName: "tf", unique: true });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -167,8 +167,8 @@ describe("Indexes", function() {
       assert.deepStrictEqual(idx.tree.search("bloup"), []);
     });
 
-    describe("Array fields", function() {
-      it("Inserts one entry per array element in the index", function() {
+    describe("Array fields", function () {
+      it("Inserts one entry per array element in the index", function () {
         const obj = { tf: ["aa", "bb"], really: "yeah" };
         const obj2 = { tf: "normal", yes: "indeed" };
         const idx = new Index({ fieldName: "tf" });
@@ -182,7 +182,7 @@ describe("Indexes", function() {
         idx.getAll().length.should.equal(3);
       });
 
-      it("Inserts one entry per array element in the index, type-checked", function() {
+      it("Inserts one entry per array element in the index, type-checked", function () {
         const obj = { tf: ["42", 42, new Date(42), 42], really: "yeah" };
         const idx = new Index({ fieldName: "tf" });
 
@@ -193,7 +193,7 @@ describe("Indexes", function() {
         idx.getAll()[2].should.equal(obj);
       });
 
-      it("Inserts one entry per unique array element in the index, the unique constraint only holds across documents", function() {
+      it("Inserts one entry per unique array element in the index, the unique constraint only holds across documents", function () {
         const obj = { tf: ["aa", "aa"], really: "yeah" };
         const obj2 = { tf: ["cc", "yy", "cc"], yes: "indeed" };
         const idx = new Index({ fieldName: "tf", unique: true });
@@ -206,7 +206,7 @@ describe("Indexes", function() {
         idx.getAll().length.should.equal(3);
       });
 
-      it("The unique constraint holds across documents", function() {
+      it("The unique constraint holds across documents", function () {
         const obj = { tf: ["aa", "aa"], really: "yeah" };
         const obj2 = { tf: ["cc", "aa", "cc"], yes: "indeed" };
         const idx = new Index({ fieldName: "tf", unique: true });
@@ -215,12 +215,12 @@ describe("Indexes", function() {
         idx.getAll().length.should.equal(1);
         idx.getAll()[0].should.equal(obj);
 
-        (function() {
+        (function () {
           idx.insert(obj2);
         }).should.throw();
       });
 
-      it("When removing a document, remove it from the index at all unique array elements", function() {
+      it("When removing a document, remove it from the index at all unique array elements", function () {
         const obj = { tf: ["aa", "aa"], really: "yeah" };
         const obj2 = { tf: ["cc", "aa", "cc"], yes: "indeed" };
         const idx = new Index({ fieldName: "tf" });
@@ -239,7 +239,7 @@ describe("Indexes", function() {
         idx.getMatching("cc").length.should.equal(0);
       });
 
-      it("If a unique constraint is violated when inserting an array key, roll back all inserts before the key", function() {
+      it("If a unique constraint is violated when inserting an array key, roll back all inserts before the key", function () {
         const obj = { tf: ["aa", "bb"], really: "yeah" };
         const obj2 = { tf: ["cc", "dd", "aa", "ee"], yes: "indeed" };
         const idx = new Index({ fieldName: "tf", unique: true });
@@ -252,7 +252,7 @@ describe("Indexes", function() {
         idx.getMatching("dd").length.should.equal(0);
         idx.getMatching("ee").length.should.equal(0);
 
-        (function() {
+        (function () {
           idx.insert(obj2);
         }).should.throw();
         idx.getAll().length.should.equal(2);
@@ -264,8 +264,8 @@ describe("Indexes", function() {
       });
     }); // ==== End of 'Array fields' ==== //
 
-    describe("Compound Indexes", function() {
-      it("Supports field names separated by commas", function() {
+    describe("Compound Indexes", function () {
+      it("Supports field names separated by commas", function () {
         const idx = new Index({ fieldName: "tf,tf2" });
         const doc1 = { a: 5, tf: "hello", tf2: 7 };
         const doc2 = { a: 8, tf: "hello", tf2: 6 };
@@ -295,8 +295,8 @@ describe("Indexes", function() {
     });
   }); // ==== End of 'Insertion' ==== //
 
-  describe("Removal", function() {
-    it("Can remove pointers from the index, even when multiple documents have the same key", function() {
+  describe("Removal", function () {
+    it("Can remove pointers from the index, even when multiple documents have the same key", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -319,7 +319,7 @@ describe("Indexes", function() {
       idx.tree.search("world")[0].should.equal(doc4);
     });
 
-    it("If we have a sparse index, removing a non indexed doc has no effect", function() {
+    it("If we have a sparse index, removing a non indexed doc has no effect", function () {
       const idx = new Index({ fieldName: "nope", sparse: true });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 5, tf: "world" };
@@ -332,7 +332,7 @@ describe("Indexes", function() {
       idx.tree.getNumberOfKeys().should.equal(0);
     });
 
-    it("Works with dot notation", function() {
+    it("Works with dot notation", function () {
       const idx = new Index({ fieldName: "tf.nested" });
       const doc1 = { a: 5, tf: { nested: "hello" } };
       const doc2 = { a: 8, tf: { nested: "world", additional: true } };
@@ -358,7 +358,7 @@ describe("Indexes", function() {
       idx.tree.search("world")[0].should.equal(doc4);
     });
 
-    it("Can remove an array of documents", function() {
+    it("Can remove an array of documents", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -374,8 +374,8 @@ describe("Indexes", function() {
     });
   }); // ==== End of 'Removal' ==== //
 
-  describe("Update", function() {
-    it("Can update a document whose key did or didnt change", function() {
+  describe("Update", function () {
+    it("Can update a document whose key did or didnt change", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -399,7 +399,7 @@ describe("Indexes", function() {
       assert.deepStrictEqual(idx.tree.search("changed"), [doc5]);
     });
 
-    it("If a simple update violates a unique constraint, changes are rolled back and an error thrown", function() {
+    it("If a simple update violates a unique constraint, changes are rolled back and an error thrown", function () {
       const idx = new Index({ fieldName: "tf", unique: true });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -428,7 +428,7 @@ describe("Indexes", function() {
       assert.deepStrictEqual(idx.tree.search("bloup"), [doc3]);
     });
 
-    it("Can update an array of documents", function() {
+    it("Can update an array of documents", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -457,7 +457,7 @@ describe("Indexes", function() {
       idx.getMatching("bloup")[0].should.equal(doc3b);
     });
 
-    it("If a unique constraint is violated during an array-update, all changes are rolled back and an error thrown", function() {
+    it("If a unique constraint is violated during an array-update, all changes are rolled back and an error thrown", function () {
       const idx = new Index({ fieldName: "tf", unique: true });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -508,7 +508,7 @@ describe("Indexes", function() {
       idx.getMatching("bloup")[0].should.equal(doc3);
     });
 
-    it("If an update doesnt change a document, the unique constraint is not violated", function() {
+    it("If an update doesnt change a document, the unique constraint is not violated", function () {
       const idx = new Index({ fieldName: "tf", unique: true });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -526,7 +526,7 @@ describe("Indexes", function() {
       assert.deepStrictEqual(idx.tree.search("world"), [noChange]);
     });
 
-    it("Can revert simple and batch updates", function() {
+    it("Can revert simple and batch updates", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -591,8 +591,8 @@ describe("Indexes", function() {
     });
   }); // ==== End of 'Update' ==== //
 
-  describe("Get matching documents", function() {
-    it("Get all documents where fieldName is equal to the given value, or an empty array if no match", function() {
+  describe("Get matching documents", function () {
+    it("Get all documents where fieldName is equal to the given value, or an empty array if no match", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -609,7 +609,7 @@ describe("Indexes", function() {
       assert.deepStrictEqual(idx.getMatching("nope"), []);
     });
 
-    it("Can get all documents for a given key in a unique index", function() {
+    it("Can get all documents for a given key in a unique index", function () {
       const idx = new Index({ fieldName: "tf", unique: true });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -624,7 +624,7 @@ describe("Indexes", function() {
       assert.deepStrictEqual(idx.getMatching("nope"), []);
     });
 
-    it("Can get all documents for which a field is undefined", function() {
+    it("Can get all documents for which a field is undefined", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 2, nottf: "bloup" };
@@ -650,7 +650,7 @@ describe("Indexes", function() {
       assert.deepStrictEqual(idx.getMatching(undefined), [doc2, doc4]);
     });
 
-    it("Can get all documents for which a field is null", function() {
+    it("Can get all documents for which a field is null", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 2, tf: null };
@@ -676,7 +676,7 @@ describe("Indexes", function() {
       assert.deepStrictEqual(idx.getMatching(null), [doc2, doc4]);
     });
 
-    it("Can get all documents for a given key in a sparse index, but not unindexed docs (= field undefined)", function() {
+    it("Can get all documents for a given key in a sparse index, but not unindexed docs (= field undefined)", function () {
       const idx = new Index({ fieldName: "tf", sparse: true });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 2, nottf: "bloup" };
@@ -695,7 +695,7 @@ describe("Indexes", function() {
       assert.deepStrictEqual(idx.getMatching(undefined), []);
     });
 
-    it("Can get all documents whose key is in an array of keys", function() {
+    it("Can get all documents whose key is in an array of keys", function () {
       // For this test only we have to use objects with _ids as the array version of getMatching
       // relies on the _id property being set, otherwise we have to use a quadratic algorithm
       // or a fingerprinting algorithm, both solutions too complicated and slow given that live nedb
@@ -724,7 +724,7 @@ describe("Indexes", function() {
       assert.deepStrictEqual(idx.getMatching(["nope", "no"]), []);
     });
 
-    it("Can get all documents whose key is between certain bounds", function() {
+    it("Can get all documents whose key is between certain bounds", function () {
       const idx = new Index({ fieldName: "a" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 2, tf: "bloup" };
@@ -753,8 +753,8 @@ describe("Indexes", function() {
     });
   }); // ==== End of 'Get matching documents' ==== //
 
-  describe("Resetting", function() {
-    it("Can reset an index without any new data, the index will be empty afterwards", function() {
+  describe("Resetting", function () {
+    it("Can reset an index without any new data, the index will be empty afterwards", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -776,7 +776,7 @@ describe("Indexes", function() {
       idx.getMatching("bloup").length.should.equal(0);
     });
 
-    it("Can reset an index and initialize it with one document", function() {
+    it("Can reset an index and initialize it with one document", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -800,7 +800,7 @@ describe("Indexes", function() {
       idx.getMatching("new")[0].a.should.equal(555);
     });
 
-    it("Can reset an index and initialize it with an array of documents", function() {
+    it("Can reset an index and initialize it with an array of documents", function () {
       const idx = new Index({ fieldName: "tf" });
       const doc1 = { a: 5, tf: "hello" };
       const doc2 = { a: 8, tf: "world" };
@@ -829,7 +829,7 @@ describe("Indexes", function() {
     });
   }); // ==== End of 'Resetting' ==== //
 
-  it("Get all elements in the index", function() {
+  it("Get all elements in the index", function () {
     const idx = new Index({ fieldName: "a" });
     const doc1 = { a: 5, tf: "hello" };
     const doc2 = { a: 8, tf: "world" };

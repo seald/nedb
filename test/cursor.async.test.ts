@@ -3,9 +3,9 @@ const testDb = "workspace/test.db";
 import { promises as fs } from "fs";
 const assert = require("assert").strict;
 import path from "path";
-import Datastore from "../src/datastore";
-import Persistence from "../src/persistence";
-import Cursor from "../src/cursor";
+import { Datastore } from "../src/datastore";
+import { Persistence } from "../src/persistence";
+import { Cursor } from "../src/cursor";
 import { exists } from "./utils.test";
 
 describe("Cursor Async", function () {

@@ -1,16 +1,16 @@
 /* eslint-env mocha */
 const testDb = "workspace/test.db";
-const { promises: fs } = require("fs");
-const path = require("path");
-const assert = require("assert").strict;
-const model = require("../src/model");
-const Datastore = require("../src/datastore");
-const Persistence = require("../src/persistence");
-const { wait } = require("./utils.test");
-const { exists } = require("./utils.test");
+import { promises as fs } from "fs";
+import path from "path";
+import { strict as assert } from "assert";
+import * as model from "../src/model"; // todo split up
+import { Datastore } from "../src/datastore";
+import { Persistence } from "../src/persistence";
+import { wait } from "./utils.test";
+import { exists } from "./utils.test";
 const reloadTimeUpperBound = 200; // In ms, an upper bound for the reload time used to check createdAt and updatedAt
 
-describe("Database async", function() {
+describe("Database async", function () {
   let d;
 
   beforeEach(async () => {
@@ -254,7 +254,7 @@ describe("Database async", function() {
       assert.equal(Object.keys(insertedDoc).length, 4);
       assert.ok(
         Math.abs(insertedDoc.createdAt.getTime() - beginning) <
-        reloadTimeUpperBound
+          reloadTimeUpperBound
       ); // No more than 30ms should have elapsed (worst case, if there is a flush)
 
       // Modifying results of insert doesn't change the cache
@@ -351,7 +351,7 @@ describe("Database async", function() {
     });
   }); // ==== End of 'Insert' ==== //
 
-  describe("#getCandidates", function() {
+  describe("#getCandidates", function () {
     it("Can use an index to get docs with a basic match", async () => {
       await d.ensureIndexAsync({ fieldName: "tf" });
       const _doc1 = await d.insertAsync({ tf: 4 });
@@ -499,7 +499,7 @@ describe("Database async", function() {
     });
   }); // ==== End of '#getCandidates' ==== //
 
-  describe("Find", function() {
+  describe("Find", function () {
     it("Can find all documents if an empty query is used", async () => {
       await d.insertAsync({ somedata: "ok" });
       await d.insertAsync({ somedata: "another", plus: "additional data" });
@@ -687,7 +687,7 @@ describe("Database async", function() {
     }); // ==== End of 'Find' ==== //
   });
 
-  describe("Count", function() {
+  describe("Count", function () {
     it("Count all documents if an empty query is used", async () => {
       await d.insertAsync({ somedata: "ok" });
       await d.insertAsync({ somedata: "another", plus: "additional data" });
@@ -729,7 +729,7 @@ describe("Database async", function() {
     });
   });
 
-  describe("Update", function() {
+  describe("Update", function () {
     it("If the query doesn't match anything, database is not modified", async () => {
       await d.insertAsync({ somedata: "ok" });
       await d.insertAsync({ somedata: "again", plus: "additional data" });
@@ -743,13 +743,13 @@ describe("Database async", function() {
       assert.equal(numAffected, 0);
 
       const docs = await d.findAsync({});
-      const doc1 = docs.find(function(d) {
+      const doc1 = docs.find(function (d) {
         return d.somedata === "ok";
       });
-      const doc2 = docs.find(function(d) {
+      const doc2 = docs.find(function (d) {
         return d.somedata === "again";
       });
-      const doc3 = docs.find(function(d) {
+      const doc3 = docs.find(function (d) {
         return d.somedata === "another";
       });
 
@@ -897,7 +897,7 @@ describe("Database async", function() {
     });
   });
 
-  describe("Upserts", function() {
+  describe("Upserts", function () {
     it("Can perform upserts if needed", async () => {
       const {
         numAffected: numAffectedEmpty,
@@ -1304,7 +1304,7 @@ describe("Database async", function() {
     });
   });
 
-  describe("Callback signature", function() {
+  describe("Callback signature", function () {
     it("Regular update, multi false", async () => {
       await d.insertAsync({ a: 1 });
       await d.insertAsync({ a: 2 });
@@ -1396,7 +1396,7 @@ describe("Database async", function() {
       assert.equal(docs.length, 3);
     }); // ==== End of 'Update - Callback signature' ==== //
   }); // ==== End of 'Update' ==== //
-  describe("Remove", function() {
+  describe("Remove", function () {
     it("Can remove multiple documents", async () => {
       const doc1 = await d.insertAsync({ somedata: "ok" });
       await d.insertAsync({ somedata: "again", plus: "additional data" });
@@ -1507,8 +1507,8 @@ describe("Database async", function() {
     });
   }); // ==== End of 'Remove' ==== //
 
-  describe("Using indexes", function() {
-    describe("ensureIndex and index initialization in database loading", function() {
+  describe("Using indexes", function () {
+    describe("ensureIndex and index initialization in database loading", function () {
       it("ensureIndex can be called right after a loadDatabase and be initialized and filled correctly", async () => {
         const now = new Date();
         const rawData =
@@ -1808,7 +1808,7 @@ describe("Database async", function() {
       });
     }); // ==== End of 'ensureIndex and index initialization in database loading' ==== //
 
-    describe("Indexing newly inserted documents", function() {
+    describe("Indexing newly inserted documents", function () {
       it("Newly inserted documents are indexed", async () => {
         await d.ensureIndexAsync({ fieldName: "z" });
         assert.equal(d.indexes.z.tree.getNumberOfKeys(), 0);
@@ -1949,13 +1949,13 @@ describe("Database async", function() {
         const docs = await d.findAsync({});
         assert.deepEqual(
           doc1,
-          docs.find(function(d) {
+          docs.find(function (d) {
             return d._id === doc1._id;
           })
         );
         assert.deepEqual(
           doc2,
-          docs.find(function(d) {
+          docs.find(function (d) {
             return d._id === doc2._id;
           })
         );
@@ -2006,7 +2006,7 @@ describe("Database async", function() {
       });
     }); // ==== End of 'Indexing newly inserted documents' ==== //
 
-    describe("Updating indexes upon document update", function() {
+    describe("Updating indexes upon document update", function () {
       it("Updating docs still works as before with indexing", async () => {
         await d.ensureIndexAsync({ fieldName: "a" });
 
@@ -2245,7 +2245,7 @@ describe("Database async", function() {
       });
     }); // ==== End of 'Updating indexes upon document update' ==== //
 
-    describe("Updating indexes upon document remove", function() {
+    describe("Updating indexes upon document remove", function () {
       it("Removing docs still works as before with indexing", async () => {
         await d.ensureIndexAsync({ fieldName: "a" });
 
@@ -2254,10 +2254,10 @@ describe("Database async", function() {
         const _doc3 = await d.insertAsync({ a: 3, b: "coin" });
         const numRemoved = await d.removeAsync({ a: 1 }, {});
         const data = d.getAllData();
-        const doc2 = data.find(function(doc) {
+        const doc2 = data.find(function (doc) {
           return doc._id === _doc2._id;
         });
-        const doc3 = data.find(function(doc) {
+        const doc3 = data.find(function (doc) {
           return doc._id === _doc3._id;
         });
 
@@ -2327,7 +2327,7 @@ describe("Database async", function() {
       });
     }); // ==== End of 'Updating indexes upon document remove' ==== //
 
-    describe("Persisting indexes", function() {
+    describe("Persisting indexes", function () {
       it("Indexes are persisted to a separate file and recreated upon reload", async () => {
         const persDb = "workspace/persistIndexes.db";
         let db;

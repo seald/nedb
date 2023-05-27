@@ -22,7 +22,7 @@
 import chai from "chai";
 import fs from "fs";
 import path from "path";
-import byline from "../src/byline";
+import { createLineStream } from "../src/byline";
 
 const { assert } = chai;
 
@@ -32,7 +32,7 @@ const localPath = (file) => path.join(__dirname, "byline", file);
 describe("byline", function () {
   it("should pipe a small file", function (done) {
     const input = fs.createReadStream(localPath("empty.txt"));
-    const lineStream = byline(input); // convinience API
+    const lineStream = createLineStream(input); // convinience API
     const output = fs.createWriteStream(localPath("test.txt"));
     lineStream.pipe(output);
     output.on("close", function () {
@@ -48,7 +48,7 @@ describe("byline", function () {
 
   it("should work with streams2 API", function (done) {
     let stream = fs.createReadStream(localPath("empty.txt"));
-    stream = byline(stream);
+    stream = createLineStream(stream);
 
     stream.on("readable", function () {
       while (stream.read() !== null) {
@@ -63,7 +63,7 @@ describe("byline", function () {
 
   it("should ignore empty lines by default", function (done) {
     const input = fs.createReadStream(localPath("empty.txt"));
-    const lineStream = byline(input);
+    const lineStream = createLineStream(input);
     lineStream.setEncoding("utf8");
 
     const lines1 = [];
@@ -83,7 +83,7 @@ describe("byline", function () {
 
   it("should keep empty lines when keepEmptyLines is true", function (done) {
     const input = fs.createReadStream(localPath("empty.txt"));
-    const lineStream = byline(input, { keepEmptyLines: true });
+    const lineStream = createLineStream(input, { keepEmptyLines: true });
     lineStream.setEncoding("utf8");
 
     const lines = [];
@@ -99,7 +99,7 @@ describe("byline", function () {
 
   it("should not split a CRLF which spans two chunks", function (done) {
     const input = fs.createReadStream(localPath("CRLF.txt"));
-    const lineStream = byline(input, { keepEmptyLines: true });
+    const lineStream = createLineStream(input, { keepEmptyLines: true });
     lineStream.setEncoding("utf8");
 
     const lines = [];
@@ -124,7 +124,7 @@ describe("byline", function () {
 
   function readFile(filename, done) {
     const input = fs.createReadStream(filename);
-    const lineStream = byline(input);
+    const lineStream = createLineStream(input);
     lineStream.setEncoding("utf8");
 
     let lines2 = fs.readFileSync(filename, "utf8").split(regEx);
@@ -161,7 +161,7 @@ describe("byline", function () {
 
   it("should pause() and resume() with a huge file", function (done) {
     const input = fs.createReadStream(localPath("rfc_huge.txt"));
-    const lineStream = byline(input);
+    const lineStream = createLineStream(input);
     lineStream.setEncoding("utf8");
 
     let lines2 = fs
@@ -198,7 +198,7 @@ describe("byline", function () {
 
   function areStreamsEqualTypes(options, callback) {
     const fsStream = fs.createReadStream(localPath("empty.txt"), options);
-    const lineStream = byline(
+    const lineStream = createLineStream(
       fs.createReadStream(localPath("empty.txt"), options)
     );
     fsStream.on("data", function (data1) {

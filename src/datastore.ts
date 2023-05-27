@@ -146,6 +146,8 @@ import { isDate, pick, filterIndexNames } from "./utils";
  * @typicalname NeDB
  */
 export class Datastore extends EventEmitter {
+  persistence: Persistence;
+
   /**
    * Create a new collection, either persistent or in-memory.
    *

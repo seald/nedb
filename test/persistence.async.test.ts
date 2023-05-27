@@ -1,21 +1,23 @@
 /* eslint-env mocha */
 const testDb = "workspace/test.db";
-const { promises: fs } = require("fs");
-const path = require("path");
-const assert = require("assert").strict;
-const { exists } = require("./utils.test");
-const model = require("../src/model");
-const Datastore = require("../src/datastore");
-const Persistence = require("../src/persistence");
-const storage = require("../src/storage");
-const { execFile, fork } = require("child_process");
-const { promisify } = require("util");
-const { ensureFileDoesntExistAsync } = require("../src/storage");
-const { once } = require("events");
-const { wait } = require("./utils.test");
-const Readable = require("stream").Readable;
+import { promises as fs } from "fs";
+import path from "path";
 
-describe("Persistence async", function() {
+import { strict as assert } from "assert";
+
+import { exists } from "./utils.test";
+import * as model from "../src/model";
+import { Datastore } from "../src/datastore";
+import { Persistence } from "../src/persistence";
+import * as storage from "../src/storage";
+import { execFile, fork } from "child_process";
+import { promisify } from "util";
+import { ensureFileDoesntExistAsync } from "../src/storage";
+import { once } from "events";
+import { wait } from "./utils.test";
+import { Readable } from "stream";
+
+describe("Persistence async", function () {
   let d;
 
   beforeEach(async () => {
@@ -28,7 +30,7 @@ describe("Persistence async", function() {
     assert.equal(d.getAllData().length, 0);
   });
 
-  it("Every line represents a document", function() {
+  it("Every line represents a document", function () {
     const now = new Date();
     const rawData =
       model.serialize({ _id: "1", a: 2, ages: [1, 5, 12] }) +
@@ -67,7 +69,7 @@ describe("Persistence async", function() {
     assert.deepEqual(treatedData[2], { _id: "3", nested: { today: now } });
   });
 
-  it("Badly formatted lines have no impact on the treated data", function() {
+  it("Badly formatted lines have no impact on the treated data", function () {
     d.persistence.corruptAlertThreshold = 1; // to prevent a corruption alert
     const now = new Date();
     const rawData =
@@ -104,7 +106,7 @@ describe("Persistence async", function() {
     assert.deepEqual(treatedData[1], { _id: "3", nested: { today: now } });
   });
 
-  it("Well formatted lines that have no _id are not included in the data", function() {
+  it("Well formatted lines that have no _id are not included in the data", function () {
     const now = new Date();
     const rawData =
       model.serialize({ _id: "1", a: 2, ages: [1, 5, 12] }) +
@@ -135,7 +137,7 @@ describe("Persistence async", function() {
 
     const result = await d.persistence.treatRawStreamAsync(stream);
     const treatedData = result.data;
-    treatedData.sort(function(a, b) {
+    treatedData.sort(function (a, b) {
       return a._id - b._id;
     });
     assert.equal(treatedData.length, 2);
@@ -143,7 +145,7 @@ describe("Persistence async", function() {
     assert.deepEqual(treatedData[1], { _id: "2", hello: "world" });
   });
 
-  it("If two lines concern the same doc (= same _id), the last one is the good version", function() {
+  it("If two lines concern the same doc (= same _id), the last one is the good version", function () {
     const now = new Date();
     const rawData =
       model.serialize({ _id: "1", a: 2, ages: [1, 5, 12] }) +
@@ -174,7 +176,7 @@ describe("Persistence async", function() {
 
     const result = await d.persistence.treatRawStreamAsync(stream);
     const treatedData = result.data;
-    treatedData.sort(function(a, b) {
+    treatedData.sort(function (a, b) {
       return a._id - b._id;
     });
     assert.equal(treatedData.length, 2);
@@ -182,7 +184,7 @@ describe("Persistence async", function() {
     assert.deepEqual(treatedData[1], { _id: "2", hello: "world" });
   });
 
-  it("If a doc contains $$deleted: true, that means we need to remove it from the data", function() {
+  it("If a doc contains $$deleted: true, that means we need to remove it from the data", function () {
     const now = new Date();
     const rawData =
       model.serialize({ _id: "1", a: 2, ages: [1, 5, 12] }) +
@@ -217,7 +219,7 @@ describe("Persistence async", function() {
 
     const result = await d.persistence.treatRawStreamAsync(stream);
     const treatedData = result.data;
-    treatedData.sort(function(a, b) {
+    treatedData.sort(function (a, b) {
       return a._id - b._id;
     });
     assert.equal(treatedData.length, 2);
@@ -225,7 +227,7 @@ describe("Persistence async", function() {
     assert.deepEqual(treatedData[1], { _id: "3", today: now });
   });
 
-  it("If a doc contains $$deleted: true, no error is thrown if the doc wasnt in the list before", function() {
+  it("If a doc contains $$deleted: true, no error is thrown if the doc wasnt in the list before", function () {
     const now = new Date();
     const rawData =
       model.serialize({ _id: "1", a: 2, ages: [1, 5, 12] }) +
@@ -256,7 +258,7 @@ describe("Persistence async", function() {
 
     const result = await d.persistence.treatRawStreamAsync(stream);
     const treatedData = result.data;
-    treatedData.sort(function(a, b) {
+    treatedData.sort(function (a, b) {
       return a._id - b._id;
     });
     assert.equal(treatedData.length, 2);
@@ -264,7 +266,7 @@ describe("Persistence async", function() {
     assert.deepEqual(treatedData[1], { _id: "3", today: now });
   });
 
-  it("If a doc contains $$indexCreated, no error is thrown during treatRawData and we can get the index options", function() {
+  it("If a doc contains $$indexCreated, no error is thrown during treatRawData and we can get the index options", function () {
     const now = new Date();
     const rawData =
       model.serialize({ _id: "1", a: 2, ages: [1, 5, 12] }) +
@@ -303,7 +305,7 @@ describe("Persistence async", function() {
     assert.equal(Object.keys(indexes).length, 1);
     assert.deepEqual(indexes.test, { fieldName: "test", unique: true });
 
-    treatedData.sort(function(a, b) {
+    treatedData.sort(function (a, b) {
       return a._id - b._id;
     });
     assert.equal(treatedData.length, 2);
@@ -332,7 +334,7 @@ describe("Persistence async", function() {
     const data2 = (await fs.readFile(d.filename, "utf8")).split("\n");
     filledCount = 0;
 
-    data2.forEach(function(item) {
+    data2.forEach(function (item) {
       if (item.length > 0) {
         filledCount += 1;
       }
@@ -390,13 +392,13 @@ describe("Persistence async", function() {
     await fs.writeFile(testDb, '{"a":3,"_id":"aaa"}', "utf8");
     await d.loadDatabaseAsync();
     const dataReloaded = d.getAllData();
-    const doc1Reloaded = dataReloaded.find(function(doc) {
+    const doc1Reloaded = dataReloaded.find(function (doc) {
       return doc.a === 1;
     });
-    const doc2Reloaded = dataReloaded.find(function(doc) {
+    const doc2Reloaded = dataReloaded.find(function (doc) {
       return doc.a === 2;
     });
-    const doc3Reloaded = dataReloaded.find(function(doc) {
+    const doc3Reloaded = dataReloaded.find(function (doc) {
       return doc.a === 3;
     });
     assert.equal(dataReloaded.length, 1);
@@ -447,7 +449,7 @@ describe("Persistence async", function() {
 
   it("Can listen to compaction events", async () => {
     const compacted = new Promise((resolve) => {
-      d.once("compaction.done", function() {
+      d.once("compaction.done", function () {
         resolve();
       });
     });
@@ -537,7 +539,7 @@ describe("Persistence async", function() {
           filename: hookTestFilename,
           autoload: true,
           afterSerialization: as,
-          beforeDeserialization: function(s) {
+          beforeDeserialization: function (s) {
             return s;
           },
         });
@@ -555,7 +557,7 @@ describe("Persistence async", function() {
         filename: hookTestFilename,
         autoload: true,
         afterSerialization: as,
-        beforeDeserialization: function(s) {
+        beforeDeserialization: function (s) {
           return s;
         },
         testSerializationHooks: false,
@@ -721,13 +723,13 @@ describe("Persistence async", function() {
     });
   }); // ==== End of 'Serialization hooks' ==== //
 
-  describe("Prevent dataloss when persisting data", function() {
+  describe("Prevent dataloss when persisting data", function () {
     it("Creating a datastore with in memory as true and a bad filename wont cause an error", () => {
       // eslint-disable-next-line no-new
       new Datastore({ filename: "workspace/bad.db~", inMemoryOnly: true });
     });
 
-    it("Creating a persistent datastore with a bad filename will cause an error", function() {
+    it("Creating a persistent datastore with a bad filename will cause an error", function () {
       assert.throws(() => {
         // eslint-disable-next-line no-new
         new Datastore({ filename: "workspace/bad.db~" });
@@ -1043,7 +1045,7 @@ describe("Persistence async", function() {
     });
 
     // Not run on Windows as there is no clean way to set maximum file descriptors. Not an issue as the code itself is tested.
-    it("Cannot cause EMFILE errors by opening too many file descriptors", async function() {
+    it("Cannot cause EMFILE errors by opening too many file descriptors", async function () {
       this.timeout(10000);
       if (process.platform === "win32" || process.platform === "win64") {
         return;
@@ -1069,7 +1071,7 @@ describe("Persistence async", function() {
     });
   }); // ==== End of 'Prevent dataloss when persisting data' ====
 
-  describe("ensureFileDoesntExist", function() {
+  describe("ensureFileDoesntExist", function () {
     it("Doesnt do anything if file already doesnt exist", async () => {
       await storage.ensureFileDoesntExistAsync("workspace/nonexisting");
       assert.equal(await exists("workspace/nonexisting"), false);
@@ -1084,7 +1086,7 @@ describe("Persistence async", function() {
     });
   }); // ==== End of 'ensureFileDoesntExist' ====
 
-  describe("dropDatabase", function() {
+  describe("dropDatabase", function () {
     it("deletes data in memory", async () => {
       const inMemoryDB = new Datastore({ inMemoryOnly: true });
       await inMemoryDB.insertAsync({ hello: "world" });
@@ -1206,10 +1208,10 @@ const testPermissions = async (db, fileMode, dirMode) => {
   assert.equal(await getMode(db.filename), fileMode);
   assert.equal(await getMode(path.dirname(db.filename)), dirMode);
 };
-describe("permissions", function() {
+describe("permissions", function () {
   const testDb = "workspace/permissions/test.db";
 
-  before("check OS", function() {
+  before("check OS", function () {
     if (process.platform === "win32" || process.platform === "win64")
       this.skip();
   });

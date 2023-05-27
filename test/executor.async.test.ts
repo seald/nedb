@@ -1,11 +1,13 @@
 /* eslint-env mocha */
 const testDb = "workspace/test.db";
-const { promises: fs } = require("fs");
-const assert = require("assert").strict;
-const path = require("path");
-const Datastore = require("../src/datastore");
-const Persistence = require("../src/persistence");
-const { exists } = require("./utils.test");
+import { promises as fs } from "fs";
+
+import { strict as assert } from "assert";
+
+import path from "path";
+import { Datastore } from "../src/datastore";
+import { Persistence } from "../src/persistence";
+import { exists } from "./utils.test";
 
 // Test that operations are executed in the right order
 // We prevent Mocha from catching the exception we throw on purpose by remembering all current handlers, remove them and register them back after test ends
@@ -47,7 +49,7 @@ const testExecutorWorksWithoutCallback = async (d) => {
   assert.equal(docs.length, 2);
 };
 
-describe("Executor async", function() {
+describe("Executor async", function () {
   describe("With persistent database", async () => {
     let d;
 
@@ -71,7 +73,7 @@ describe("Executor async", function() {
   });
 }); // ==== End of 'With persistent database' ====
 
-describe("With non persistent database", function() {
+describe("With non persistent database", function () {
   let d;
 
   beforeEach(async () => {

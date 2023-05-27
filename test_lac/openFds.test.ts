@@ -1,11 +1,11 @@
-const fs = require("fs");
+import fs from "fs";
 const fsPromises = fs.promises;
-const Nedb = require("../src/datastore");
+import { Datastore } from "../src/datastore";
 const N = 64;
 
 // A console.error triggers an error of the parent test
 
-const test = async () => {
+const runTest = async () => {
   let filehandles = [];
   try {
     for (let i = 0; i < 2 * N + 1; i++) {
@@ -17,7 +17,7 @@ const test = async () => {
     }
     console.error("No error occurred while opening a file too many times");
     process.exit(1);
-  } catch (error) {
+  } catch (error: any) {
     if (error.code !== "EMFILE") {
       console.error(error);
       process.exit(1);
@@ -37,7 +37,7 @@ const test = async () => {
       );
       filehandles.push(filehandle);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error(
       `An unexpected error occurred when opening file not too many times with error: ${error}`
     );
@@ -49,7 +49,7 @@ const test = async () => {
   }
 
   try {
-    const db = new Nedb({ filename: "./workspace/openfds.db" });
+    const db = new Datastore({ filename: "./workspace/openfds.db" });
     await db.loadDatabaseAsync();
     await db.removeAsync({}, { multi: true });
     await db.insertAsync({ hello: "world" });
@@ -57,15 +57,15 @@ const test = async () => {
     for (let i = 0; i < 2 * N + 1; i++) {
       await db.persistence.persistCachedDatabaseAsync();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error(
       `Got unexpected error during one persistence operation with error: ${error}`
     );
   }
 };
 try {
-  test();
-} catch (error) {
+  runTest();
+} catch (error: any) {
   console.error(error);
   process.exit(1);
 }

@@ -1,6 +1,6 @@
 import path from "path";
 import { deprecate } from "util";
-import * as byline from "./byline"; // todo split up
+import { createLineStream } from "./byline"; // todo split up
 import * as customUtils from "./customUtils"; // todo split up
 import { Index } from "./indexes";
 import * as model from "./model"; // todo split up
@@ -297,7 +297,7 @@ export class Persistence {
 
       let corruptItems = 0;
 
-      const lineStream = byline(rawStream);
+      const lineStream = createLineStream(rawStream);
       let dataLength = 0;
 
       lineStream.on("data", (line) => {
