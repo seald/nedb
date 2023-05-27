@@ -26,7 +26,14 @@
 import stream from "stream";
 import timers from "timers";
 
-export const createLineStream = (readStream, options) => {
+interface Options extends stream.TransformOptions {
+  keepEmptyLines: boolean;
+}
+
+export const createLineStream = (
+  readStream: stream.Readable,
+  options?: Options
+) => {
   if (!readStream) throw new Error("expected readStream");
   if (!readStream.readable) throw new Error("readStream must be readable");
   const ls = new LineStream(options);
@@ -41,19 +48,23 @@ export const createLineStream = (readStream, options) => {
  * @private
  */
 export class LineStream extends stream.Transform {
-  constructor(options) {
+  private _readableState: any;
+  private _lineBuffer: never[];
+  private _keepEmptyLines: any;
+  private _lastChunkEndedWithCR: boolean;
+  private encoding: any;
+  constructor(options?: Options) {
     super(options);
-    options = options || {};
 
     // use objectMode to stop the output from being buffered
     // which re-concatanates the lines, just without newlines.
     this._readableState.objectMode = true;
     this._lineBuffer = [];
-    this._keepEmptyLines = options.keepEmptyLines || false;
+    this._keepEmptyLines = options?.keepEmptyLines || false;
     this._lastChunkEndedWithCR = false;
 
     // take the source's encoding if we don't have one
-    this.once("pipe", (src) => {
+    this.once("pipe", (src: stream.Readable) => {
       if (!this.encoding && src instanceof stream.Readable)
         this.encoding = src._readableState.encoding; // but we can't do this for old-style streams
     });
@@ -105,7 +116,7 @@ export class LineStream extends stream.Transform {
     done();
   }
 
-  _flush(done) {
+  _flush(done: () => void) {
     this._pushBuffer(this._chunkEncoding, 0, done);
   }
 

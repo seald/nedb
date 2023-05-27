@@ -5,6 +5,7 @@ import * as customUtils from "./customUtils"; // todo split up
 import { Index } from "./indexes";
 import * as model from "./model"; // todo split up
 import * as storage from "./storage"; // todo split up
+import { Datastore, serializationHook } from "./datastore";
 
 const DEFAULT_DIR_MODE = 0o755;
 const DEFAULT_FILE_MODE = 0o644;
@@ -40,6 +41,7 @@ const DEFAULT_FILE_MODE = 0o644;
  * with `appendfsync` option set to `no`.
  */
 export class Persistence {
+  db: Datastore;
   /**
    * Create a new Persistence object for database options.db
    * @param {Datastore} options.db
@@ -51,7 +53,14 @@ export class Persistence {
    * @param {number} [options.modes.dirMode=0o755] Mode to use for directories.
    * @param {boolean} [options.testSerializationHooks=true] Whether to test the serialization hooks or not, might be CPU-intensive
    */
-  constructor(options) {
+  constructor(options: {
+    db: Datastore;
+    corruptAlertThreshold?: number;
+    beforeDeserialization?: serializationHook;
+    afterSerialization?: serializationHook;
+    modes?: { fileMode?: number; dirMode?: number };
+    testSerializationHooks?: boolean;
+  }) {
     this.db = options.db;
     this.inMemoryOnly = this.db.inMemoryOnly;
     this.filename = this.db.filename;

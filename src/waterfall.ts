@@ -3,6 +3,7 @@
  * @private
  */
 export class Waterfall {
+  guardian: Promise<any>;
   /**
    * Instantiate a new Waterfall.
    */
@@ -22,8 +23,10 @@ export class Waterfall {
    * @param {AsyncFunction} func
    * @return {AsyncFunction}
    */
-  waterfall<ARGS, RETURN>(func: (...args: ARGS) => Promise<RETURN>) {
-    return (...args) => {
+  waterfall<ARGS extends Array<any>, RETURN>(
+    func: (...args: ARGS) => Promise<RETURN>
+  ) {
+    return (...args: ARGS) => {
       this.guardian = this.guardian.then(() => {
         return func(...args).then(
           (result) => ({ error: false, result }),

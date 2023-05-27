@@ -13,7 +13,7 @@ import { isDate, pick, filterIndexNames } from "./utils";
  * @callback NoParamCallback
  * @param {?Error} err
  */
-
+export type NoParamCallback = (err?: Error | null) => void;
 /**
  * String comparison function.
  * ```
@@ -26,35 +26,41 @@ import { isDate, pick, filterIndexNames } from "./utils";
  * @param {string} b
  * @return {number}
  */
-
+export type compareStrings = (a: string, b: string) => number;
 /**
  * Callback that returns an Array of documents.
  * @callback MultipleDocumentsCallback
  * @param {?Error} err
  * @param {?document[]} docs
  */
-
+export type MultipleDocumentsCallback = (
+  err?: Error | null,
+  docs?: model.document[]
+) => void;
 /**
  * Callback that returns a single document.
  * @callback SingleDocumentCallback
  * @param {?Error} err
  * @param {?document} docs
  */
-
+export type SingleDocumentCallback = (
+  err?: Error | null,
+  doc?: model.document
+) => void;
 /**
  * Generic async function.
  * @callback AsyncFunction
  * @param {...*} args
  * @return {Promise<*>}
  */
-
+export type AsyncFunction = (...args: any[]) => Promise<any>;
 /**
  * Callback with generic parameters.
  * @callback GenericCallback
  * @param {?Error} err
  * @param {...*} args
  */
-
+export type GenericCallback = (err?: Error | null, ...args: any[]) => void;
 /**
  * Compaction event. Happens when the Datastore's Persistence has been compacted.
  * It happens when calling {@link Datastore#compactDatafileAsync}, which is called periodically if you have called
@@ -132,11 +138,23 @@ import { isDate, pick, filterIndexNames } from "./utils";
  * @param {string} x
  * @return {string}
  */
-
+export type serializationHook = (x: string) => string;
 /**
  * @external EventEmitter
  * @see http://nodejs.org/api/events.html
  */
+
+export interface DatastoreOptions {
+  filename?: string;
+  inMemoryOnly?: boolean;
+  autoload?: boolean;
+  timestampData?: boolean;
+  corruptAlertThreshold?: number;
+  afterSerialization?: serializationHook;
+  beforeDeserialization?: serializationHook;
+  compareStrings?: compareStrings;
+  onload?: GenericCallback;
+}
 
 /**
  * @class
@@ -146,7 +164,17 @@ import { isDate, pick, filterIndexNames } from "./utils";
  * @typicalname NeDB
  */
 export class Datastore extends EventEmitter {
-  persistence: Persistence;
+  private persistence: Persistence;
+  private inMemoryOnly: boolean;
+  private autoload: any;
+  private timestampData: any;
+  private filename: null | string;
+  private compareStrings: compareStrings | undefined;
+  private executor: Executor;
+  private indexes: { _id: Index };
+  private ttlIndexes: {};
+  private autoloadPromise: any;
+  private _autocompactionIntervalId: NodeJS.Timer | null;
 
   /**
    * Create a new collection, either persistent or in-memory.
@@ -198,39 +226,31 @@ export class Datastore extends EventEmitter {
    * @param {boolean} [options.testSerializationHooks=true] Whether to test the serialization hooks or not,
    * might be CPU-intensive
    */
-  constructor(options) {
+  constructor(options: DatastoreOptions) {
     super();
     let filename;
 
-    // Retrocompatibility with v0.6 and before
-    if (typeof options === "string") {
-      deprecate(() => {
-        filename = options;
-        this.inMemoryOnly = false; // Default
-      }, "@seald-io/nedb: Giving a string to the Datastore constructor is deprecated and will be removed in the next major version. Please use an options object with an argument 'filename'.")();
-    } else {
-      options = options || {};
-      filename = options.filename;
-      /**
-       * Determines if the `Datastore` keeps data in-memory, or if it saves it in storage. Is not read after
-       * instanciation.
-       * @type {boolean}
-       * @protected
-       */
-      this.inMemoryOnly = options.inMemoryOnly || false;
-      /**
-       * Determines if the `Datastore` should autoload the database upon instantiation. Is not read after instanciation.
-       * @type {boolean}
-       * @protected
-       */
-      this.autoload = options.autoload || false;
-      /**
-       * Determines if the `Datastore` should add `createdAt` and `updatedAt` fields automatically if not set by the user.
-       * @type {boolean}
-       * @protected
-       */
-      this.timestampData = options.timestampData || false;
-    }
+    options = options || {};
+    filename = options.filename;
+    /**
+     * Determines if the `Datastore` keeps data in-memory, or if it saves it in storage. Is not read after
+     * instanciation.
+     * @type {boolean}
+     * @protected
+     */
+    this.inMemoryOnly = options.inMemoryOnly || false;
+    /**
+     * Determines if the `Datastore` should autoload the database upon instantiation. Is not read after instanciation.
+     * @type {boolean}
+     * @protected
+     */
+    this.autoload = options.autoload || false;
+    /**
+     * Determines if the `Datastore` should add `createdAt` and `updatedAt` fields automatically if not set by the user.
+     * @type {boolean}
+     * @protected
+     */
+    this.timestampData = options.timestampData || false;
 
     // Determine whether in memory or persistent
     if (!filename || typeof filename !== "string" || filename.length === 0) {
@@ -312,7 +332,7 @@ export class Datastore extends EventEmitter {
         () => {
           if (options.onload) options.onload();
         },
-        (err) => {
+        (err: any) => {
           if (options.onload) options.onload(err);
           else throw err;
         }
@@ -344,7 +364,7 @@ export class Datastore extends EventEmitter {
    * @param {NoParamCallback} [callback = () => {}]
    * @see Datastore#compactDatafileAsync
    */
-  compactDatafile(callback) {
+  compactDatafile(callback?: GenericCallback) {
     const promise = this.compactDatafileAsync();
     if (typeof callback === "function") callbackify(() => promise)(callback);
   }
@@ -353,7 +373,7 @@ export class Datastore extends EventEmitter {
    * Set automatic compaction every `interval` ms
    * @param {Number} interval in milliseconds, with an enforced minimum of 5000 milliseconds
    */
-  setAutocompactionInterval(interval) {
+  setAutocompactionInterval(interval: number) {
     const minInterval = 5000;
     if (Number.isNaN(Number(interval)))
       throw new Error("Interval must be a non-NaN number");
@@ -381,7 +401,7 @@ export class Datastore extends EventEmitter {
    * @param {NoParamCallback} [callback]
    * @see Datastore#loadDatabaseAsync
    */
-  loadDatabase(callback) {
+  loadDatabase(callback?: GenericCallback) {
     const promise = this.loadDatabaseAsync();
     if (typeof callback === "function") callbackify(() => promise)(callback);
   }
@@ -393,7 +413,7 @@ export class Datastore extends EventEmitter {
    * @async
    * @return {Promise}
    */
-  dropDatabaseAsync() {
+  async dropDatabaseAsync() {
     return this.persistence.dropDatabaseAsync(); // the executor is exceptionally used by Persistence
   }
 
@@ -402,7 +422,7 @@ export class Datastore extends EventEmitter {
    * @param {NoParamCallback} [callback]
    * @see Datastore#dropDatabaseAsync
    */
-  dropDatabase(callback) {
+  dropDatabase(callback?: GenericCallback) {
     const promise = this.dropDatabaseAsync();
     if (typeof callback === "function") callbackify(() => promise)(callback);
   }
@@ -412,7 +432,7 @@ export class Datastore extends EventEmitter {
    * @async
    * @return {Promise}
    */
-  loadDatabaseAsync() {
+  loadDatabaseAsync(): Promise<any> {
     return this.executor.pushAsync(
       () => this.persistence.loadDatabaseAsync(),
       true
@@ -423,7 +443,7 @@ export class Datastore extends EventEmitter {
    * Get an array of all the data in the database.
    * @return {document[]}
    */
-  getAllData() {
+  getAllData(): Document[] {
     return this.indexes._id.getAll();
   }
 

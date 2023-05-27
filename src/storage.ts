@@ -25,7 +25,7 @@ const DEFAULT_FILE_MODE = 0o644;
  * @alias module:storage.existsAsync
  * @see module:storage.exists
  */
-export const existsAsync = (file) =>
+export const existsAsync = (file: string) =>
   fsPromises.access(file, fs.constants.F_OK).then(
     () => true,
     () => false
@@ -125,9 +125,14 @@ export const mkdirAsync = fsPromises.mkdir;
  * @alias module:storage.ensureFileDoesntExistAsync
  * @async
  */
-export const ensureFileDoesntExistAsync = async (file) => {
+export const ensureFileDoesntExistAsync = async (file: string) => {
   if (await existsAsync(file)) await unlinkAsync(file);
 };
+
+class FlushError extends Error {
+  errorOnFsync?: Error;
+  errorOnClose?: Error;
+}
 
 /**
  * Flush data in OS buffer to storage if corresponding option is set.
@@ -139,10 +144,13 @@ export const ensureFileDoesntExistAsync = async (file) => {
  * @alias module:storage.flushToStorageAsync
  * @async
  */
-export const flushToStorageAsync = async (options) => {
+export const flushToStorageAsync = async (
+  options: string | { filename: string; isDir?: boolean; mode?: number }
+) => {
   let filename;
   let flags;
   let mode;
+  let isDir = false;
   if (typeof options === "string") {
     filename = options;
     flags = "r+";
@@ -150,6 +158,7 @@ export const flushToStorageAsync = async (options) => {
   } else {
     filename = options.filename;
     flags = options.isDir ? "r" : "r+";
+    isDir = !!options.isDir;
     mode = options.mode !== undefined ? options.mode : DEFAULT_FILE_MODE;
   }
   /**
@@ -169,15 +178,15 @@ export const flushToStorageAsync = async (options) => {
     filehandle = await fsPromises.open(filename, flags, mode);
     try {
       await filehandle.sync();
-    } catch (errFS) {
+    } catch (errFS: any) {
       errorOnFsync = errFS;
     }
-  } catch (error) {
-    if (error.code !== "EISDIR" || !options.isDir) throw error;
+  } catch (error: any) {
+    if (error.code !== "EISDIR" || !isDir) throw error;
   } finally {
     try {
-      await filehandle.close();
-    } catch (errC) {
+      await filehandle?.close();
+    } catch (errC: any) {
       errorOnClose = errC;
     }
   }
@@ -185,10 +194,10 @@ export const flushToStorageAsync = async (options) => {
     (errorOnFsync || errorOnClose) &&
     !(
       (errorOnFsync.code === "EPERM" || errorOnClose.code === "EISDIR") &&
-      options.isDir
+      isDir
     )
   ) {
-    const e = new Error("Failed to flush to storage");
+    const e = new FlushError("Failed to flush to storage");
     e.errorOnFsync = errorOnFsync;
     e.errorOnClose = errorOnClose;
     throw e;
@@ -205,11 +214,11 @@ export const flushToStorageAsync = async (options) => {
  * @async
  */
 export const writeFileLinesAsync = (
-  filename,
-  lines,
-  mode = DEFAULT_FILE_MODE
+  filename: string,
+  lines: string[],
+  mode: number = DEFAULT_FILE_MODE
 ) =>
-  new Promise((resolve, reject) => {
+  new Promise<void>((resolve, reject) => {
     try {
       const stream = writeFileStream(filename, { mode });
       const readable = Readable.from(lines);
@@ -250,9 +259,12 @@ export const writeFileLinesAsync = (
  * @alias module:storage.crashSafeWriteFileLinesAsync
  */
 export const crashSafeWriteFileLinesAsync = async (
-  filename,
-  lines,
-  modes = { fileMode: DEFAULT_FILE_MODE, dirMode: DEFAULT_DIR_MODE }
+  filename: string,
+  lines: string[],
+  modes: { fileMode: number; dirMode: number } = {
+    fileMode: DEFAULT_FILE_MODE,
+    dirMode: DEFAULT_DIR_MODE,
+  }
 ) => {
   const tempFilename = filename + "~";
 
@@ -286,8 +298,8 @@ export const crashSafeWriteFileLinesAsync = async (
  * @alias module:storage.ensureDatafileIntegrityAsync
  */
 export const ensureDatafileIntegrityAsync = async (
-  filename,
-  mode = DEFAULT_FILE_MODE
+  filename: string,
+  mode: number = DEFAULT_FILE_MODE
 ) => {
   const tempFilename = filename + "~";
 
