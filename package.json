@@ -1,6 +1,6 @@
 {
   "name": "@seald-io/nedb",
-  "version": "4.0.2",
+  "version": "4.0.3-0",
   "files": [
     "lib/**/*.js",
     "browser-version/**/*.js",
