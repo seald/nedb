@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- Fixed EPERM Exception when datastore is at the root of a disk on Windows [#48](https://github.com/seald/nedb/issues/48)
+
 ## [4.0.2] - 2023-05-05
 ### Fixed
 - Fixed typo in documentation [#36](https://github.com/seald/nedb/pull/36)
