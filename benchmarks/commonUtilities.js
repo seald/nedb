@@ -2,7 +2,6 @@
  * Functions that are used in several benchmark tests
  */
 const fs = require('fs')
-const path = require('path')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
 const { callbackify } = require('util')
@@ -46,7 +45,7 @@ module.exports.getConfiguration = function (benchDb) {
  * Ensure the workspace stat and the db datafile is empty
  */
 module.exports.prepareDb = function (filename, cb) {
-  callbackify((dirname) => Persistence.ensureDirectoryExistsAsync(dirname))(path.dirname(filename), function () {
+  callbackify((filename) => Persistence.ensureParentDirectoryExistsAsync(filename))(filename, function () {
     fs.access(filename, fs.constants.FS_OK, function (err) {
       if (!err) {
         fs.unlink(filename, cb)
