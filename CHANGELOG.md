@@ -9,6 +9,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## Unreleased
 ### Fixed
 - Explicitly import `buffer` [#34](https://github.com/seald/nedb/pull/34).
+- Fix `Cursor`'s typings [#45](https://github.com/seald/nedb/issues/45)
 
 ## [4.0.3] - 2023-12-13
 ### Fixed

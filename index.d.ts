@@ -149,7 +149,7 @@ declare class Nedb<Schema = Record<string, any>> extends EventEmitter {
 }
 
 declare namespace Nedb {
-  interface Cursor<T> extends Promise<T> {
+  interface Cursor<T> extends Promise<Document<T>> {
     sort(query: any): Cursor<T>;
     skip(n: number): Cursor<T>;
     limit(n: number): Cursor<T>;
