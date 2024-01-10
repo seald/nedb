@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 - Explicitly import `buffer` [#34](https://github.com/seald/nedb/pull/34).
 - Fix `Cursor`'s typings [#45](https://github.com/seald/nedb/issues/45)
+- Removes unnecessary uses of the native `path` module for the browser and React-Native version by replacing the internal `Persistance.ensureDirectoryExistsAsync` static method with `Persistance.ensureParentDirectoryExistsAsync` so that any `path` functions are used only in Node.js where it is necessary, as it is not necessary for the browser and React-Native.
 
 ## [4.0.3] - 2023-12-13
 ### Fixed
@@ -76,7 +77,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     - `Persistence#persistCachedDatabase` replaced with `Persistence#persistCachedDatabaseAsync`;
     - `Persistence#persistNewState` replaced with `Persistence#persistNewStateAsync`;
     - `Persistence#treatRawStream` replaced with `Persistence#treatRawStreamAsync`;
-    - `Persistence.ensureDirectoryExists` replaced with `Persistence#ensureDirectoryExistsAsync`;
+    - `Persistence.ensureDirectoryExists` replaced with `Persistence.ensureDirectoryExistsAsync`;
   - Cursor:
     - `Cursor#_exec` replaced with `Cursor#_execAsync`;
     - `Cursor#project` replaced with `Cursor#_project`;
