@@ -11,6 +11,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Explicitly import `buffer` [#34](https://github.com/seald/nedb/pull/34).
 - Fix `Cursor`'s typings [#45](https://github.com/seald/nedb/issues/45)
 
+### Added
+- Added a `compaction.failed` event [#28](https://github.com/seald/nedb/issues/28)
+
 ## [4.0.3] - 2023-12-13
 ### Fixed
 - Fixed EPERM Exception when datastore is at the root of a disk on Windows [#48](https://github.com/seald/nedb/issues/48)

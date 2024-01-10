@@ -241,7 +241,7 @@ Will return pointers to matched elements (shallow copies), returning full copies
 
 **Kind**: global class  
 **Extends**: [<code>EventEmitter</code>](http://nodejs.org/api/events.html)  
-**Emits**: <code>Datastore#event:&quot;compaction.done&quot;</code>  
+**Emits**: <code>Datastore#event:&quot;compaction.done&quot;</code>, <code>Datastore#event:&quot;compaction.failed&quot;</code>  
 
 * [Datastore](#Datastore) ⇐ [<code>EventEmitter</code>](http://nodejs.org/api/events.html)
     * [new Datastore(options)](#new_Datastore_new)
@@ -282,6 +282,7 @@ Will return pointers to matched elements (shallow copies), returning full copies
         * [.remove(query, [options], [cb])](#Datastore+remove)
         * [.removeAsync(query, [options])](#Datastore+removeAsync) ⇒ <code>Promise.&lt;number&gt;</code>
         * ["event:compaction.done"](#Datastore+event_compaction.done)
+        * ["event:compaction.failed"](#Datastore+event_compaction.failed)
     * _inner_
         * [~countCallback](#Datastore..countCallback) : <code>function</code>
         * [~findOneCallback](#Datastore..findOneCallback) : <code>function</code>
@@ -743,6 +744,16 @@ if the update did not actually modify them.</p>
 <p>Compaction event. Happens when the Datastore's Persistence has been compacted.
 It happens when calling [compactDatafileAsync](#Datastore+compactDatafileAsync), which is called periodically if you have called
 [setAutocompactionInterval](#Datastore+setAutocompactionInterval).</p>
+<p>In case of failure, it emits [Datastore#event:"compaction.failed"](Datastore#event:"compaction.failed") instead.</p>
+
+**Kind**: event emitted by [<code>Datastore</code>](#Datastore)  
+<a name="Datastore+event_compaction.failed"></a>
+
+### "event:compaction.failed"
+<p>Compaction event. Happens when the Datastore's Persistence compaction task has failed.
+It may happen when calling [compactDatafileAsync](#Datastore+compactDatafileAsync), which is called periodically if you have called
+[setAutocompactionInterval](#Datastore+setAutocompactionInterval).</p>
+<p>In case of success, it emits [Datastore#event:"compaction.done"](Datastore#event:"compaction.done") instead.</p>
 
 **Kind**: event emitted by [<code>Datastore</code>](#Datastore)  
 <a name="Datastore..countCallback"></a>

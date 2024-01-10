@@ -368,6 +368,7 @@ describe('Persistence async', function () {
   })
 
   it('Can listen to compaction events', async () => {
+    d.insertAsync({ a: 2 })
     const compacted = new Promise(resolve => {
       d.once('compaction.done', function () {
         resolve()
@@ -375,6 +376,21 @@ describe('Persistence async', function () {
     })
     await d.compactDatafileAsync()
     await compacted // should already be resolved when the function returns, but still awaiting for it
+
+    const failure = new Promise(resolve => {
+      d.once('compaction.failed', function (error) {
+        resolve(error)
+      })
+    })
+
+    const afterSerializationOriginal = d.persistence.afterSerialization
+    d.persistence.afterSerialization = () => { throw new Error('synthetic error') }
+    await d.compactDatafileAsync().then(() => { throw new Error('should have failed') }, error => {
+      if (!error || !(error instanceof Error) || error.message !== 'synthetic error') throw error
+    })
+    const error = await failure
+    if (!error || !(error instanceof Error) || error.message !== 'synthetic error') throw error
+    d.persistence.afterSerialization = afterSerializationOriginal
   })
 
   it('setAutocompaction fails gracefully when passed a NaN', async () => {
