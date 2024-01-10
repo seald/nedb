@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Fixed
+- Explicitly import `buffer` [#34](https://github.com/seald/nedb/pull/34).
+
 ## [4.0.3] - 2023-12-13
 ### Fixed
 - Fixed EPERM Exception when datastore is at the root of a disk on Windows [#48](https://github.com/seald/nedb/issues/48)
