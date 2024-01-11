@@ -253,6 +253,17 @@ const crashSafeWriteFileLinesAsync = async (filename, lines) => {
  */
 const crashSafeWriteFileLines = callbackify(crashSafeWriteFileLinesAsync)
 
+/**
+ * Shim for {@link module:storage.ensureParentDirectoryExistsAsync}, nothing to do, no directories will be used on the browser.
+ * @function
+ * @param {string} file
+ * @param {number} [mode]
+ * @return {Promise<void|string>}
+ * @alias module:storageBrowser.ensureParentDirectoryExistsAsync
+ * @async
+ */
+const ensureParentDirectoryExistsAsync = async (file, mode) => Promise.resolve()
+
 // Interface
 module.exports.exists = exists
 module.exports.existsAsync = existsAsync
@@ -280,3 +291,5 @@ module.exports.mkdirAsync = mkdirAsync
 
 module.exports.ensureDatafileIntegrity = ensureDatafileIntegrity
 module.exports.ensureDatafileIntegrityAsync = ensureDatafileIntegrityAsync
+
+module.exports.ensureParentDirectoryExistsAsync = ensureParentDirectoryExistsAsync

@@ -2,7 +2,6 @@
 const testDb = 'workspace/test.db'
 const { promises: fs } = require('fs')
 const assert = require('assert').strict
-const path = require('path')
 const Datastore = require('../lib/datastore')
 const Persistence = require('../lib/persistence')
 const { exists } = require('./utils.test.js')
@@ -53,7 +52,7 @@ describe('Executor async', function () {
       d = new Datastore({ filename: testDb })
       assert.equal(d.filename, testDb)
       assert.equal(d.inMemoryOnly, false)
-      await Persistence.ensureDirectoryExistsAsync(path.dirname(testDb))
+      await Persistence.ensureParentDirectoryExistsAsync(testDb)
       if (await exists(testDb)) await fs.unlink(testDb)
       await d.loadDatabaseAsync()
       assert.equal(d.getAllData().length, 0)

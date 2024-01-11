@@ -2,7 +2,6 @@
 const chai = require('chai')
 const testDb = 'workspace/test.db'
 const fs = require('fs')
-const path = require('path')
 const { apply, each, waterfall } = require('./utils.test.js')
 const model = require('../lib/model')
 const Datastore = require('../lib/datastore')
@@ -23,7 +22,7 @@ describe('Database', function () {
 
     waterfall([
       function (cb) {
-        callbackify((dirname) => Persistence.ensureDirectoryExistsAsync(dirname))(path.dirname(testDb), function () {
+        callbackify((filename) => Persistence.ensureParentDirectoryExistsAsync(filename))(testDb, function () {
           fs.access(testDb, fs.constants.FS_OK, function (err) {
             if (!err) {
               fs.unlink(testDb, cb)

@@ -838,6 +838,10 @@ This is done for:
   the repo because it is unmaintained). It isn't used in the browser nor
   react-native versions, therefore it is shimmed with an empty object.
 
+However, the `browser` and `react-native` versions rely on node native modules and therefore must be polyfilled:
+- `util` with https://github.com/browserify/node-util.
+- `events` with https://github.com/browserify/events.
+
 ## Performance
 
 ### Speed

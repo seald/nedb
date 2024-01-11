@@ -22,7 +22,7 @@ describe('Persistence async', function () {
     d = new Datastore({ filename: testDb })
     assert.equal(d.filename, testDb)
     assert.equal(d.inMemoryOnly, false)
-    await Persistence.ensureDirectoryExistsAsync(path.dirname(testDb))
+    await Persistence.ensureParentDirectoryExistsAsync(testDb)
     if (await exists(testDb)) await fs.unlink(testDb)
     await d.loadDatabaseAsync()
     assert.equal(d.getAllData().length, 0)
@@ -1062,7 +1062,7 @@ describe('permissions', function () {
   })
 
   it('ensureDirectoryExists forwards mode argument', async () => {
-    await Persistence.ensureDirectoryExistsAsync(path.dirname(testDb), 0o700)
+    await Persistence.ensureParentDirectoryExistsAsync(testDb, 0o700)
     assert.equal(await getMode(path.dirname(testDb)), 0o700)
   })
 

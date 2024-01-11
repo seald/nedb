@@ -139,6 +139,17 @@ const unlinkAsync = async filename => {
 const mkdirAsync = (path, options) => Promise.resolve()
 
 /**
+ * Shim for {@link module:storage.ensureParentDirectoryExistsAsync}, nothing to do, no directories will be used on the browser.
+ * @function
+ * @param {string} file
+ * @param {number} [mode]
+ * @return {Promise<void|string>}
+ * @alias module:storageBrowser.ensureParentDirectoryExistsAsync
+ * @async
+ */
+const ensureParentDirectoryExistsAsync = async (file, mode) => Promise.resolve()
+
+/**
  * Shim for {@link module:storage.ensureDatafileIntegrityAsync}, nothing to do, no data corruption possible in the browser.
  * @param {string} filename
  * @return {Promise<void>}
@@ -176,3 +187,5 @@ module.exports.unlinkAsync = unlinkAsync
 module.exports.mkdirAsync = mkdirAsync
 
 module.exports.ensureDatafileIntegrityAsync = ensureDatafileIntegrityAsync
+
+module.exports.ensureParentDirectoryExistsAsync = ensureParentDirectoryExistsAsync
