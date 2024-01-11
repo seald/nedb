@@ -105,25 +105,25 @@ declare class Nedb<Schema = Record<string, any>> extends EventEmitter {
     projection?: any
   ): Nedb.Cursor<T>;
 
-  update<T extends Schema>(
+  update<T extends Schema, O extends Nedb.UpdateOptions>(
     query: any,
     updateQuery: any,
-    options?: Nedb.UpdateOptions,
+    options?: O,
     callback?: (
       err: Error | null,
       numberOfUpdated: number,
-      affectedDocuments: Document<T> | Document<T>[] | null,
+      affectedDocuments: O['returnUpdatedDocs'] extends true ? O['multi'] extends true ? Document<T>[] | null : Document<T> | null : null,
       upsert: boolean | null
     ) => void
   ): void;
 
-  updateAsync<T extends Schema>(
+  updateAsync<T extends Schema, O extends Nedb.UpdateOptions>(
     query: any,
     updateQuery: any,
-    options?: Nedb.UpdateOptions
+    options?: O
   ): Promise<{
     numAffected: number;
-    affectedDocuments: Document<T> | Document<T>[] | null;
+    affectedDocuments: O['returnUpdatedDocs'] extends true ? O['multi'] extends true ? Document<T>[] | null : Document<T> | null : null;
     upsert: boolean;
   }>;
 
