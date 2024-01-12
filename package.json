@@ -46,8 +46,7 @@
   },
   "dependencies": {
     "@seald-io/binary-search-tree": "^1.0.3",
-    "localforage": "^1.9.0",
-    "util": "^0.12.4"
+    "localforage": "^1.9.0"
   },
   "devDependencies": {
     "@react-native-async-storage/async-storage": "^1.17.11",
@@ -77,6 +76,7 @@
     "timers-browserify": "^2.0.12",
     "ts-jest": "^27.1.5",
     "typescript": "^4.9.5",
+    "util": "^0.12.5",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1",
     "xvfb-maybe": "^0.2.1"
@@ -84,7 +84,7 @@
   "scripts": {
     "lint": "standard",
     "test": "mocha --reporter spec --timeout 10000",
-    "build:browser": "webpack && webpack --optimization-minimize",
+    "build:browser": "webpack --config-name Nedb && webpack --config-name Nedb --env minimize && webpack --config-name testUtils --env minimize",
     "pretest:browser": "npm run build:browser",
     "test:browser": "xvfb-maybe karma start karma.conf.local.js",
     "test:react-native": "jest test/react-native",

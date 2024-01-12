@@ -40,20 +40,6 @@ describe('Database', function () {
     ], done)
   })
 
-  it('Constructor compatibility with v0.6-', function () {
-    let dbef = new Datastore('somefile')
-    dbef.filename.should.equal('somefile')
-    dbef.inMemoryOnly.should.equal(false)
-
-    dbef = new Datastore('')
-    assert.isNull(dbef.filename)
-    dbef.inMemoryOnly.should.equal(true)
-
-    dbef = new Datastore()
-    assert.isNull(dbef.filename)
-    dbef.inMemoryOnly.should.equal(true)
-  })
-
   describe('Autoloading', function () {
     it('Can autoload a database and query it right away', function (done) {
       const fileStr = model.serialize({ _id: '1', a: 5, planet: 'Earth' }) + '\n' + model.serialize({
@@ -617,7 +603,7 @@ describe('Database', function () {
                   assert.isNull(err)
                   assert.isNull(doc)
 
-                  d.on('compaction.done', function () {
+                  d.oncompaction = function () {
                     // After compaction, no more mention of the document, correctly removed
                     const datafileContents = fs.readFileSync(testDb, 'utf8')
                     datafileContents.split('\n').length.should.equal(2)
@@ -631,7 +617,7 @@ describe('Database', function () {
 
                       done()
                     })
-                  })
+                  }
 
                   d.compactDatafile()
                 })

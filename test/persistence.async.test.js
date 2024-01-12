@@ -367,12 +367,16 @@ describe('Persistence async', function () {
     })
   })
 
-  it('Can listen to compaction events', async () => {
-    const compacted = new Promise(resolve => {
-      d.once('compaction.done', function () {
-        resolve()
-      })
+  it('Can use compaction callback', async () => {
+    let resolve, reject
+    const compacted = new Promise((_resolve, _reject) => {
+      resolve = _resolve
+      reject = _reject
     })
+    d.oncompaction = err => {
+      if (err) reject(err)
+      else resolve(null)
+    }
     await d.compactDatafileAsync()
     await compacted // should already be resolved when the function returns, but still awaiting for it
   })

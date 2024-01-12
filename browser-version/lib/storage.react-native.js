@@ -9,7 +9,7 @@
  */
 
 const AsyncStorage = require('@react-native-async-storage/async-storage').default
-const { callbackify } = require('util')
+const { callbackify } = require('./customUtils')
 
 /**
  * Async version of {@link module:storageReactNative.exists}.

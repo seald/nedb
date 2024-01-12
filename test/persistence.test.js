@@ -453,10 +453,10 @@ describe('Persistence', function () {
   })
 
   it('Can listen to compaction events', function (done) {
-    d.on('compaction.done', function () {
-      d.removeAllListeners('compaction.done') // Tidy up for next tests
+    d.oncompaction = function () {
+      d.oncompaction = null // Tidy up for next tests
       done()
-    })
+    }
 
     d.compactDatafile()
   })

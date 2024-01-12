@@ -22,20 +22,6 @@ describe('Database async', function () {
     assert.equal(d.getAllData().length, 0)
   })
 
-  it('Constructor compatibility with v0.6-', () => {
-    const db1 = new Datastore('somefile')
-    assert.equal(db1.filename, 'somefile')
-    assert.equal(db1.inMemoryOnly, false)
-
-    const db2 = new Datastore('')
-    assert.equal(db2.filename, null)
-    assert.equal(db2.inMemoryOnly, true)
-
-    const db3 = new Datastore()
-    assert.equal(db3.filename, null)
-    assert.equal(db3.inMemoryOnly, true)
-  })
-
   describe('Autoloading', () => {
     it('Can autoload a database and query it right away', async () => {
       const fileStr = model.serialize({
