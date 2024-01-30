@@ -1,12 +1,14 @@
 /* eslint-env mocha */
-const chai = require('chai')
+import fs from 'node:fs'
+import { callbackify } from 'node:util'
+import chai from 'chai'
+import { apply, each, waterfall } from './utils.test.js'
+import * as model from '../src/model.js'
+import Datastore from '../src/datastore.js'
+import Persistence from '../src/persistence.js'
+
 const testDb = 'workspace/test.db'
-const fs = require('fs')
-const { apply, each, waterfall } = require('./utils.test.js')
-const model = require('../lib/model')
-const Datastore = require('../lib/datastore')
-const Persistence = require('../lib/persistence')
-const { callbackify } = require('util')
+
 const reloadTimeUpperBound = 200 // In ms, an upper bound for the reload time used to check createdAt and updatedAt
 
 const { assert } = chai

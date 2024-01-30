@@ -1,11 +1,12 @@
 /* eslint-env mocha */
+import fs from 'node:fs/promises'
+import assert from 'node:assert/strict'
+import Datastore from '../src/datastore.js'
+import Persistence from '../src/persistence.js'
+import Cursor from '../src/cursor.js'
+import { exists } from './fsUtils.test.js'
+
 const testDb = 'workspace/test.db'
-const { promises: fs } = require('fs')
-const assert = require('assert').strict
-const Datastore = require('../lib/datastore')
-const Persistence = require('../lib/persistence')
-const Cursor = require('../lib/cursor')
-const { exists } = require('./utils.test.js')
 
 describe('Cursor Async', function () {
   let d

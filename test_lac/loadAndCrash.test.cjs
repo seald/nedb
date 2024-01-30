@@ -53,7 +53,7 @@ class FakeFsWriteStream extends Writable {
 fs.createWriteStream = path => new FakeFsWriteStream(path)
 
 // End of fs monkey patching
-const Nedb = require('../lib/datastore.js')
+const Nedb = require('../cjs/datastore.cjs')
 const db = new Nedb({ filename: 'workspace/lac.db' })
 
 db.loadDatabaseAsync() // no need to await

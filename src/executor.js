@@ -1,4 +1,4 @@
-const Waterfall = require('./waterfall')
+import Waterfall from './waterfall.js'
 
 /**
  * Executes operations sequentially.
@@ -76,4 +76,4 @@ class Executor {
 }
 
 // Interface
-module.exports = Executor
+export default Executor

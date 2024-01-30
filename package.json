@@ -7,6 +7,7 @@
     "index.js",
     "index.d.ts"
   ],
+  "type": "module",
   "types": "index.d.ts",
   "author": {
     "name": "Timothée Rebours",
@@ -53,8 +54,6 @@
     "@types/jest": "^27.5.2",
     "browser-resolve": "^2.0.0",
     "chai": "^4.3.7",
-    "commander": "^7.2.0",
-    "events": "^3.3.0",
     "jest": "^27.5.1",
     "jsdoc-to-markdown": "^8.0.0",
     "karma": "^6.4.1",
@@ -68,7 +67,8 @@
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "react": "^18.2.0",
-    "react-native": "^0.71.2",
+    "react-native": "^0.73.2",
+    "rollup": "^4.9.5",
     "semver": "^7.3.8",
     "source-map-loader": "^4.0.1",
     "standard": "^17.0.0",
@@ -83,7 +83,9 @@
   },
   "scripts": {
     "lint": "standard",
+    "pretest": "npm run build:cjs",
     "test": "mocha --reporter spec --timeout 10000",
+    "build:cjs": "rollup --preserveModules src/* src/browser/* --dir cjs --entryFileNames \"[name].cjs\" --format cjs --preserveEntrySignatures strict",
     "build:browser": "webpack --config-name Nedb && webpack --config-name Nedb --env minimize && webpack --config-name testUtils --env minimize",
     "pretest:browser": "npm run build:browser",
     "test:browser": "xvfb-maybe karma start karma.conf.local.js",
@@ -92,16 +94,23 @@
     "prepublishOnly": "npm run build:browser",
     "generateDocs:markdown": "jsdoc2md --no-cache -c jsdoc.conf.js --param-list-format list --files ./lib/*.js > API.md"
   },
-  "main": "index.js",
+  "main": "cjs/datastore.cjs",
+  "module": "src/datastore.js",
   "browser": {
-    "./lib/customUtils.js": "./browser-version/lib/customUtils.js",
-    "./lib/storage.js": "./browser-version/lib/storage.browser.js",
-    "./lib/byline.js": "./browser-version/lib/byline.js"
+    "./src/customUtils.js": "./src/browser/customUtils.js",
+    "./src/storage.js": "./src/browser/storage.browser.js",
+    "./src/byline.js": "./src/browser/byline.js",
+    "./cjs/customUtils.cjs": "./src/browser/customUtils.cjs",
+    "./cjs/storage.cjs": "./src/browser/storage.browser.cjs",
+    "./cjs/byline.cjs": "./src/browser/byline.cjs"
   },
   "react-native": {
-    "./lib/customUtils.js": "./browser-version/lib/customUtils.js",
-    "./lib/storage.js": "./browser-version/lib/storage.react-native.js",
-    "./lib/byline.js": "./browser-version/lib/byline.js"
+    "./src/customUtils.js": "./src/browser/customUtils.js",
+    "./src/storage.js": "./src/browser/storage.react-native.js",
+    "./src/byline.js": "./src/browser/byline.js",
+    "./cjs/customUtils.cjs": "./cjs/browser/customUtils.cjs",
+    "./cjs/storage.cjs": "./cjs/browser/storage.react-native.cjs",
+    "./cjs/byline.cjs": "./cjs/browser/byline.cjs"
   },
   "license": "MIT",
   "publishConfig": {
@@ -109,7 +118,7 @@
   },
   "standard": {
     "ignore": [
-      "browser-version/out",
+      "cjs",
       "**/*.ts"
     ]
   },

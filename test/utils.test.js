@@ -1,17 +1,19 @@
-const { callbackify, promisify } = require('util')
-const { promises: fs, constants: fsConstants } = require('fs')
+import { callbackify, promisify } from 'util'
 
+// Must use an intermediary variable, otherwise Rollup imports callbackify from util directly
+// (along with crypto somehow) in files importing customUtils.
+const _callbackify = callbackify
 const waterfallAsync = async tasks => {
   for (const task of tasks) {
     await promisify(task)()
   }
 }
 
-const waterfall = callbackify(waterfallAsync)
+const waterfall = _callbackify(waterfallAsync)
 
 const eachAsync = async (arr, iterator) => Promise.all(arr.map(el => promisify(iterator)(el)))
 
-const each = callbackify(eachAsync)
+const each = _callbackify(eachAsync)
 
 const apply = function (fn) {
   const args = Array.prototype.slice.call(arguments, 1)
@@ -26,21 +28,16 @@ const whilstAsync = async (test, fn) => {
   while (test()) await promisify(fn)()
 }
 
-const whilst = callbackify(whilstAsync)
+const whilst = _callbackify(whilstAsync)
 
 const wait = delay => new Promise(resolve => {
   setTimeout(resolve, delay)
 })
-const exists = path => fs.access(path, fsConstants.FS_OK).then(() => true, () => false)
 
-// eslint-disable-next-line n/no-callback-literal
-const existsCallback = (path, callback) => fs.access(path, fsConstants.FS_OK).then(() => callback(true), () => callback(false))
-
-module.exports.whilst = whilst
-module.exports.apply = apply
-module.exports.waterfall = waterfall
-module.exports.each = each
-module.exports.wait = wait
-module.exports.exists = exists
-module.exports.existsCallback = existsCallback
-module.exports.callbackify = callbackify
+export {
+  whilst,
+  apply,
+  waterfall,
+  each,
+  wait
+}

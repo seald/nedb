@@ -1,8 +1,8 @@
 'use strict'
 
-const template = require('./karma.conf.template.js')
+import template from './karma.conf.template.js'
 
-module.exports = function (config) {
+export default function (config) {
   const localBrowser = {
     ChromeHeadlessNoSandbox: {
       base: 'ChromeHeadless',

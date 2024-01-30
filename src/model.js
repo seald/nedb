@@ -6,7 +6,7 @@
  * @module model
  * @private
  */
-const { uniq, isDate, isRegExp } = require('./utils.js')
+import { isDate, isRegExp, uniq } from './utils.js'
 
 /**
  * Check a key, throw an error if the key is non valid
@@ -39,9 +39,9 @@ const checkKey = (k, v) => {
  */
 const checkObject = obj => {
   if (Array.isArray(obj)) {
-    obj.forEach(o => {
+    for (const o of obj) {
       checkObject(o)
-    })
+    }
   }
 
   if (typeof obj === 'object' && obj !== null) {
@@ -162,9 +162,19 @@ const isPrimitiveType = obj => (
  * @private
  */
 const compareNSB = (a, b) => {
-  if (a < b) return -1
-  if (a > b) return 1
-  return 0
+  if (a === b) return 0
+  switch (typeof a) { // types are assumed to be equal
+    case 'string':
+      if (a < b) return -1
+      else if (a > b) return 1
+      else return 0
+    case 'boolean':
+      return a - b
+    case 'number':
+      return Math.sign(a - b)
+    default:
+      throw new Error('Invalid types')
+  }
 }
 
 /**
@@ -292,14 +302,14 @@ const $addToSetPartial = (obj, field, value) => {
     if (Object.keys(value).length > 1) throw new Error('Can\'t use another field in conjunction with $each')
     if (!Array.isArray(value.$each)) throw new Error('$each requires an array value')
 
-    value.$each.forEach(v => {
+    for (const v of value.$each) {
       $addToSetPartial(obj, field, v)
-    })
+    }
   } else {
     let addToSet = true
-    obj[field].forEach(v => {
+    for (const v of obj[field]) {
       if (compareThings(v, value) === 0) addToSet = false
-    })
+    }
     if (addToSet) obj[field].push(value)
   }
 }
@@ -399,9 +409,9 @@ const modifierFunctions = {
       ) throw new Error('Can only use $slice in cunjunction with $each when $push to array')
       if (!Array.isArray(value.$each)) throw new Error('$each requires an array value')
 
-      value.$each.forEach(v => {
+      for (const v of value.$each) {
         obj[field].push(v)
-      })
+      }
 
       if (value.$slice === undefined || typeof value.$slice !== 'number') return
 
@@ -452,7 +462,7 @@ const modify = (obj, updateQuery) => {
     // Apply modifiers
     modifiers = uniq(keys)
     newDoc = deepCopy(obj)
-    modifiers.forEach(m => {
+    for (const m of modifiers) {
       if (!modifierFunctions[m]) throw new Error(`Unknown modifier ${m}`)
 
       // Can't rely on Object.keys throwing on non objects since ES6
@@ -460,10 +470,10 @@ const modify = (obj, updateQuery) => {
       if (typeof updateQuery[m] !== 'object') throw new Error(`Modifier ${m}'s argument must be an object`)
 
       const keys = Object.keys(updateQuery[m])
-      keys.forEach(k => {
+      for (const k of keys) {
         modifierFunctions[m](newDoc, k, updateQuery[m][k])
-      })
-    })
+      }
+    }
   }
 
   // Check result is valid and return it
@@ -814,14 +824,16 @@ function matchQueryPart (obj, queryKey, queryValue, treatObjAsValue) {
 }
 
 // Interface
-module.exports.serialize = serialize
-module.exports.deserialize = deserialize
-module.exports.deepCopy = deepCopy
-module.exports.checkObject = checkObject
-module.exports.isPrimitiveType = isPrimitiveType
-module.exports.modify = modify
-module.exports.getDotValue = getDotValue
-module.exports.getDotValues = getDotValues
-module.exports.match = match
-module.exports.areThingsEqual = areThingsEqual
-module.exports.compareThings = compareThings
+export {
+  serialize,
+  deserialize,
+  deepCopy,
+  checkObject,
+  isPrimitiveType,
+  modify,
+  getDotValue,
+  getDotValues,
+  match,
+  areThingsEqual,
+  compareThings
+}

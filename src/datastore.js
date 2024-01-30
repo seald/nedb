@@ -1,10 +1,10 @@
-const Cursor = require('./cursor.js')
-const { uid, callbackify } = require('./customUtils.js')
-const Executor = require('./executor.js')
-const Index = require('./indexes.js')
-const model = require('./model.js')
-const Persistence = require('./persistence.js')
-const { isDate, pick, filterIndexNames } = require('./utils.js')
+import Cursor from './cursor.js'
+import { callbackify, uid } from './customUtils.js'
+import Executor from './executor.js'
+import Index from './indexes.js'
+import { deepCopy, match, checkObject, modify } from './model.js'
+import Persistence from './persistence.js'
+import { filterIndexNames, isDate, pick } from './utils.js'
 
 /**
  * Callback with no parameter
@@ -668,10 +668,10 @@ class Datastore {
       const expiredDocsIds = []
       const ttlIndexesFieldNames = Object.keys(this.ttlIndexes)
 
-      docs.forEach(doc => {
+      for (const doc of docs) {
         if (ttlIndexesFieldNames.every(i => !(doc[i] !== undefined && isDate(doc[i]) && Date.now() > doc[i].getTime() + this.ttlIndexes[i] * 1000))) validDocs.push(doc)
         else expiredDocsIds.push(doc._id)
-      })
+      }
       for (const _id of expiredDocsIds) {
         await this._removeAsync({ _id }, {})
       }
@@ -691,7 +691,7 @@ class Datastore {
     this._insertInCache(preparedDoc)
 
     await this.persistence.persistNewStateAsync(Array.isArray(preparedDoc) ? preparedDoc : [preparedDoc])
-    return model.deepCopy(preparedDoc)
+    return deepCopy(preparedDoc)
   }
 
   /**
@@ -718,14 +718,14 @@ class Datastore {
 
     if (Array.isArray(newDoc)) {
       preparedDoc = []
-      newDoc.forEach(doc => { preparedDoc.push(this._prepareDocumentForInsertion(doc)) })
+      for (const doc of newDoc) { preparedDoc.push(this._prepareDocumentForInsertion(doc)) }
     } else {
-      preparedDoc = model.deepCopy(newDoc)
+      preparedDoc = deepCopy(newDoc)
       if (preparedDoc._id === undefined) preparedDoc._id = this._createNewId()
       const now = new Date()
       if (this.timestampData && preparedDoc.createdAt === undefined) preparedDoc.createdAt = now
       if (this.timestampData && preparedDoc.updatedAt === undefined) preparedDoc.updatedAt = now
-      model.checkObject(preparedDoc)
+      checkObject(preparedDoc)
     }
 
     return preparedDoc
@@ -857,7 +857,7 @@ class Datastore {
    * @async
    */
   findAsync (query, projection = {}) {
-    const cursor = new Cursor(this, query, docs => docs.map(doc => model.deepCopy(doc)))
+    const cursor = new Cursor(this, query, docs => docs.map(doc => deepCopy(doc)))
 
     cursor.projection(projection)
     return cursor
@@ -902,7 +902,7 @@ class Datastore {
    * @return {Cursor<document>}
    */
   findOneAsync (query, projection = {}) {
-    const cursor = new Cursor(this, query, docs => docs.length === 1 ? model.deepCopy(docs[0]) : null)
+    const cursor = new Cursor(this, query, docs => docs.length === 1 ? deepCopy(docs[0]) : null)
 
     cursor.projection(projection).limit(1)
     return cursor
@@ -954,13 +954,13 @@ class Datastore {
         let toBeInserted
 
         try {
-          model.checkObject(update)
+          checkObject(update)
           // updateQuery is a simple object with no modifier, use it as the document to insert
           toBeInserted = update
         } catch (e) {
           // updateQuery contains modifiers, use the find query as the base,
           // strip it from all operators and update it according to updateQuery
-          toBeInserted = model.modify(model.deepCopy(query, true), update)
+          toBeInserted = modify(deepCopy(query, true), update)
         }
         const newDoc = await this._insertAsync(toBeInserted)
         return { numAffected: 1, affectedDocuments: newDoc, upsert: true }
@@ -976,10 +976,10 @@ class Datastore {
     // Preparing update (if an error is thrown here neither the datafile nor
     // the in-memory indexes are affected)
     for (const candidate of candidates) {
-      if (model.match(candidate, query) && (multi || numReplaced === 0)) {
+      if (match(candidate, query) && (multi || numReplaced === 0)) {
         numReplaced += 1
         if (this.timestampData) { createdAt = candidate.createdAt }
-        modifiedDoc = model.modify(candidate, update)
+        modifiedDoc = modify(candidate, update)
         if (this.timestampData) {
           modifiedDoc.createdAt = createdAt
           modifiedDoc.updatedAt = new Date()
@@ -997,7 +997,7 @@ class Datastore {
     if (!options.returnUpdatedDocs) return { numAffected: numReplaced, upsert: false, affectedDocuments: null }
     else {
       let updatedDocsDC = []
-      updatedDocs.forEach(doc => { updatedDocsDC.push(model.deepCopy(doc)) })
+      for (const doc of updatedDocs) { updatedDocsDC.push(deepCopy(doc)) }
       if (!multi) updatedDocsDC = updatedDocsDC[0]
       return { numAffected: numReplaced, affectedDocuments: updatedDocsDC, upsert: false }
     }
@@ -1007,7 +1007,7 @@ class Datastore {
    * Callback version of {@link Datastore#updateAsync}.
    * @param {query} query
    * @param {document|*} update
-   * @param {Object|Datastore~updateCallback} [options|]
+   * @param {Object|Datastore~updateCallback} [options]
    * @param {boolean} [options.multi = false]
    * @param {boolean} [options.upsert = false]
    * @param {boolean} [options.returnUpdatedDocs = false]
@@ -1083,13 +1083,13 @@ class Datastore {
     const removedDocs = []
     let numRemoved = 0
 
-    candidates.forEach(d => {
-      if (model.match(d, query) && (multi || numRemoved === 0)) {
+    for (const d of candidates) {
+      if (match(d, query) && (multi || numRemoved === 0)) {
         numRemoved += 1
         removedDocs.push({ $$deleted: true, _id: d._id })
         this._removeFromIndexes(d)
       }
-    })
+    }
 
     await this.persistence.persistNewStateAsync(removedDocs)
     return numRemoved
@@ -1125,4 +1125,4 @@ class Datastore {
   }
 }
 
-module.exports = Datastore
+export default Datastore

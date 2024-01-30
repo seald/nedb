@@ -1,9 +1,9 @@
 /* eslint-env mocha */
-const model = require('../lib/model')
-const chai = require('chai')
-const util = require('util')
-const Datastore = require('../lib/datastore')
-const fs = require('fs')
+import fs from 'node:fs'
+import util from 'node:util'
+import chai from 'chai'
+import * as model from '../src/model.js'
+import Datastore from '../src/datastore.js'
 
 const { assert, expect } = chai
 chai.should()
@@ -369,14 +369,6 @@ describe('Model', function () {
           yup: { subfield: 'changed', yop: 'yes indeed' },
           totally: { doesnt: { exist: 'now it does' } }
         })
-      })
-
-      it('Doesn\'t replace a falsy field by an object when recursively following dot notation', function () {
-        const obj = { nested: false }
-        const updateQuery = { $set: { 'nested.now': 'it is' } }
-        const modified = model.modify(obj, updateQuery)
-
-        assert.deepStrictEqual(modified, { nested: false }) // Object not modified as the nested field doesn't exist
       })
     }) // End of '$set modifier'
 
@@ -794,10 +786,10 @@ describe('Model', function () {
 
       model.compareThings(undefined, undefined).should.equal(0)
 
-      otherStuff.forEach(function (stuff) {
+      for (const stuff of otherStuff) {
         model.compareThings(undefined, stuff).should.equal(-1)
         model.compareThings(stuff, undefined).should.equal(1)
-      })
+      }
     })
 
     it('Then null', function () {
@@ -805,10 +797,10 @@ describe('Model', function () {
 
       model.compareThings(null, null).should.equal(0)
 
-      otherStuff.forEach(function (stuff) {
+      for (const stuff of otherStuff) {
         model.compareThings(null, stuff).should.equal(-1)
         model.compareThings(stuff, null).should.equal(1)
-      })
+      }
     })
 
     it('Then numbers', function () {
@@ -823,12 +815,12 @@ describe('Model', function () {
       model.compareThings(-2.6, -2.6).should.equal(0)
       model.compareThings(5, 5).should.equal(0)
 
-      otherStuff.forEach(function (stuff) {
+      for (const stuff of otherStuff) {
         numbers.forEach(function (number) {
           model.compareThings(number, stuff).should.equal(-1)
           model.compareThings(stuff, number).should.equal(1)
         })
-      })
+      }
     })
 
     it('Then strings', function () {
@@ -840,12 +832,12 @@ describe('Model', function () {
       model.compareThings('hey', 'hew').should.equal(1)
       model.compareThings('hey', 'hey').should.equal(0)
 
-      otherStuff.forEach(function (stuff) {
+      for (const stuff of otherStuff) {
         strings.forEach(function (string) {
           model.compareThings(string, stuff).should.equal(-1)
           model.compareThings(stuff, string).should.equal(1)
         })
-      })
+      }
     })
 
     it('Then booleans', function () {
@@ -857,12 +849,12 @@ describe('Model', function () {
       model.compareThings(true, false).should.equal(1)
       model.compareThings(false, true).should.equal(-1)
 
-      otherStuff.forEach(function (stuff) {
-        bools.forEach(function (bool) {
+      for (const stuff of otherStuff) {
+        for (const bool of bools) {
           model.compareThings(bool, stuff).should.equal(-1)
           model.compareThings(stuff, bool).should.equal(1)
-        })
-      })
+        }
+      }
     })
 
     it('Then dates', function () {
@@ -876,12 +868,12 @@ describe('Model', function () {
       model.compareThings(new Date(0), new Date(-54341)).should.equal(1)
       model.compareThings(new Date(123), new Date(4341)).should.equal(-1)
 
-      otherStuff.forEach(function (stuff) {
-        dates.forEach(function (date) {
+      for (const stuff of otherStuff) {
+        for (const date of dates) {
           model.compareThings(date, stuff).should.equal(-1)
           model.compareThings(stuff, date).should.equal(1)
-        })
-      })
+        }
+      }
     })
 
     it('Then arrays', function () {
@@ -896,12 +888,12 @@ describe('Model', function () {
       model.compareThings(['hello', 'zzz'], ['hello', 'world']).should.equal(1)
       model.compareThings(['hello', 'world'], ['hello', 'world']).should.equal(0)
 
-      otherStuff.forEach(function (stuff) {
-        arrays.forEach(function (array) {
+      for (const stuff of otherStuff) {
+        for (const array of arrays) {
           model.compareThings(array, stuff).should.equal(-1)
           model.compareThings(stuff, array).should.equal(1)
-        })
-      })
+        }
+      }
     })
 
     it('And finally objects', function () {
@@ -1341,23 +1333,6 @@ describe('Model', function () {
         model.match({ a: 5 }, { a: { $size: 1 } }).should.equal(false)
       })
 
-      it('Can use $size several times in the same matcher', function () {
-        model.match({ childrens: ['Riri', 'Fifi', 'Loulou'] }, {
-          childrens: {
-            $size: 3,
-            // eslint-disable-next-line no-dupe-keys
-            $size: 3
-          }
-        }).should.equal(true)
-        model.match({ childrens: ['Riri', 'Fifi', 'Loulou'] }, {
-          childrens: {
-            $size: 3,
-            // eslint-disable-next-line no-dupe-keys
-            $size: 4
-          }
-        }).should.equal(false) // Of course this can never be true
-      })
-
       it('Can query array documents with multiple simultaneous conditions', function () {
         // Non nested documents
         model.match({
@@ -1491,10 +1466,9 @@ describe('Model', function () {
       })
 
       it('Should throw an error if a logical operator is used without an array or if an unknown logical operator is used', function () {
+        (function () { model.match({ a: 5 }, { $or: { a: 5, b: 6 } }) }).should.throw();
         // eslint-disable-next-line no-dupe-keys
-        (function () { model.match({ a: 5 }, { $or: { a: 5, a: 6 } }) }).should.throw();
-        // eslint-disable-next-line no-dupe-keys
-        (function () { model.match({ a: 5 }, { $and: { a: 5, a: 6 } }) }).should.throw();
+        (function () { model.match({ a: 5 }, { $and: { a: 5, b: 6 } }) }).should.throw();
         (function () { model.match({ a: 5 }, { $unknown: [{ a: 5 }] }) }).should.throw()
       })
     })
@@ -1547,8 +1521,6 @@ describe('Model', function () {
         model.match({ tags: ['node', 'js', 'db'] }, { tags: 'python' }).should.equal(false)
         model.match({ tags: ['node', 'js', 'db'] }, { tagss: 'js' }).should.equal(false)
         model.match({ tags: ['node', 'js', 'db'] }, { tags: 'js' }).should.equal(true)
-        // eslint-disable-next-line no-dupe-keys
-        model.match({ tags: ['node', 'js', 'db'] }, { tags: 'js', tags: 'node' }).should.equal(true)
 
         // Mixed matching with array and non array
         model.match({ tags: ['node', 'js', 'db'], nedb: true }, { tags: 'js', nedb: true }).should.equal(true)

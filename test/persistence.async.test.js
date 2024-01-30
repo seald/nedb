@@ -1,19 +1,19 @@
 /* eslint-env mocha */
+import { execFile, fork } from 'node:child_process'
+import { promisify } from 'node:util'
+import { once } from 'node:events'
+import { Readable } from 'node:stream'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import assert from 'node:assert/strict'
+import { wait } from './utils.test.js'
+import { exists } from './fsUtils.test.js'
+import * as model from '../src/model.js'
+import Datastore from '../src/datastore.js'
+import Persistence from '../src/persistence.js'
+import { ensureFileDoesntExistAsync, ensureDatafileIntegrityAsync } from '../src/storage.js'
+
 const testDb = 'workspace/test.db'
-const { promises: fs } = require('fs')
-const path = require('path')
-const assert = require('assert').strict
-const { exists } = require('./utils.test.js')
-const model = require('../lib/model')
-const Datastore = require('../lib/datastore')
-const Persistence = require('../lib/persistence')
-const storage = require('../lib/storage')
-const { execFile, fork } = require('child_process')
-const { promisify } = require('util')
-const { ensureFileDoesntExistAsync } = require('../lib/storage')
-const { once } = require('events')
-const { wait } = require('./utils.test')
-const Readable = require('stream').Readable
 
 describe('Persistence async', function () {
   let d
@@ -267,7 +267,7 @@ describe('Persistence async', function () {
     const data = (await fs.readFile(d.filename, 'utf8')).split('\n')
     let filledCount = 0
 
-    data.forEach(item => { if (item.length > 0) { filledCount += 1 } })
+    for (const item of data) { if (item.length > 0) { filledCount += 1 } }
     assert.equal(filledCount, 3)
 
     await d.loadDatabaseAsync()
@@ -276,7 +276,7 @@ describe('Persistence async', function () {
     const data2 = (await fs.readFile(d.filename, 'utf8')).split('\n')
     filledCount = 0
 
-    data2.forEach(function (item) { if (item.length > 0) { filledCount += 1 } })
+    for (const item of data2) { if (item.length > 0) { filledCount += 1 } }
     assert.equal(filledCount, 1)
   })
 
@@ -422,7 +422,7 @@ describe('Persistence async', function () {
 
     it('Declaring only one hook will throw an exception to prevent data loss', async () => {
       const hookTestFilename = 'workspace/hookTest.db'
-      await storage.ensureFileDoesntExistAsync(hookTestFilename)
+      await ensureFileDoesntExistAsync(hookTestFilename)
       await fs.writeFile(hookTestFilename, 'Some content', 'utf8')
       assert.throws(() => {
         // eslint-disable-next-line no-new
@@ -449,7 +449,7 @@ describe('Persistence async', function () {
 
     it('Declaring two hooks that are not reverse of one another will cause an exception to prevent data loss', async () => {
       const hookTestFilename = 'workspace/hookTest.db'
-      await storage.ensureFileDoesntExistAsync(hookTestFilename)
+      await ensureFileDoesntExistAsync(hookTestFilename)
       await fs.writeFile(hookTestFilename, 'Some content', 'utf8')
       assert.throws(() => {
         // eslint-disable-next-line no-new
@@ -467,7 +467,7 @@ describe('Persistence async', function () {
 
     it('Declaring two hooks that are not reverse of one another will not cause exception if options.testSerializationHooks === false', async () => {
       const hookTestFilename = 'workspace/hookTest.db'
-      await storage.ensureFileDoesntExistAsync(hookTestFilename)
+      await ensureFileDoesntExistAsync(hookTestFilename)
       await fs.writeFile(hookTestFilename, 'Some content', 'utf8')
       const db = new Datastore({
         filename: hookTestFilename,
@@ -481,7 +481,7 @@ describe('Persistence async', function () {
 
     it('A serialization hook can be used to transform data before writing new state to disk', async () => {
       const hookTestFilename = 'workspace/hookTest.db'
-      await storage.ensureFileDoesntExistAsync(hookTestFilename)
+      await ensureFileDoesntExistAsync(hookTestFilename)
       const d = new Datastore({
         filename: hookTestFilename,
         autoload: true,
@@ -549,7 +549,7 @@ describe('Persistence async', function () {
 
     it('Use serialization hook when persisting cached database or compacting', async () => {
       const hookTestFilename = 'workspace/hookTest.db'
-      await storage.ensureFileDoesntExistAsync(hookTestFilename)
+      await ensureFileDoesntExistAsync(hookTestFilename)
       const d = new Datastore({
         filename: hookTestFilename,
         autoload: true,
@@ -600,7 +600,7 @@ describe('Persistence async', function () {
 
     it('Deserialization hook is correctly used when loading data', async () => {
       const hookTestFilename = 'workspace/hookTest.db'
-      await storage.ensureFileDoesntExistAsync(hookTestFilename)
+      await ensureFileDoesntExistAsync(hookTestFilename)
       const d = new Datastore({
         filename: hookTestFilename,
         autoload: true,
@@ -656,7 +656,7 @@ describe('Persistence async', function () {
       assert.equal(await exists('workspace/it.db'), false)
       assert.equal(await exists('workspace/it.db~'), false)
 
-      await storage.ensureDatafileIntegrityAsync(p.filename)
+      await ensureDatafileIntegrityAsync(p.filename)
 
       assert.equal(await exists('workspace/it.db'), true)
       assert.equal(await exists('workspace/it.db~'), false)
@@ -675,7 +675,7 @@ describe('Persistence async', function () {
       assert.equal(await exists('workspace/it.db'), true)
       assert.equal(await exists('workspace/it.db~'), false)
 
-      await storage.ensureDatafileIntegrityAsync(p.filename)
+      await ensureDatafileIntegrityAsync(p.filename)
 
       assert.equal(await exists('workspace/it.db'), true)
       assert.equal(await exists('workspace/it.db~'), false)
@@ -694,7 +694,7 @@ describe('Persistence async', function () {
       assert.equal(await exists('workspace/it.db'), false)
       assert.equal(await exists('workspace/it.db~'), true)
 
-      await storage.ensureDatafileIntegrityAsync(p.filename)
+      await ensureDatafileIntegrityAsync(p.filename)
 
       assert.equal(await exists('workspace/it.db'), true)
       assert.equal(await exists('workspace/it.db~'), false)
@@ -715,7 +715,7 @@ describe('Persistence async', function () {
       assert.equal(await exists('workspace/it.db'), true)
       assert.equal(await exists('workspace/it.db~'), true)
 
-      await storage.ensureDatafileIntegrityAsync(theDb.persistence.filename)
+      await ensureDatafileIntegrityAsync(theDb.persistence.filename)
 
       assert.equal(await exists('workspace/it.db'), true)
       assert.equal(await exists('workspace/it.db~'), true)
@@ -812,8 +812,8 @@ describe('Persistence async', function () {
     it('Persistence works as expected when everything goes fine', async () => {
       const dbFile = 'workspace/test2.db'
 
-      await storage.ensureFileDoesntExistAsync(dbFile)
-      await storage.ensureFileDoesntExistAsync(dbFile + '~')
+      await ensureFileDoesntExistAsync(dbFile)
+      await ensureFileDoesntExistAsync(dbFile + '~')
 
       const theDb = new Datastore({ filename: dbFile })
       await theDb.loadDatabaseAsync()
@@ -872,7 +872,7 @@ describe('Persistence async', function () {
       assert(datafileLength > 5000)
 
       // Loading it in a separate process that we will crash before finishing the loadDatabase
-      const child = fork('test_lac/loadAndCrash.test', [], { stdio: 'inherit' })
+      const child = fork('test_lac/loadAndCrash.test.cjs', [], { stdio: 'inherit' })
       const [code] = await once(child, 'exit')
       assert.equal(code, 1) // See test_lac/loadAndCrash.test.js
 
@@ -900,7 +900,7 @@ describe('Persistence async', function () {
     // Not run on Windows as there is no clean way to set maximum file descriptors. Not an issue as the code itself is tested.
     it('Cannot cause EMFILE errors by opening too many file descriptors', async function () {
       this.timeout(10000)
-      if (process.platform === 'win32' || process.platform === 'win64') { return }
+      if (process.platform === 'win32' || process.platform === 'win64') { this.skip() }
       try {
         const { stdout, stderr } = await promisify(execFile)('test_lac/openFdsLaunch.sh')
         // The subprocess will not output anything to stdout unless part of the test fails
@@ -919,7 +919,7 @@ describe('Persistence async', function () {
 
   describe('ensureFileDoesntExist', function () {
     it('Doesnt do anything if file already doesnt exist', async () => {
-      await storage.ensureFileDoesntExistAsync('workspace/nonexisting')
+      await ensureFileDoesntExistAsync('workspace/nonexisting')
       assert.equal(await exists('workspace/nonexisting'), false)
     })
 
@@ -927,7 +927,7 @@ describe('Persistence async', function () {
       await fs.writeFile('workspace/existing', 'hello world', 'utf8')
       assert.equal(await exists('workspace/existing'), true)
 
-      await storage.ensureFileDoesntExistAsync('workspace/existing')
+      await ensureFileDoesntExistAsync('workspace/existing')
       assert.equal(await exists('workspace/existing'), false)
     })
   }) // ==== End of 'ensureFileDoesntExist' ====

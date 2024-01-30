@@ -45,4 +45,4 @@ class Waterfall {
   }
 }
 
-module.exports = Waterfall
+export default Waterfall

@@ -1,17 +1,18 @@
 /* eslint-env mocha */
-const chai = require('chai')
+
+import { callbackify } from 'node:util'
+import fs from 'node:fs'
+import { Readable } from 'node:stream'
+import { execFile, fork } from 'node:child_process'
+import chai from 'chai'
+import { apply, waterfall } from './utils.test.js'
+import { existsCallback } from './fsUtils.test.js'
+import * as model from '../src/model.js'
+import Datastore from '../src/datastore.js'
+import Persistence from '../src/persistence.js'
+import { ensureFileDoesntExistAsync, ensureDatafileIntegrityAsync } from '../src/storage.js'
+
 const testDb = 'workspace/test.db'
-const fs = require('fs')
-const { apply, waterfall } = require('./utils.test.js')
-const model = require('../lib/model')
-const Datastore = require('../lib/datastore')
-const Persistence = require('../lib/persistence')
-const storage = require('../lib/storage')
-const { execFile, fork } = require('child_process')
-const { callbackify } = require('util')
-const { existsCallback } = require('./utils.test')
-const { ensureFileDoesntExistAsync } = require('../lib/storage')
-const Readable = require('stream').Readable
 
 const { assert } = chai
 chai.should()
@@ -304,7 +305,7 @@ describe('Persistence', function () {
           const data = fs.readFileSync(d.filename, 'utf8').split('\n')
           let filledCount = 0
 
-          data.forEach(function (item) { if (item.length > 0) { filledCount += 1 } })
+          for (const item of data) { if (item.length > 0) { filledCount += 1 } }
           filledCount.should.equal(3)
 
           d.loadDatabase(function (err) {
@@ -314,7 +315,7 @@ describe('Persistence', function () {
             const data = fs.readFileSync(d.filename, 'utf8').split('\n')
             let filledCount = 0
 
-            data.forEach(function (item) { if (item.length > 0) { filledCount += 1 } })
+            for (const item of data) { if (item.length > 0) { filledCount += 1 } }
             filledCount.should.equal(1)
 
             done()
@@ -467,7 +468,7 @@ describe('Persistence', function () {
 
     it('Declaring only one hook will throw an exception to prevent data loss', function (done) {
       const hookTestFilename = 'workspace/hookTest.db'
-      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
+      callbackify(ensureFileDoesntExistAsync)(hookTestFilename, function () {
         fs.writeFileSync(hookTestFilename, 'Some content', 'utf8');
 
         (function () {
@@ -500,7 +501,7 @@ describe('Persistence', function () {
 
     it('Declaring two hooks that are not reverse of one another will cause an exception to prevent data loss', function (done) {
       const hookTestFilename = 'workspace/hookTest.db'
-      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
+      callbackify(ensureFileDoesntExistAsync)(hookTestFilename, function () {
         fs.writeFileSync(hookTestFilename, 'Some content', 'utf8');
 
         (function () {
@@ -522,7 +523,7 @@ describe('Persistence', function () {
 
     it('A serialization hook can be used to transform data before writing new state to disk', function (done) {
       const hookTestFilename = 'workspace/hookTest.db'
-      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
+      callbackify(ensureFileDoesntExistAsync)(hookTestFilename, function () {
         const d = new Datastore({
           filename: hookTestFilename,
           autoload: true,
@@ -599,7 +600,7 @@ describe('Persistence', function () {
 
     it('Use serialization hook when persisting cached database or compacting', function (done) {
       const hookTestFilename = 'workspace/hookTest.db'
-      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
+      callbackify(ensureFileDoesntExistAsync)(hookTestFilename, function () {
         const d = new Datastore({
           filename: hookTestFilename,
           autoload: true,
@@ -659,7 +660,7 @@ describe('Persistence', function () {
 
     it('Deserialization hook is correctly used when loading data', function (done) {
       const hookTestFilename = 'workspace/hookTest.db'
-      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
+      callbackify(ensureFileDoesntExistAsync)(hookTestFilename, function () {
         const d = new Datastore({
           filename: hookTestFilename,
           autoload: true,
@@ -727,7 +728,7 @@ describe('Persistence', function () {
       fs.existsSync('workspace/it.db').should.equal(false)
       fs.existsSync('workspace/it.db~').should.equal(false)
 
-      callbackify(storage.ensureDatafileIntegrityAsync)(p.filename, function (err) {
+      callbackify(ensureDatafileIntegrityAsync)(p.filename, function (err) {
         assert.isNull(err)
 
         fs.existsSync('workspace/it.db').should.equal(true)
@@ -750,7 +751,7 @@ describe('Persistence', function () {
       fs.existsSync('workspace/it.db').should.equal(true)
       fs.existsSync('workspace/it.db~').should.equal(false)
 
-      callbackify(storage.ensureDatafileIntegrityAsync)(p.filename, function (err) {
+      callbackify(ensureDatafileIntegrityAsync)(p.filename, function (err) {
         assert.isNull(err)
 
         fs.existsSync('workspace/it.db').should.equal(true)
@@ -773,7 +774,7 @@ describe('Persistence', function () {
       fs.existsSync('workspace/it.db').should.equal(false)
       fs.existsSync('workspace/it.db~').should.equal(true)
 
-      callbackify(storage.ensureDatafileIntegrityAsync)(p.filename, function (err) {
+      callbackify(ensureDatafileIntegrityAsync)(p.filename, function (err) {
         assert.isNull(err)
 
         fs.existsSync('workspace/it.db').should.equal(true)
@@ -798,7 +799,7 @@ describe('Persistence', function () {
       fs.existsSync('workspace/it.db').should.equal(true)
       fs.existsSync('workspace/it.db~').should.equal(true)
 
-      callbackify(storage.ensureDatafileIntegrityAsync)(theDb.persistence.filename, function (err) {
+      callbackify(ensureDatafileIntegrityAsync)(theDb.persistence.filename, function (err) {
         assert.isNull(err)
 
         fs.existsSync('workspace/it.db').should.equal(true)
@@ -925,8 +926,8 @@ describe('Persistence', function () {
       let theDb, theDb2, doc1, doc2
 
       waterfall([
-        apply(callbackify(storage.ensureFileDoesntExistAsync), dbFile),
-        apply(callbackify(storage.ensureFileDoesntExistAsync), dbFile + '~'),
+        apply(callbackify(ensureFileDoesntExistAsync), dbFile),
+        apply(callbackify(ensureFileDoesntExistAsync), dbFile + '~'),
         function (cb) {
           theDb = new Datastore({ filename: dbFile })
           theDb.loadDatabase(cb)
@@ -1019,7 +1020,7 @@ describe('Persistence', function () {
       assert(datafileLength > 5000)
 
       // Loading it in a separate process that we will crash before finishing the loadDatabase
-      fork('test_lac/loadAndCrash.test').on('exit', function (code) {
+      fork('test_lac/loadAndCrash.test.cjs').on('exit', function (code) {
         code.should.equal(1) // See test_lac/loadAndCrash.test.js
 
         fs.existsSync('workspace/lac.db').should.equal(true)

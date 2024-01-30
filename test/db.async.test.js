@@ -1,12 +1,14 @@
 /* eslint-env mocha */
+import fs from 'node:fs/promises'
+import assert from 'node:assert/strict'
+import * as model from '../src/model.js'
+import Datastore from '../src/datastore.js'
+import Persistence from '../src/persistence.js'
+import { wait } from './utils.test.js'
+import { exists } from './fsUtils.test.js'
+
 const testDb = 'workspace/test.db'
-const { promises: fs } = require('fs')
-const assert = require('assert').strict
-const model = require('../lib/model')
-const Datastore = require('../lib/datastore')
-const Persistence = require('../lib/persistence')
-const { wait } = require('./utils.test')
-const { exists } = require('./utils.test.js')
+
 const reloadTimeUpperBound = 200 // In ms, an upper bound for the reload time used to check createdAt and updatedAt
 
 describe('Database async', function () {

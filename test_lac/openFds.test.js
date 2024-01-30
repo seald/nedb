@@ -1,6 +1,5 @@
-const fs = require('fs')
-const fsPromises = fs.promises
-const Nedb = require('../lib/datastore')
+import fsPromises from 'node:fs/promises'
+import Nedb from '../src/datastore.js'
 const N = 64
 
 // A console.error triggers an error of the parent test

@@ -1,5 +1,5 @@
-const model = require('./model.js')
-const { callbackify } = require('./customUtils.js')
+import { getDotValue, modify, match, compareThings } from './model.js'
+import { callbackify } from './customUtils.js'
 
 /**
  * Has a callback
@@ -127,30 +127,30 @@ class Cursor {
 
     // Check for consistency
     const keys = Object.keys(this._projection)
-    keys.forEach(k => {
+    for (const k of keys) {
       if (action !== undefined && this._projection[k] !== action) throw new Error('Can\'t both keep and omit fields except for _id')
       action = this._projection[k]
-    })
+    }
 
     // Do the actual projection
-    candidates.forEach(candidate => {
+    for (const candidate of candidates) {
       let toPush
       if (action === 1) { // pick-type projection
         toPush = { $set: {} }
-        keys.forEach(k => {
-          toPush.$set[k] = model.getDotValue(candidate, k)
+        for (const k of keys) {
+          toPush.$set[k] = getDotValue(candidate, k)
           if (toPush.$set[k] === undefined) delete toPush.$set[k]
-        })
-        toPush = model.modify({}, toPush)
+        }
+        toPush = modify({}, toPush)
       } else { // omit-type projection
         toPush = { $unset: {} }
-        keys.forEach(k => { toPush.$unset[k] = true })
-        toPush = model.modify(candidate, toPush)
+        for (const k of keys) { toPush.$unset[k] = true }
+        toPush = modify(candidate, toPush)
       }
       if (keepId) toPush._id = candidate._id
       else delete toPush._id
       res.push(toPush)
-    })
+    }
 
     return res
   }
@@ -168,9 +168,8 @@ class Cursor {
     let skipped = 0
 
     const candidates = await this.db._getCandidatesAsync(this.query)
-
     for (const candidate of candidates) {
-      if (model.match(candidate, this.query)) {
+      if (match(candidate, this.query)) {
         // If a sort is defined, wait for the results to be sorted before applying limit and skip
         if (!this._sort) {
           if (this._skip && this._skip > skipped) skipped += 1
@@ -189,7 +188,7 @@ class Cursor {
       const criteria = Object.entries(this._sort).map(([key, direction]) => ({ key, direction }))
       res.sort((a, b) => {
         for (const criterion of criteria) {
-          const compare = criterion.direction * model.compareThings(model.getDotValue(a, criterion.key), model.getDotValue(b, criterion.key), this.db.compareStrings)
+          const compare = criterion.direction * compareThings(getDotValue(a, criterion.key), getDotValue(b, criterion.key), this.db.compareStrings)
           if (compare !== 0) return compare
         }
         return 0
@@ -247,4 +246,4 @@ class Cursor {
 }
 
 // Interface
-module.exports = Cursor
+export default Cursor

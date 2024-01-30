@@ -19,33 +19,37 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-const chai = require('chai')
-const fs = require('fs')
-const path = require('path')
-const byline = require('../lib/byline')
+import chai from 'chai'
+import { createReadStream, createWriteStream, readFileSync, unlinkSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { Buffer } from 'node:buffer'
+import byline from '../src/byline.js'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const { assert } = chai
 
 const regEx = /\r\n|[\n\v\f\r\x85\u2028\u2029]/g
-const localPath = file => path.join(__dirname, 'byline', file)
+const localPath = file => join(__dirname, 'byline', file)
 
 describe('byline', function () {
   it('should pipe a small file', function (done) {
-    const input = fs.createReadStream(localPath('empty.txt'))
-    const lineStream = byline(input) // convinience API
-    const output = fs.createWriteStream(localPath('test.txt'))
+    const input = createReadStream(localPath('empty.txt'))
+    const lineStream = byline(input) // convenience API
+    const output = createWriteStream(localPath('test.txt'))
     lineStream.pipe(output)
     output.on('close', function () {
-      const out = fs.readFileSync(localPath('test.txt'), 'utf8')
-      const in_ = fs.readFileSync(localPath('empty.txt'), 'utf8').replace(/\r?\n/g, '')
+      const out = readFileSync(localPath('test.txt'), 'utf8')
+      const in_ = readFileSync(localPath('empty.txt'), 'utf8').replace(/\r?\n/g, '')
       assert.equal(in_, out)
-      fs.unlinkSync(localPath('test.txt'))
+      unlinkSync(localPath('test.txt'))
       done()
     })
   })
 
   it('should work with streams2 API', function (done) {
-    let stream = fs.createReadStream(localPath('empty.txt'))
+    let stream = createReadStream(localPath('empty.txt'))
     stream = byline(stream)
 
     stream.on('readable', function () {
@@ -60,7 +64,7 @@ describe('byline', function () {
   })
 
   it('should ignore empty lines by default', function (done) {
-    const input = fs.createReadStream(localPath('empty.txt'))
+    const input = createReadStream(localPath('empty.txt'))
     const lineStream = byline(input)
     lineStream.setEncoding('utf8')
 
@@ -70,7 +74,7 @@ describe('byline', function () {
     })
 
     lineStream.on('end', function () {
-      let lines2 = fs.readFileSync(localPath('empty.txt'), 'utf8').split(regEx)
+      let lines2 = readFileSync(localPath('empty.txt'), 'utf8').split(regEx)
       lines2 = lines2.filter(function (line) {
         return line.length > 0
       })
@@ -80,7 +84,7 @@ describe('byline', function () {
   })
 
   it('should keep empty lines when keepEmptyLines is true', function (done) {
-    const input = fs.createReadStream(localPath('empty.txt'))
+    const input = createReadStream(localPath('empty.txt'))
     const lineStream = byline(input, { keepEmptyLines: true })
     lineStream.setEncoding('utf8')
 
@@ -96,7 +100,7 @@ describe('byline', function () {
   })
 
   it('should not split a CRLF which spans two chunks', function (done) {
-    const input = fs.createReadStream(localPath('CRLF.txt'))
+    const input = createReadStream(localPath('CRLF.txt'))
     const lineStream = byline(input, { keepEmptyLines: true })
     lineStream.setEncoding('utf8')
 
@@ -121,11 +125,11 @@ describe('byline', function () {
   })
 
   function readFile (filename, done) {
-    const input = fs.createReadStream(filename)
+    const input = createReadStream(filename)
     const lineStream = byline(input)
     lineStream.setEncoding('utf8')
 
-    let lines2 = fs.readFileSync(filename, 'utf8').split(regEx)
+    let lines2 = readFileSync(filename, 'utf8').split(regEx)
     lines2 = lines2.filter(function (line) {
       return line.length > 0
     })
@@ -158,11 +162,11 @@ describe('byline', function () {
   })
 
   it('should pause() and resume() with a huge file', function (done) {
-    const input = fs.createReadStream(localPath('rfc_huge.txt'))
+    const input = createReadStream(localPath('rfc_huge.txt'))
     const lineStream = byline(input)
     lineStream.setEncoding('utf8')
 
-    let lines2 = fs.readFileSync(localPath('rfc_huge.txt'), 'utf8').split(regEx)
+    let lines2 = readFileSync(localPath('rfc_huge.txt'), 'utf8').split(regEx)
     lines2 = lines2.filter(function (line) {
       return line.length > 0
     })
@@ -193,8 +197,8 @@ describe('byline', function () {
   })
 
   function areStreamsEqualTypes (options, callback) {
-    const fsStream = fs.createReadStream(localPath('empty.txt'), options)
-    const lineStream = byline(fs.createReadStream(localPath('empty.txt'), options))
+    const fsStream = createReadStream(localPath('empty.txt'), options)
+    const lineStream = byline(createReadStream(localPath('empty.txt'), options))
     fsStream.on('data', function (data1) {
       lineStream.on('data', function (data2) {
         assert.equal(Buffer.isBuffer(data1), Buffer.isBuffer(data2))

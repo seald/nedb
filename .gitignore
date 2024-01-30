@@ -24,6 +24,6 @@ browser-version/node_modules
 *~
 *.swo
 
-browser-version/out
 test-results
 typings-tests.js
+cjs/*

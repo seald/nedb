@@ -8,8 +8,8 @@
  * @private
  */
 
-const AsyncStorage = require('@react-native-async-storage/async-storage').default
-const { callbackify } = require('./customUtils')
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { callbackify } from '../customUtils'
 
 /**
  * Async version of {@link module:storageReactNative.exists}.
@@ -264,32 +264,16 @@ const crashSafeWriteFileLines = callbackify(crashSafeWriteFileLinesAsync)
  */
 const ensureParentDirectoryExistsAsync = async (file, mode) => Promise.resolve()
 
-// Interface
-module.exports.exists = exists
-module.exports.existsAsync = existsAsync
+const readFileStream = false
 
-module.exports.rename = rename
-module.exports.renameAsync = renameAsync
-
-module.exports.writeFile = writeFile
-module.exports.writeFileAsync = writeFileAsync
-
-module.exports.crashSafeWriteFileLines = crashSafeWriteFileLines
-module.exports.crashSafeWriteFileLinesAsync = crashSafeWriteFileLinesAsync
-
-module.exports.appendFile = appendFile
-module.exports.appendFileAsync = appendFileAsync
-
-module.exports.readFile = readFile
-module.exports.readFileAsync = readFileAsync
-
-module.exports.unlink = unlink
-module.exports.unlinkAsync = unlinkAsync
-
-module.exports.mkdir = mkdir
-module.exports.mkdirAsync = mkdirAsync
-
-module.exports.ensureDatafileIntegrity = ensureDatafileIntegrity
-module.exports.ensureDatafileIntegrityAsync = ensureDatafileIntegrityAsync
-
-module.exports.ensureParentDirectoryExistsAsync = ensureParentDirectoryExistsAsync
+export {
+  appendFileAsync,
+  crashSafeWriteFileLinesAsync,
+  ensureDatafileIntegrityAsync,
+  ensureParentDirectoryExistsAsync,
+  existsAsync,
+  readFileAsync,
+  readFileStream,
+  unlinkAsync,
+  mkdirAsync,
+}

@@ -8,7 +8,7 @@
  * @private
  */
 
-const localforage = require('localforage')
+import localforage from 'localforage'
 
 // Configure localforage to display NeDB name for now. Would be a good idea to let user use his own app name
 const store = localforage.createInstance({
@@ -169,23 +169,17 @@ const crashSafeWriteFileLinesAsync = async (filename, lines) => {
   await writeFileAsync(filename, lines.join('\n'))
 }
 
+const readFileStream = false
+
 // Interface
-module.exports.existsAsync = existsAsync
-
-module.exports.renameAsync = renameAsync
-
-module.exports.writeFileAsync = writeFileAsync
-
-module.exports.crashSafeWriteFileLinesAsync = crashSafeWriteFileLinesAsync
-
-module.exports.appendFileAsync = appendFileAsync
-
-module.exports.readFileAsync = readFileAsync
-
-module.exports.unlinkAsync = unlinkAsync
-
-module.exports.mkdirAsync = mkdirAsync
-
-module.exports.ensureDatafileIntegrityAsync = ensureDatafileIntegrityAsync
-
-module.exports.ensureParentDirectoryExistsAsync = ensureParentDirectoryExistsAsync
+export {
+  appendFileAsync,
+  crashSafeWriteFileLinesAsync,
+  ensureDatafileIntegrityAsync,
+  ensureParentDirectoryExistsAsync,
+  existsAsync,
+  readFileAsync,
+  readFileStream,
+  unlinkAsync,
+  mkdirAsync,
+}

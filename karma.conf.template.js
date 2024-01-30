@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = (config) => ({
+export default (config) => ({
   // Increase timeout in case connection in CI is slow
   captureTimeout: 120000,
   browserNoActivityTimeout: 300000,
@@ -14,8 +14,8 @@ module.exports = (config) => ({
   // list of files / patterns to load in the browser
   files: [
     'node_modules/localforage/dist/localforage.min.js',
-    'browser-version/out/testutils.min.js',
-    'browser-version/out/nedb.min.js',
+    'testutils.min.js',
+    'nedb.min.js',
     'test/browser/nedb-browser.spec.js',
     'test/browser/load.spec.js'
   ],

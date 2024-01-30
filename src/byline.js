@@ -23,9 +23,9 @@
  * @module byline
  * @private
  */
-const stream = require('stream')
-const timers = require('timers')
-const { Buffer } = require('buffer')
+import stream from 'node:stream'
+import timers from 'node:timers'
+import { Buffer } from 'node:buffer'
 
 const createLineStream = (readStream, options) => {
   if (!readStream) throw new Error('expected readStream')
@@ -115,4 +115,4 @@ class LineStream extends stream.Transform {
   }
 }
 
-module.exports = createLineStream
+export default createLineStream

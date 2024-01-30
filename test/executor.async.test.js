@@ -1,10 +1,11 @@
 /* eslint-env mocha */
+import fs from 'node:fs/promises'
+import assert from 'node:assert/strict'
+import Datastore from '../src/datastore.js'
+import Persistence from '../src/persistence.js'
+import { exists } from './fsUtils.test.js'
+
 const testDb = 'workspace/test.db'
-const { promises: fs } = require('fs')
-const assert = require('assert').strict
-const Datastore = require('../lib/datastore')
-const Persistence = require('../lib/persistence')
-const { exists } = require('./utils.test.js')
 
 // Test that operations are executed in the right order
 // We prevent Mocha from catching the exception we throw on purpose by remembering all current handlers, remove them and register them back after test ends

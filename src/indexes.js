@@ -1,6 +1,6 @@
-const BinarySearchTree = require('@seald-io/binary-search-tree').AVLTree
-const model = require('./model.js')
-const { uniq, isDate } = require('./utils.js')
+import { AVLTree as BinarySearchTree } from '@seald-io/binary-search-tree'
+import { compareThings, getDotValues } from './model.js'
+import { isDate, uniq } from './utils.js'
 
 /**
  * Two indexed pointers are equal if they point to the same place
@@ -73,7 +73,7 @@ class Index {
      * Options object given to the underlying BinarySearchTree.
      * @type {{unique: boolean, checkValueEquality: (function(*, *): boolean), compareKeys: ((function(*, *, compareStrings): (number|number))|*)}}
      */
-    this.treeOptions = { unique: this.unique, compareKeys: model.compareThings, checkValueEquality }
+    this.treeOptions = { unique: this.unique, compareKeys: compareThings, checkValueEquality }
 
     /**
      * Underlying BinarySearchTree for this index. Uses an AVLTree for optimization.
@@ -109,7 +109,7 @@ class Index {
       return
     }
 
-    const key = model.getDotValues(doc, this._fields)
+    const key = getDotValues(doc, this._fields)
 
     // We don't index documents that don't contain the field if the index is sparse
     if ((key === undefined || (typeof key === 'object' && key !== null && Object.values(key).every(el => el === undefined))) && this.sparse) return
@@ -177,19 +177,19 @@ class Index {
    */
   remove (doc) {
     if (Array.isArray(doc)) {
-      doc.forEach(d => { this.remove(d) })
+      for (const d of doc) { this.remove(d) }
       return
     }
 
-    const key = model.getDotValues(doc, this._fields)
+    const key = getDotValues(doc, this._fields)
     if (key === undefined && this.sparse) return
 
     if (!Array.isArray(key)) {
       this.tree.delete(key, doc)
     } else {
-      uniq(key, projectForUnique).forEach(_key => {
+      for (const _key of uniq(key, projectForUnique)) {
         this.tree.delete(_key, doc)
-      })
+      }
     }
   }
 
@@ -268,9 +268,9 @@ class Index {
 
     if (!Array.isArray(oldDoc)) this.update(newDoc, oldDoc)
     else {
-      oldDoc.forEach(pair => {
+      for (const pair of oldDoc) {
         revert.push({ oldDoc: pair.newDoc, newDoc: pair.oldDoc })
-      })
+      }
       this.update(revert)
     }
   }
@@ -286,15 +286,15 @@ class Index {
       const _res = {}
       const res = []
 
-      value.forEach(v => {
-        this.getMatching(v).forEach(doc => {
+      for (const v of value) {
+        for (const doc of this.getMatching(v)) {
           _res[doc._id] = doc
-        })
-      })
+        }
+      }
 
-      Object.keys(_res).forEach(_id => {
+      for (const _id of Object.keys(_res)) {
         res.push(_res[_id])
-      })
+      }
 
       return res
     }
@@ -330,4 +330,4 @@ class Index {
 }
 
 // Interface
-module.exports = Index
+export default Index

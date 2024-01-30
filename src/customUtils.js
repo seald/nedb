@@ -4,9 +4,13 @@
  * @module customUtilsNode
  * @private
  */
-const crypto = require('crypto')
-const { callbackify } = require('util')
+import { randomBytes } from 'crypto'
+import { callbackify } from 'util'
 
+// Must use an intermediary variable, otherwise Rollup imports callbackify from util directly
+// (along with crypto somehow) in files importing customUtils.
+
+const _callbackify = callbackify
 /**
  * Return a random alphanumerical string of length len
  * There is a very small probability (less than 1/1,000,000) for the length to be less than len
@@ -18,12 +22,9 @@ const { callbackify } = require('util')
  * @return {string}
  * @alias module:customUtilsNode.uid
  */
-const uid = len => crypto.randomBytes(Math.ceil(Math.max(8, len * 2)))
+const uid = len => randomBytes(Math.ceil(Math.max(8, len * 2)))
   .toString('base64')
   .replace(/[+/]/g, '')
   .slice(0, len)
 
-// Interface
-module.exports.uid = uid
-
-module.exports.callbackify = callbackify
+export { uid, _callbackify as callbackify }

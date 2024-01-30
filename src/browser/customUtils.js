@@ -73,7 +73,7 @@ const byteArrayToBase64 = uint8 => {
  */
 const uid = len => byteArrayToBase64(randomBytes(Math.ceil(Math.max(8, len * 2)))).replace(/[+/]/g, '').slice(0, len)
 
-module.exports.uid = uid
+export { uid }
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -162,4 +162,5 @@ function callbackify (original) {
     getOwnPropertyDescriptors(original))
   return callbackified
 }
-module.exports.callbackify = callbackify
+
+export { callbackify }

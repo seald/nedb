@@ -1,6 +1,6 @@
 /* eslint-env mocha */
-const Index = require('../lib/indexes')
-const chai = require('chai')
+import chai from 'chai'
+import Index from '../src/indexes.js'
 
 const { assert } = chai
 chai.should()

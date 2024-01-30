@@ -1,3 +1,3 @@
-const browserResolve = require('browser-resolve')
+import browserResolve from 'browser-resolve'
 
-module.exports = (id, opts) => browserResolve.sync(id, { ...opts, browser: 'react-native' })
+export default (id, opts) => browserResolve.sync(id, { ...opts, browser: 'react-native' })

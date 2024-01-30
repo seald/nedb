@@ -1,11 +1,12 @@
 /* eslint-env mocha */
-const chai = require('chai')
+import fs from 'node:fs'
+import { callbackify } from 'node:util'
+import chai from 'chai'
+import { waterfall } from './utils.test.js'
+import Datastore from '../src/datastore.js'
+import Persistence from '../src/persistence.js'
+
 const testDb = 'workspace/test.db'
-const fs = require('fs')
-const { waterfall } = require('./utils.test.js')
-const Datastore = require('../lib/datastore')
-const Persistence = require('../lib/persistence')
-const { callbackify } = require('util')
 
 const { assert } = chai
 chai.should()

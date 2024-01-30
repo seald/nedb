@@ -1,9 +1,12 @@
 'use strict'
 
-const path = require('path')
-const webpack = require('webpack')
+import { dirname, resolve, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import webpack from 'webpack'
 
-module.exports = (env, argv) => {
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
+export default (env, argv) => {
   const minimize = argv.env.minimize || false
 
   const baseConfig = {
@@ -15,7 +18,7 @@ module.exports = (env, argv) => {
       minimize
     },
     output: {
-      path: path.join(__dirname, 'browser-version/out'),
+      path: __dirname,
       filename: pathData => `${pathData.chunk.name.toLowerCase()}${minimize ? '.min' : ''}.js`,
       libraryTarget: 'window',
       library: '[name]'
@@ -23,9 +26,9 @@ module.exports = (env, argv) => {
   }
 
   const pluginsNedb = [
-    new webpack.NormalModuleReplacementPlugin(new RegExp(path.resolve(__dirname, 'lib/storage.js')), path.resolve(__dirname, 'browser-version/lib/storage.browser.js')),
-    new webpack.NormalModuleReplacementPlugin(new RegExp(path.resolve(__dirname, 'lib/customUtils.js')), path.resolve(__dirname, 'browser-version/lib/customUtils.js')),
-    new webpack.NormalModuleReplacementPlugin(/byline/, path.resolve(__dirname, 'browser-version/lib/byline.js'))
+    new webpack.NormalModuleReplacementPlugin(new RegExp(resolve(__dirname, 'src/storage.js')), resolve(__dirname, 'src/browser/storage.browser.js')),
+    new webpack.NormalModuleReplacementPlugin(new RegExp(resolve(__dirname, 'src/customUtils.js')), resolve(__dirname, 'src/browser/customUtils.js')),
+    new webpack.NormalModuleReplacementPlugin(new RegExp(resolve(__dirname, 'src/byline.js')), resolve(__dirname, 'src/browser/byline.js'))
   ]
 
   const polyfillPlugins = [
@@ -43,7 +46,7 @@ module.exports = (env, argv) => {
       name: 'Nedb',
       plugins: pluginsNedb,
       entry: {
-        Nedb: path.join(__dirname, 'lib', 'datastore.js')
+        Nedb: join(__dirname, 'src', 'datastore.js')
       }
     },
     {
@@ -53,13 +56,13 @@ module.exports = (env, argv) => {
       resolve: {
         fallback: {
           fs: false,
-          path: require.resolve('path-browserify'),
-          util: require.resolve('util/'),
+          path: import.meta.resolve('path-browserify'),
+          util: import.meta.resolve('util/'),
           crypto: false
         }
       },
       entry: {
-        testUtils: path.join(__dirname, 'test', 'utils.test.js')
+        testUtils: join(__dirname, 'test', 'utils.test.js')
       }
     }
   ]

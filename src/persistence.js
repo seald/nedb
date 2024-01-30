@@ -1,8 +1,17 @@
-const byline = require('./byline')
-const customUtils = require('./customUtils.js')
-const Index = require('./indexes.js')
-const model = require('./model.js')
-const storage = require('./storage.js')
+import byline from './byline.js'
+import { uid } from './customUtils.js'
+import Index from './indexes.js'
+import { serialize, deserialize } from './model.js'
+import {
+  appendFileAsync,
+  crashSafeWriteFileLinesAsync,
+  ensureDatafileIntegrityAsync,
+  ensureParentDirectoryExistsAsync,
+  existsAsync,
+  readFileAsync,
+  readFileStream,
+  unlinkAsync,
+} from './storage.js'
 
 const DEFAULT_DIR_MODE = 0o755
 const DEFAULT_FILE_MODE = 0o644
@@ -54,7 +63,12 @@ class Persistence {
     this.inMemoryOnly = this.db.inMemoryOnly
     this.filename = this.db.filename
     this.corruptAlertThreshold = options.corruptAlertThreshold !== undefined ? options.corruptAlertThreshold : 0.1
-    this.modes = options.modes !== undefined ? options.modes : { fileMode: DEFAULT_FILE_MODE, dirMode: DEFAULT_DIR_MODE }
+    this.modes = options.modes !== undefined
+      ? options.modes
+      : {
+        fileMode: DEFAULT_FILE_MODE,
+        dirMode: DEFAULT_DIR_MODE
+      }
     if (this.modes.fileMode === undefined) this.modes.fileMode = DEFAULT_FILE_MODE
     if (this.modes.dirMode === undefined) this.modes.dirMode = DEFAULT_DIR_MODE
     if (
@@ -79,7 +93,7 @@ class Persistence {
     if (options.testSerializationHooks === undefined || options.testSerializationHooks) {
       for (let i = 1; i < 30; i += 1) {
         for (let j = 0; j < 10; j += 1) {
-          const randomString = customUtils.uid(i)
+          const randomString = uid(i)
           if (this.beforeDeserialization(this.afterSerialization(randomString)) !== randomString) {
             throw new Error('beforeDeserialization is not the reverse of afterSerialization, cautiously refusing to start NeDB to prevent dataloss')
           }
@@ -99,12 +113,12 @@ class Persistence {
 
       if (this.inMemoryOnly) return
 
-      this.db.getAllData().forEach(doc => {
-        lines.push(this.afterSerialization(model.serialize(doc)))
-      })
-      Object.keys(this.db.indexes).forEach(fieldName => {
+      for (const doc of this.db.getAllData()) {
+        lines.push(this.afterSerialization(serialize(doc)))
+      }
+      for (const fieldName of Object.keys(this.db.indexes)) {
         if (fieldName !== '_id') { // The special _id index is managed by datastore.js, the others need to be persisted
-          lines.push(this.afterSerialization(model.serialize({
+          lines.push(this.afterSerialization(serialize({
             $$indexCreated: {
               fieldName: this.db.indexes[fieldName].fieldName,
               unique: this.db.indexes[fieldName].unique,
@@ -112,9 +126,9 @@ class Persistence {
             }
           })))
         }
-      })
+      }
 
-      await storage.crashSafeWriteFileLinesAsync(this.filename, lines, this.modes)
+      await crashSafeWriteFileLinesAsync(this.filename, lines, this.modes)
       if (typeof this.db.oncompaction === 'function') this.db.oncompaction(null)
     } catch (error) {
       if (typeof this.db.oncompaction === 'function') this.db.oncompaction(error)
@@ -137,13 +151,13 @@ class Persistence {
     // In-memory only datastore
     if (this.inMemoryOnly) return
 
-    newDocs.forEach(doc => {
-      toPersist += this.afterSerialization(model.serialize(doc)) + '\n'
-    })
+    for (const doc of newDocs) {
+      toPersist += this.afterSerialization(serialize(doc)) + '\n'
+    }
 
     if (toPersist.length === 0) return
 
-    await storage.appendFileAsync(this.filename, toPersist, { encoding: 'utf8', mode: this.modes.fileMode })
+    await appendFileAsync(this.filename, toPersist, { encoding: 'utf8', mode: this.modes.fileMode })
   }
 
   /**
@@ -171,9 +185,12 @@ class Persistence {
     let corruptItems = 0
 
     for (const datum of data) {
-      if (datum === '') { dataLength--; continue }
+      if (datum === '') {
+        dataLength--
+        continue
+      }
       try {
-        const doc = model.deserialize(this.beforeDeserialization(datum))
+        const doc = deserialize(this.beforeDeserialization(datum))
         if (doc._id) {
           if (doc.$$deleted === true) delete dataById[doc._id]
           else dataById[doc._id] = doc
@@ -229,7 +246,7 @@ class Persistence {
       lineStream.on('data', (line) => {
         if (line === '') return
         try {
-          const doc = model.deserialize(this.beforeDeserialization(line))
+          const doc = deserialize(this.beforeDeserialization(line))
           if (doc._id) {
             if (doc.$$deleted === true) delete dataById[doc._id]
             else dataById[doc._id] = doc
@@ -286,22 +303,22 @@ class Persistence {
     // In-memory only datastore
     if (this.inMemoryOnly) return
     await Persistence.ensureParentDirectoryExistsAsync(this.filename, this.modes.dirMode)
-    await storage.ensureDatafileIntegrityAsync(this.filename, this.modes.fileMode)
+    await ensureDatafileIntegrityAsync(this.filename, this.modes.fileMode)
 
     let treatedData
-    if (storage.readFileStream) {
+    if (readFileStream) {
       // Server side
-      const fileStream = storage.readFileStream(this.filename, { encoding: 'utf8', mode: this.modes.fileMode })
+      const fileStream = readFileStream(this.filename, { encoding: 'utf8', mode: this.modes.fileMode })
       treatedData = await this.treatRawStreamAsync(fileStream)
     } else {
       // Browser
-      const rawData = await storage.readFileAsync(this.filename, { encoding: 'utf8', mode: this.modes.fileMode })
+      const rawData = await readFileAsync(this.filename, { encoding: 'utf8', mode: this.modes.fileMode })
       treatedData = this.treatRawData(rawData)
     }
     // Recreate all indexes in the datafile
-    Object.keys(treatedData.indexes).forEach(key => {
+    for (const key of Object.keys(treatedData.indexes)) {
       this.db.indexes[key] = new Index(treatedData.indexes[key])
-    })
+    }
 
     // Fill cached database (i.e. all indexes) with data
     try {
@@ -337,7 +354,7 @@ class Persistence {
     // remove datastore file
     if (!this.db.inMemoryOnly) {
       await this.db.executor.pushAsync(async () => {
-        if (await storage.existsAsync(this.filename)) await storage.unlinkAsync(this.filename)
+        if (await existsAsync(this.filename)) await unlinkAsync(this.filename)
       }, true)
     }
   }
@@ -350,9 +367,9 @@ class Persistence {
    * @private
    */
   static async ensureParentDirectoryExistsAsync (dir, mode = DEFAULT_DIR_MODE) {
-    return storage.ensureParentDirectoryExistsAsync(dir, mode)
+    return ensureParentDirectoryExistsAsync(dir, mode)
   }
 }
 
 // Interface
-module.exports = Persistence
+export default Persistence

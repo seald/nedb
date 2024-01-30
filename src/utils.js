@@ -77,8 +77,8 @@ const pick = (object, keys) => {
 const filterIndexNames = (indexNames) => ([k, v]) => !!(typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean' || isDate(v) || v === null) &&
 indexNames.includes(k)
 
-module.exports.uniq = uniq
-module.exports.isDate = isDate
-module.exports.isRegExp = isRegExp
-module.exports.pick = pick
-module.exports.filterIndexNames = filterIndexNames
+export { uniq }
+export { isDate }
+export { isRegExp }
+export { pick }
+export { filterIndexNames }
