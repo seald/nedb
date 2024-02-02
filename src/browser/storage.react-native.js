@@ -122,7 +122,7 @@ const appendFileAsync = async (filename, toAppend, options) => {
     const contents = (await AsyncStorage.getItem(filename)) || ''
     await AsyncStorage.setItem(filename, contents + toAppend)
   } catch (error) {
-    console.warn('An error happened appending to file writing, skip')
+    console.warn('An error happened appending to file writing, skip', error)
   }
 }
 

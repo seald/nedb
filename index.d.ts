@@ -10,16 +10,14 @@
 
 /// <reference types="node" />
 
-import { EventEmitter } from "events";
-
 export default Nedb;
 
 export type Document<Schema> = Schema & {
   _id: string;
 };
 
-declare class Nedb<Schema = Record<string, any>> extends EventEmitter {
-  constructor(pathOrOptions?: string | Nedb.DataStoreOptions);
+declare class Nedb<Schema = Record<string, any>> {
+  constructor(pathOrOptions?: Nedb.DataStoreOptions);
 
   persistence: Nedb.Persistence;
 

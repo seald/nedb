@@ -39,5 +39,6 @@ export {
   apply,
   waterfall,
   each,
-  wait
+  wait,
+  _callbackify as callbackify
 }

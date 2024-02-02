@@ -18,18 +18,12 @@ export default (env, argv) => {
       minimize
     },
     output: {
-      path: __dirname,
+      path: join(__dirname, 'dist'),
       filename: pathData => `${pathData.chunk.name.toLowerCase()}${minimize ? '.min' : ''}.js`,
       libraryTarget: 'window',
       library: '[name]'
     }
   }
-
-  const pluginsNedb = [
-    new webpack.NormalModuleReplacementPlugin(new RegExp(resolve(__dirname, 'src/storage.js')), resolve(__dirname, 'src/browser/storage.browser.js')),
-    new webpack.NormalModuleReplacementPlugin(new RegExp(resolve(__dirname, 'src/customUtils.js')), resolve(__dirname, 'src/browser/customUtils.js')),
-    new webpack.NormalModuleReplacementPlugin(new RegExp(resolve(__dirname, 'src/byline.js')), resolve(__dirname, 'src/browser/byline.js'))
-  ]
 
   const polyfillPlugins = [
     new webpack.ProvidePlugin({
@@ -43,8 +37,14 @@ export default (env, argv) => {
   return [
     {
       ...baseConfig,
+      output: {
+        ...baseConfig.output,
+        libraryExport: 'default'
+      },
       name: 'Nedb',
-      plugins: pluginsNedb,
+      resolve: {
+        aliasFields: ['browser'], // to use files referenced in the package.json
+      },
       entry: {
         Nedb: join(__dirname, 'src', 'datastore.js')
       }

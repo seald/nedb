@@ -2,8 +2,8 @@
   "name": "@seald-io/nedb",
   "version": "4.0.4",
   "files": [
-    "lib/**/*.js",
-    "browser-version/**/*.js",
+    "src/**/*.js",
+    "dist/**/*.js",
     "index.js",
     "index.d.ts"
   ],
@@ -54,7 +54,7 @@
     "@types/jest": "^27.5.2",
     "browser-resolve": "^2.0.0",
     "chai": "^4.3.7",
-    "jest": "^27.5.1",
+    "jest": "^29.7.0",
     "jsdoc-to-markdown": "^8.0.0",
     "karma": "^6.4.1",
     "karma-chai": "^0.1.0",
@@ -74,7 +74,7 @@
     "standard": "^17.0.0",
     "terser-webpack-plugin": "^5.3.6",
     "timers-browserify": "^2.0.12",
-    "ts-jest": "^27.1.5",
+    "ts-jest": "^29.1.2",
     "typescript": "^4.9.5",
     "util": "^0.12.5",
     "webpack": "^5.75.0",
@@ -85,13 +85,14 @@
     "lint": "standard",
     "pretest": "npm run build:cjs",
     "test": "mocha --reporter spec --timeout 10000",
-    "build:cjs": "rollup --preserveModules src/* src/browser/* --dir cjs --entryFileNames \"[name].cjs\" --format cjs --preserveEntrySignatures strict",
+    "build:cjs": "rollup --preserveModules src/* src/browser/* --dir cjs --entryFileNames \"[name].cjs\" --format cjs --preserveEntrySignatures strict --interop compat",
     "build:browser": "webpack --config-name Nedb && webpack --config-name Nedb --env minimize && webpack --config-name testUtils --env minimize",
     "pretest:browser": "npm run build:browser",
-    "test:browser": "xvfb-maybe karma start karma.conf.local.js",
+    "test:browser": "xvfb-maybe karma start karma.conf.local.cjs",
+    "pretest:react-native": "npm run build:cjs",
     "test:react-native": "jest test/react-native",
     "test:typings": "tsc ./typings-tests.ts",
-    "prepublishOnly": "npm run build:browser",
+    "prepublishOnly": "npm run build:browser && npm run build:cjs",
     "generateDocs:markdown": "jsdoc2md --no-cache -c jsdoc.conf.js --param-list-format list --files ./lib/*.js > API.md"
   },
   "main": "cjs/datastore.cjs",
@@ -100,9 +101,9 @@
     "./src/customUtils.js": "./src/browser/customUtils.js",
     "./src/storage.js": "./src/browser/storage.browser.js",
     "./src/byline.js": "./src/browser/byline.js",
-    "./cjs/customUtils.cjs": "./src/browser/customUtils.cjs",
-    "./cjs/storage.cjs": "./src/browser/storage.browser.cjs",
-    "./cjs/byline.cjs": "./src/browser/byline.cjs"
+    "./cjs/customUtils.cjs": "./cjs/browser/customUtils.cjs",
+    "./cjs/storage.cjs": "./cjs/browser/storage.browser.cjs",
+    "./cjs/byline.cjs": "./cjs/browser/byline.cjs"
   },
   "react-native": {
     "./src/customUtils.js": "./src/browser/customUtils.js",
@@ -121,10 +122,5 @@
       "cjs",
       "**/*.ts"
     ]
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "resolver": "<rootDir>/test/react-native/resolver.js"
   }
 }

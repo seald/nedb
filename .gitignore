@@ -27,3 +27,4 @@ browser-version/node_modules
 test-results
 typings-tests.js
 cjs/*
+dist/*
