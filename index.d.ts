@@ -155,7 +155,7 @@ export namespace Nedb {
     limit(n: number): Cursor<T>;
     projection(query: any): Cursor<T>;
     exec(callback: (err: Error | null, documents: Document<T>[]) => void): void;
-    execAsync(): Promise<Document<T>>;
+    execAsync(): Promise<Document<T>[]>;
   }
 
   export interface CursorCount {
