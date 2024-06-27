@@ -3,34 +3,34 @@
  * Modified my arantes555 on 19.10.2021.
  */
 
-import Datastore from './'
+import DataStore, { Nedb } from './'
 import { mkdirSync } from 'fs'
 
 mkdirSync('./workspace/typings/', { recursive: true })
 process.chdir('./workspace/typings/')
 
 // Type 1: In-memory only datastore (no need to load the database)
-let db = new Datastore()
+let db = new DataStore()
 
 // Type 2: Persistent datastore with manual loading
-db = new Datastore({ filename: 'path/to/datafile' })
+db = new DataStore({ filename: 'path/to/datafile' })
 db.loadDatabase()
 
 // Type 2 bis: Persistent datastore with manual loading with a callback
-db = new Datastore({ filename: 'path/to/datafile' })
+db = new DataStore({ filename: 'path/to/datafile' })
 db.loadDatabase((err: Error | null) => {
   // should not fail
 })
 
 // Type 3: Persistent datastore with automatic loading
-db = new Datastore({ filename: 'path/to/datafile_2', autoload: true, modes: {fileMode: 0o644, dirMode: 0o755} })
+db = new DataStore({ filename: 'path/to/datafile_2', autoload: true, modes: {fileMode: 0o644, dirMode: 0o755} })
 // You can issue commands right away
 
 // Of course you can create multiple datastores if you need several
 // collections. In this case it's usually a good idea to use autoload for all collections.
 const dbContainer: any = {}
-dbContainer.users = new Datastore('path/to/users.db')
-dbContainer.robots = new Datastore('path/to/robots.db')
+dbContainer.users = new DataStore('path/to/users.db')
+dbContainer.robots = new DataStore('path/to/robots.db')
 
 // You need to load each database (here we do it asynchronously)
 dbContainer.users.loadDatabase()
@@ -399,7 +399,7 @@ db.rawListeners('compaction.done') // $ExpectType (() => void)[]
 db.listenerCount('compaction.done') // $ExpectType number
 
 // Test Generics and types
-const db2 = new Datastore<Schema>({ filename: 'path/to/datafile' })
+const db2 = new DataStore<Schema>({ filename: 'path/to/datafile' })
 db2.loadDatabase();
 
 db2.findOne({ _id: 'id1' }, (err, doc) => {
@@ -408,3 +408,9 @@ db2.findOne({ _id: 'id1' }, (err, doc) => {
   // @ts-expect-error
   doc.notExistingKey; // should fail
 });
+
+// namespace checking
+const db3 = new Nedb.DataStore<Schema>({ filename: 'path/to/datafile' })
+let theCursor: Nedb.Cursor<any>;
+let theDoc: Nedb.Document<any>;
+let theOptions: Nedb.DataStoreOptions;
