@@ -168,8 +168,8 @@ declare namespace Nedb {
     inMemoryOnly?: boolean;
     autoload?: boolean;
     onload?(error: Error | null): any;
-    beforeDeserialization?(line: string): string;
-    afterSerialization?(line: string): string;
+    beforeDeserialization?(line: string): string|Promise<string>;
+    afterSerialization?(line: string): string|Promise<string>;
     corruptAlertThreshold?: number;
     compareStrings?(a: string, b: string): number;
     modes?: { fileMode: number; dirMode: number };
