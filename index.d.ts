@@ -173,7 +173,6 @@ declare namespace Nedb {
     corruptAlertThreshold?: number;
     compareStrings?(a: string, b: string): number;
     modes?: { fileMode: number; dirMode: number };
-    testSerializationHooks?: boolean;
   }
 
   interface UpdateOptions {

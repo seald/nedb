@@ -99,10 +99,10 @@ and <code>b</code> fields, <code>{ a: 0, b: 0 }</code> to omit these two fields.
 modes at the time, except for <code>_id</code> which is by default always returned and
 which you can choose to omit. You can project on nested documents.</p>
 <p>To reference subfields, you can use the dot-notation.</p></dd>
-<dt><a href="#serializationHook">serializationHook</a> ⇒ <code>string</code></dt>
-<dd><p>The <code>beforeDeserialization</code> and <code>afterDeserialization</code> callbacks are hooks which are executed respectively before
+<dt><a href="#serializationHook">serializationHook</a> ⇒ <code>string</code> | <code>Promise.&lt;string&gt;</code></dt>
+<dd><p>The <code>beforeDeserialization</code> and <code>afterSerialization</code> callbacks are hooks which are executed respectively before
 parsing each document and after stringifying them. They can be used for example to encrypt the Datastore.
-The <code>beforeDeserialization</code> should revert what <code>afterDeserialization</code> has done.</p></dd>
+The <code>beforeDeserialization</code> should revert what <code>afterSerialization</code> has done.</p></dd>
 <dt><a href="#rawIndex">rawIndex</a></dt>
 <dd></dd>
 </dl>
@@ -842,7 +842,6 @@ with <code>appendfsync</code> option set to <code>no</code>.</p>
     - [.modes] <code>object</code> - <p>Modes to use for FS permissions. Will not work on Windows.</p>
         - [.fileMode] <code>number</code> <code> = 0o644</code> - <p>Mode to use for files.</p>
         - [.dirMode] <code>number</code> <code> = 0o755</code> - <p>Mode to use for directories.</p>
-    - [.testSerializationHooks] <code>boolean</code> <code> = true</code> - <p>Whether to test the serialization hooks or not, might be CPU-intensive</p>
 
 <a name="Persistence+compactDatafile"></a>
 
@@ -1009,10 +1008,10 @@ which you can choose to omit. You can project on nested documents.</p>
 **Kind**: global typedef  
 <a name="serializationHook"></a>
 
-## serializationHook ⇒ <code>string</code>
-<p>The <code>beforeDeserialization</code> and <code>afterDeserialization</code> callbacks are hooks which are executed respectively before
+## serializationHook ⇒ <code>string</code> \| <code>Promise.&lt;string&gt;</code>
+<p>The <code>beforeDeserialization</code> and <code>afterSerialization</code> callbacks are hooks which are executed respectively before
 parsing each document and after stringifying them. They can be used for example to encrypt the Datastore.
-The <code>beforeDeserialization</code> should revert what <code>afterDeserialization</code> has done.</p>
+The <code>beforeDeserialization</code> should revert what <code>afterSerialization</code> has done.</p>
 
 **Kind**: global typedef  
 **Params**

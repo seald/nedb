@@ -443,38 +443,6 @@ describe('Persistence async', function () {
       assert.equal(await fs.readFile(hookTestFilename, 'utf8'), 'Some content')
     })
 
-    it.skip('Declaring two hooks that are not reverse of one another will cause an exception to prevent data loss', async () => {
-      const hookTestFilename = 'workspace/hookTest.db'
-      await storage.ensureFileDoesntExistAsync(hookTestFilename)
-      await fs.writeFile(hookTestFilename, 'Some content', 'utf8')
-      assert.throws(() => {
-        // eslint-disable-next-line no-new
-        new Datastore({
-          filename: hookTestFilename,
-          autoload: true,
-          afterSerialization: as,
-          beforeDeserialization: function (s) { return s }
-        })
-      })
-
-      // Data file left untouched
-      assert.equal(await fs.readFile(hookTestFilename, 'utf8'), 'Some content')
-    })
-
-    it('Declaring two hooks that are not reverse of one another will not cause exception if options.testSerializationHooks === false', async () => {
-      const hookTestFilename = 'workspace/hookTest.db'
-      await storage.ensureFileDoesntExistAsync(hookTestFilename)
-      await fs.writeFile(hookTestFilename, 'Some content', 'utf8')
-      const db = new Datastore({
-        filename: hookTestFilename,
-        autoload: true,
-        afterSerialization: as,
-        beforeDeserialization: function (s) { return s },
-        testSerializationHooks: false
-      })
-      await assert.rejects(() => db.autoloadPromise)
-    })
-
     it('A serialization hook can be used to transform data before writing new state to disk', async () => {
       const hookTestFilename = 'workspace/hookTest.db'
       await storage.ensureFileDoesntExistAsync(hookTestFilename)
