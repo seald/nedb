@@ -44,12 +44,12 @@ describe('Persistence', function () {
     ], done)
   })
 
-  it('Every line represents a document', function () {
+  it('Every line represents a document', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ _id: '2', hello: 'world' }) + '\n' +
       model.serialize({ _id: '3', nested: { today: now } })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(3)
@@ -80,13 +80,13 @@ describe('Persistence', function () {
     })
   })
 
-  it('Badly formatted lines have no impact on the treated data', function () {
+  it('Badly formatted lines have no impact on the treated data', async function () {
     d.persistence.corruptAlertThreshold = 1 // to prevent a corruption alert
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       'garbage\n' +
       model.serialize({ _id: '3', nested: { today: now } })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(2)
@@ -116,12 +116,12 @@ describe('Persistence', function () {
     })
   })
 
-  it('Well formatted lines that have no _id are not included in the data', function () {
+  it('Well formatted lines that have no _id are not included in the data', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ _id: '2', hello: 'world' }) + '\n' +
       model.serialize({ nested: { today: now } })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(2)
@@ -150,12 +150,12 @@ describe('Persistence', function () {
     })
   })
 
-  it('If two lines concern the same doc (= same _id), the last one is the good version', function () {
+  it('If two lines concern the same doc (= same _id), the last one is the good version', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ _id: '2', hello: 'world' }) + '\n' +
       model.serialize({ _id: '1', nested: { today: now } })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(2)
@@ -184,13 +184,13 @@ describe('Persistence', function () {
     })
   })
 
-  it('If a doc contains $$deleted: true, that means we need to remove it from the data', function () {
+  it('If a doc contains $$deleted: true, that means we need to remove it from the data', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ _id: '2', hello: 'world' }) + '\n' +
       model.serialize({ _id: '1', $$deleted: true }) + '\n' +
       model.serialize({ _id: '3', today: now })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(2)
@@ -220,12 +220,12 @@ describe('Persistence', function () {
     })
   })
 
-  it('If a doc contains $$deleted: true, no error is thrown if the doc wasnt in the list before', function () {
+  it('If a doc contains $$deleted: true, no error is thrown if the doc wasnt in the list before', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ _id: '2', $$deleted: true }) + '\n' +
       model.serialize({ _id: '3', today: now })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort(function (a, b) { return a._id - b._id })
     treatedData.length.should.equal(2)
@@ -254,13 +254,13 @@ describe('Persistence', function () {
     })
   })
 
-  it('If a doc contains $$indexCreated, no error is thrown during treatRawData and we can get the index options', function () {
+  it('If a doc contains $$indexCreated, no error is thrown during treatRawData and we can get the index options', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ $$indexCreated: { fieldName: 'test', unique: true } }) + '\n' +
       model.serialize({ _id: '3', today: now })
-    const treatedData = d.persistence.treatRawData(rawData).data
-    const indexes = d.persistence.treatRawData(rawData).indexes
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
+    const indexes = (await d.persistence.treatRawData(rawData)).indexes
 
     Object.keys(indexes).length.should.equal(1)
     assert.deepStrictEqual(indexes.test, { fieldName: 'test', unique: true })
@@ -495,105 +495,6 @@ describe('Persistence', function () {
         fs.readFileSync(hookTestFilename, 'utf8').should.equal('Some content')
 
         done()
-      })
-    })
-
-    it('Declaring two hooks that are not reverse of one another will cause an exception to prevent data loss', function (done) {
-      const hookTestFilename = 'workspace/hookTest.db'
-      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
-        fs.writeFileSync(hookTestFilename, 'Some content', 'utf8');
-
-        (function () {
-          // eslint-disable-next-line no-new
-          new Datastore({
-            filename: hookTestFilename,
-            autoload: true,
-            afterSerialization: as,
-            beforeDeserialization: function (s) { return s }
-          })
-        }).should.throw()
-
-        // Data file left untouched
-        fs.readFileSync(hookTestFilename, 'utf8').should.equal('Some content')
-
-        done()
-      })
-    })
-
-    it('A serialization hook can be used to transform data before writing new state to disk', function (done) {
-      const hookTestFilename = 'workspace/hookTest.db'
-      callbackify(storage.ensureFileDoesntExistAsync)(hookTestFilename, function () {
-        const d = new Datastore({
-          filename: hookTestFilename,
-          autoload: true,
-          afterSerialization: as,
-          beforeDeserialization: bd
-        })
-
-        d.insert({ hello: 'world' }, function () {
-          const _data = fs.readFileSync(hookTestFilename, 'utf8')
-          const data = _data.split('\n')
-          let doc0 = bd(data[0])
-
-          data.length.should.equal(2)
-
-          data[0].substring(0, 7).should.equal('before_')
-          data[0].substring(data[0].length - 6).should.equal('_after')
-
-          doc0 = model.deserialize(doc0)
-          Object.keys(doc0).length.should.equal(2)
-          doc0.hello.should.equal('world')
-
-          d.insert({ p: 'Mars' }, function () {
-            const _data = fs.readFileSync(hookTestFilename, 'utf8')
-            const data = _data.split('\n')
-            let doc0 = bd(data[0])
-            let doc1 = bd(data[1])
-
-            data.length.should.equal(3)
-
-            data[0].substring(0, 7).should.equal('before_')
-            data[0].substring(data[0].length - 6).should.equal('_after')
-            data[1].substring(0, 7).should.equal('before_')
-            data[1].substring(data[1].length - 6).should.equal('_after')
-
-            doc0 = model.deserialize(doc0)
-            Object.keys(doc0).length.should.equal(2)
-            doc0.hello.should.equal('world')
-
-            doc1 = model.deserialize(doc1)
-            Object.keys(doc1).length.should.equal(2)
-            doc1.p.should.equal('Mars')
-
-            d.ensureIndex({ fieldName: 'idefix' }, function () {
-              const _data = fs.readFileSync(hookTestFilename, 'utf8')
-              const data = _data.split('\n')
-              let doc0 = bd(data[0])
-              let doc1 = bd(data[1])
-              let idx = bd(data[2])
-
-              data.length.should.equal(4)
-
-              data[0].substring(0, 7).should.equal('before_')
-              data[0].substring(data[0].length - 6).should.equal('_after')
-              data[1].substring(0, 7).should.equal('before_')
-              data[1].substring(data[1].length - 6).should.equal('_after')
-
-              doc0 = model.deserialize(doc0)
-              Object.keys(doc0).length.should.equal(2)
-              doc0.hello.should.equal('world')
-
-              doc1 = model.deserialize(doc1)
-              Object.keys(doc1).length.should.equal(2)
-              doc1.p.should.equal('Mars')
-
-              idx = model.deserialize(idx)
-              assert.deepStrictEqual(idx, { $$indexCreated: { fieldName: 'idefix' } })
-
-              done()
-            })
-          })
-        })
       })
     })
 

@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2025-03-18
+### Feature
+- Remove serialization hooks tests entirely and remove the `testSerializationHooks` argument.
+- Allow the serialization hooks to be async functions.
+
 ## [4.0.4] - 2024-01-11
 ### Fixed
 - Explicitly import `buffer` [#34](https://github.com/seald/nedb/pull/34), thanks [maxdaniel98](https://github.com/maxdaniel98).

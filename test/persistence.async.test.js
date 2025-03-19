@@ -28,12 +28,12 @@ describe('Persistence async', function () {
     assert.equal(d.getAllData().length, 0)
   })
 
-  it('Every line represents a document', function () {
+  it('Every line represents a document', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ _id: '2', hello: 'world' }) + '\n' +
       model.serialize({ _id: '3', nested: { today: now } })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort((a, b) => a._id - b._id)
     assert.equal(treatedData.length, 3)
@@ -61,13 +61,13 @@ describe('Persistence async', function () {
     assert.deepEqual(treatedData[2], { _id: '3', nested: { today: now } })
   })
 
-  it('Badly formatted lines have no impact on the treated data', function () {
+  it('Badly formatted lines have no impact on the treated data', async function () {
     d.persistence.corruptAlertThreshold = 1 // to prevent a corruption alert
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       'garbage\n' +
       model.serialize({ _id: '3', nested: { today: now } })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort((a, b) => a._id - b._id)
     assert.equal(treatedData.length, 2)
@@ -94,12 +94,12 @@ describe('Persistence async', function () {
     assert.deepEqual(treatedData[1], { _id: '3', nested: { today: now } })
   })
 
-  it('Well formatted lines that have no _id are not included in the data', function () {
+  it('Well formatted lines that have no _id are not included in the data', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ _id: '2', hello: 'world' }) + '\n' +
       model.serialize({ nested: { today: now } })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort((a, b) => a._id - b._id)
     assert.equal(treatedData.length, 2)
@@ -125,12 +125,12 @@ describe('Persistence async', function () {
     assert.deepEqual(treatedData[1], { _id: '2', hello: 'world' })
   })
 
-  it('If two lines concern the same doc (= same _id), the last one is the good version', function () {
+  it('If two lines concern the same doc (= same _id), the last one is the good version', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ _id: '2', hello: 'world' }) + '\n' +
       model.serialize({ _id: '1', nested: { today: now } })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort((a, b) => a._id - b._id)
     assert.equal(treatedData.length, 2)
@@ -156,13 +156,13 @@ describe('Persistence async', function () {
     assert.deepEqual(treatedData[1], { _id: '2', hello: 'world' })
   })
 
-  it('If a doc contains $$deleted: true, that means we need to remove it from the data', function () {
+  it('If a doc contains $$deleted: true, that means we need to remove it from the data', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ _id: '2', hello: 'world' }) + '\n' +
       model.serialize({ _id: '1', $$deleted: true }) + '\n' +
       model.serialize({ _id: '3', today: now })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort((a, b) => a._id - b._id)
     assert.equal(treatedData.length, 2)
@@ -189,12 +189,12 @@ describe('Persistence async', function () {
     assert.deepEqual(treatedData[1], { _id: '3', today: now })
   })
 
-  it('If a doc contains $$deleted: true, no error is thrown if the doc wasnt in the list before', function () {
+  it('If a doc contains $$deleted: true, no error is thrown if the doc wasnt in the list before', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ _id: '2', $$deleted: true }) + '\n' +
       model.serialize({ _id: '3', today: now })
-    const treatedData = d.persistence.treatRawData(rawData).data
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
 
     treatedData.sort((a, b) => a._id - b._id)
     assert.equal(treatedData.length, 2)
@@ -220,13 +220,13 @@ describe('Persistence async', function () {
     assert.deepEqual(treatedData[1], { _id: '3', today: now })
   })
 
-  it('If a doc contains $$indexCreated, no error is thrown during treatRawData and we can get the index options', function () {
+  it('If a doc contains $$indexCreated, no error is thrown during treatRawData and we can get the index options', async function () {
     const now = new Date()
     const rawData = model.serialize({ _id: '1', a: 2, ages: [1, 5, 12] }) + '\n' +
       model.serialize({ $$indexCreated: { fieldName: 'test', unique: true } }) + '\n' +
       model.serialize({ _id: '3', today: now })
-    const treatedData = d.persistence.treatRawData(rawData).data
-    const indexes = d.persistence.treatRawData(rawData).indexes
+    const treatedData = (await d.persistence.treatRawData(rawData)).data
+    const indexes = (await d.persistence.treatRawData(rawData)).indexes
 
     assert.equal(Object.keys(indexes).length, 1)
     assert.deepEqual(indexes.test, { fieldName: 'test', unique: true })
@@ -441,38 +441,6 @@ describe('Persistence async', function () {
 
       // Data file left untouched
       assert.equal(await fs.readFile(hookTestFilename, 'utf8'), 'Some content')
-    })
-
-    it('Declaring two hooks that are not reverse of one another will cause an exception to prevent data loss', async () => {
-      const hookTestFilename = 'workspace/hookTest.db'
-      await storage.ensureFileDoesntExistAsync(hookTestFilename)
-      await fs.writeFile(hookTestFilename, 'Some content', 'utf8')
-      assert.throws(() => {
-        // eslint-disable-next-line no-new
-        new Datastore({
-          filename: hookTestFilename,
-          autoload: true,
-          afterSerialization: as,
-          beforeDeserialization: function (s) { return s }
-        })
-      })
-
-      // Data file left untouched
-      assert.equal(await fs.readFile(hookTestFilename, 'utf8'), 'Some content')
-    })
-
-    it('Declaring two hooks that are not reverse of one another will not cause exception if options.testSerializationHooks === false', async () => {
-      const hookTestFilename = 'workspace/hookTest.db'
-      await storage.ensureFileDoesntExistAsync(hookTestFilename)
-      await fs.writeFile(hookTestFilename, 'Some content', 'utf8')
-      const db = new Datastore({
-        filename: hookTestFilename,
-        autoload: true,
-        afterSerialization: as,
-        beforeDeserialization: function (s) { return s },
-        testSerializationHooks: false
-      })
-      await assert.rejects(() => db.autoloadPromise)
     })
 
     it('A serialization hook can be used to transform data before writing new state to disk', async () => {
