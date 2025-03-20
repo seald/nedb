@@ -625,8 +625,7 @@ describe('Persistence async', function () {
         beforeDeserialization: bd
       })
 
-      const doc = await d.insertAsync({ hello: 'world' })
-      const _id = doc._id
+      await d.insertAsync({ hello: 'world' })
       await d.insertAsync({ yo: 'ya' })
       await d.updateAsync({ hello: 'world' }, { $set: { hello: 'earth' } }, {})
       await d.removeAsync({ yo: 'ya' }, {})
@@ -643,8 +642,6 @@ describe('Persistence async', function () {
       })
       await assert.rejects(d2.loadDatabaseAsync(), new Error('100% of the data file is corrupt, more than given corruptAlertThreshold (10%). Cautiously refusing to start NeDB to prevent dataloss.'))
     })
-
-
   }) // ==== End of 'Serialization hooks' ==== //
 
   describe('Prevent dataloss when persisting data', function () {
