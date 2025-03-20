@@ -597,6 +597,54 @@ describe('Persistence async', function () {
       assert.equal(Object.keys(d2.indexes).length, 2)
       assert.notEqual(Object.keys(d2.indexes).indexOf('idefix'), -1)
     })
+
+    it.only('afterSerialization hook can throw synchronously without triggering an uncaught exception', async () => {
+      const hookTestFilename = 'workspace/hookTest.db'
+      await storage.ensureFileDoesntExistAsync(hookTestFilename)
+      const error = new Error('should reject, not throw')
+      const d = new Datastore({
+        filename: hookTestFilename,
+        autoload: true,
+        afterSerialization: () => { throw error },
+        beforeDeserialization: bd
+      })
+
+      await assert.rejects(d.insertAsync({ hello: 'world' }), error)
+    })
+
+    it.only('beforeDeserialization hooks can throw synchronously without triggering an uncaught exception', async () => {
+      const hookTestFilename = 'workspace/hookTest.db'
+      await storage.ensureFileDoesntExistAsync(hookTestFilename)
+
+      const error = new Error('should reject, not throw')
+
+      const d = new Datastore({
+        filename: hookTestFilename,
+        autoload: true,
+        afterSerialization: as,
+        beforeDeserialization: bd
+      })
+
+      const doc = await d.insertAsync({ hello: 'world' })
+      const _id = doc._id
+      await d.insertAsync({ yo: 'ya' })
+      await d.updateAsync({ hello: 'world' }, { $set: { hello: 'earth' } }, {})
+      await d.removeAsync({ yo: 'ya' }, {})
+      await d.ensureIndexAsync({ fieldName: 'idefix' })
+      const data = (await fs.readFile(hookTestFilename, 'utf8')).split('\n')
+
+      assert.equal(data.length, 6)
+
+      // Everything is deserialized correctly, including deletes and indexes
+      const d2 = new Datastore({
+        filename: hookTestFilename,
+        afterSerialization: as,
+        beforeDeserialization: () => { throw error }
+      })
+      await assert.rejects(d2.loadDatabaseAsync(), new Error('100% of the data file is corrupt, more than given corruptAlertThreshold (10%). Cautiously refusing to start NeDB to prevent dataloss.'))
+    })
+
+
   }) // ==== End of 'Serialization hooks' ==== //
 
   describe('Prevent dataloss when persisting data', function () {
