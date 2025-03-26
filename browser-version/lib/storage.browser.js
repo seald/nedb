@@ -30,6 +30,7 @@ const existsAsync = async file => {
     if (value !== null) return true // Even if value is undefined, localforage returns null
     return false
   } catch (error) {
+    console.warn('NeDB - storage.browser - existsAsync:', error)
     return false
   }
 }
@@ -51,6 +52,7 @@ const renameAsync = async (oldPath, newPath) => {
       await store.removeItem(oldPath)
     }
   } catch (err) {
+    console.warn('NeDB - storage.browser - renameAsync:', err)
     console.warn('An error happened while renaming, skip')
   }
 }
@@ -69,6 +71,7 @@ const writeFileAsync = async (file, data, options) => {
   try {
     await store.setItem(file, data)
   } catch (error) {
+    console.warn('NeDB - storage.browser - writeFileAsync:', error)
     console.warn('An error happened while writing, skip')
   }
 }
@@ -89,6 +92,7 @@ const appendFileAsync = async (filename, toAppend, options) => {
     const contents = (await store.getItem(filename)) || ''
     await store.setItem(filename, contents + toAppend)
   } catch (error) {
+    console.warn('NeDB - storage.browser - appendFileAsync:', error)
     console.warn('An error happened appending to file writing, skip')
   }
 }
@@ -106,6 +110,7 @@ const readFileAsync = async (filename, options) => {
   try {
     return (await store.getItem(filename)) || ''
   } catch (error) {
+    console.warn('NeDB - storage.browser - readFileAsync:', error)
     console.warn('An error happened while reading, skip')
     return ''
   }
@@ -123,6 +128,7 @@ const unlinkAsync = async filename => {
   try {
     await store.removeItem(filename)
   } catch (error) {
+    console.warn('NeDB - storage.browser - unlinkAsync:', error)
     console.warn('An error happened while unlinking, skip')
   }
 }

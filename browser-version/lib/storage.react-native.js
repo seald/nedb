@@ -25,6 +25,7 @@ const existsAsync = async file => {
     if (value !== null) return true // Even if value is undefined, AsyncStorage returns null
     return false
   } catch (error) {
+    console.warn('NeDB - storage.react-native - existsAsync:', error)
     return false
   }
 }
@@ -60,6 +61,7 @@ const renameAsync = async (oldPath, newPath) => {
       await AsyncStorage.removeItem(oldPath)
     }
   } catch (err) {
+    console.warn('NeDB - storage.react-native - renameAsync:', err)
     console.warn('An error happened while renaming, skip')
   }
 }
@@ -90,6 +92,7 @@ const writeFileAsync = async (file, data, options) => {
   try {
     await AsyncStorage.setItem(file, data)
   } catch (error) {
+    console.warn('NeDB - storage.react-native - writeFileAsync:', error)
     console.warn('An error happened while writing, skip')
   }
 }
@@ -122,6 +125,7 @@ const appendFileAsync = async (filename, toAppend, options) => {
     const contents = (await AsyncStorage.getItem(filename)) || ''
     await AsyncStorage.setItem(filename, contents + toAppend)
   } catch (error) {
+    console.warn('NeDB - storage.react-native - appendFileAsync:', error)
     console.warn('An error happened appending to file writing, skip')
   }
 }
@@ -151,6 +155,7 @@ const readFileAsync = async (filename, options) => {
   try {
     return (await AsyncStorage.getItem(filename)) || ''
   } catch (error) {
+    console.warn('NeDB - storage.react-native - readFileAsync:', error)
     console.warn('An error happened while reading, skip')
     return ''
   }
@@ -179,6 +184,7 @@ const unlinkAsync = async filename => {
   try {
     await AsyncStorage.removeItem(filename)
   } catch (error) {
+    console.warn('NeDB - storage.react-native - unlinkAsync:', error)
     console.warn('An error happened while unlinking, skip')
   }
 }
