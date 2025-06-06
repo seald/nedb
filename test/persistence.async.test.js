@@ -598,7 +598,7 @@ describe('Persistence async', function () {
       assert.notEqual(Object.keys(d2.indexes).indexOf('idefix'), -1)
     })
 
-    it.only('afterSerialization hook can throw synchronously without triggering an uncaught exception', async () => {
+    it('afterSerialization hook can throw synchronously without triggering an uncaught exception', async () => {
       const hookTestFilename = 'workspace/hookTest.db'
       await storage.ensureFileDoesntExistAsync(hookTestFilename)
       const error = new Error('should reject, not throw')
@@ -612,7 +612,7 @@ describe('Persistence async', function () {
       await assert.rejects(d.insertAsync({ hello: 'world' }), error)
     })
 
-    it.only('beforeDeserialization hooks can throw synchronously without triggering an uncaught exception', async () => {
+    it('beforeDeserialization hooks can throw synchronously without triggering an uncaught exception', async () => {
       const hookTestFilename = 'workspace/hookTest.db'
       await storage.ensureFileDoesntExistAsync(hookTestFilename)
 
