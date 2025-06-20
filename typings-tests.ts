@@ -403,6 +403,10 @@ const db2 = new Datastore<Schema>({ filename: 'path/to/datafile' })
 db2.loadDatabase();
 
 db2.findOne({ _id: 'id1' }, (err, doc) => {
+  // @ts-expect-error
+  doc._id; //'doc' may be null there
+  doc = doc as NonNullable<typeof doc>;
+  
   doc._id; // added by nedb
   doc.hello; // provided by user
   // @ts-expect-error

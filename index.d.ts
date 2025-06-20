@@ -93,17 +93,17 @@ declare class Nedb<Schema = Record<string, any>> extends EventEmitter {
   findOne<T extends Schema>(
     query: any,
     projection: any,
-    callback: (err: Error | null, document: Document<T>) => void
+    callback: (err: Error | null, document: Document<T> | null) => void
   ): void;
   findOne<T extends Schema>(
     query: any,
-    callback: (err: Error | null, document: Document<T>) => void
+    callback: (err: Error | null, document: Document<T> | null) => void
   ): void;
 
   findOneAsync<T extends Schema>(
     query: any,
     projection?: any
-  ): Nedb.Cursor<T>;
+  ): Nedb.Cursor<T | null, Document<T> | null>;
 
   update<T extends Schema, O extends Nedb.UpdateOptions>(
     query: any,
@@ -149,13 +149,13 @@ declare class Nedb<Schema = Record<string, any>> extends EventEmitter {
 }
 
 declare namespace Nedb {
-  interface Cursor<T> extends Promise<Document<T>> {
+  interface Cursor<T, Result = Document<T>> extends Promise<Result> {
     sort(query: any): Cursor<T>;
     skip(n: number): Cursor<T>;
     limit(n: number): Cursor<T>;
     projection(query: any): Cursor<T>;
-    exec(callback: (err: Error | null, documents: Document<T>[]) => void): void;
-    execAsync(): Promise<Document<T>>;
+    exec(callback: (err: Error | null, documents: Result extends null ? null : Result[]) => void): void;
+    execAsync(): Promise<Result>;
   }
 
   interface CursorCount {
@@ -168,8 +168,8 @@ declare namespace Nedb {
     inMemoryOnly?: boolean;
     autoload?: boolean;
     onload?(error: Error | null): any;
-    beforeDeserialization?(line: string): string|Promise<string>;
-    afterSerialization?(line: string): string|Promise<string>;
+    beforeDeserialization?(line: string): string | Promise<string>;
+    afterSerialization?(line: string): string | Promise<string>;
     corruptAlertThreshold?: number;
     compareStrings?(a: string, b: string): number;
     modes?: { fileMode: number; dirMode: number };
