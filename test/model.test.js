@@ -908,6 +908,7 @@ describe('Model', function () {
       model.compareThings({}, {}).should.equal(0)
       model.compareThings({ a: 42 }, { a: 312 }).should.equal(-1)
       model.compareThings({ a: '42' }, { a: '312' }).should.equal(1)
+      model.compareThings({ a: 'v' }, { b: 'v' }).should.not.equal(0)
       model.compareThings({ a: 42, b: 312 }, { b: 312, a: 42 }).should.equal(0)
       model.compareThings({ a: 42, b: 312, c: 54 }, { b: 313, a: 42 }).should.equal(-1)
     })
