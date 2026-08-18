@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- Fix `Waterfall` discarding every task queued behind one which throws synchronously or returns a non-thenable: the internal `guardian` rejected and never ran anything again.
+- Fix `Executor#processBuffer` never chaining the buffer into the main queue, which let operations pushed after `loadDatabase` overlap still-buffered ones: a `remove` racing a buffered compaction lost its `$$deleted` marker and the document reappeared on the next load. Such operations now wait for buffered work to finish [#72](https://github.com/seald/nedb/pull/72), thanks [Adi1231234](https://github.com/Adi1231234).
+
 ## [4.1.2] - 2025-07-07
 ### Fixed
 - Add logs when errors happen in the storage backends for browser and React-Native versions.
