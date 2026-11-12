@@ -429,6 +429,37 @@ describe('Database async', function () {
   }) // ==== End of '#getCandidates' ==== //
 
   describe('Find', function () {
+    for (const indexed of [false, true]) {
+      it(`Matches falsy array elements with positional queries (${indexed ? 'indexed' : 'unindexed'})`, async () => {
+        await d.insertAsync([
+          { _id: 'zero', values: [0] },
+          { _id: 'false', values: [false] },
+          { _id: 'empty', values: [''] },
+          { _id: 'null', values: [null] },
+          { _id: 'one', values: [1] },
+          { _id: 'text', values: ['x'] },
+          { _id: 'absent', values: [] }
+        ])
+        if (indexed) await d.ensureIndexAsync({ fieldName: 'values.0' })
+
+        const cases = [
+          [0, ['zero']],
+          [false, ['false']],
+          ['', ['empty']],
+          [null, ['null']],
+          [{ $exists: true }, ['empty', 'false', 'null', 'one', 'text', 'zero']],
+          [{ $exists: false }, ['absent']],
+          [{ $lt: 1 }, ['zero']]
+        ]
+        for (const [value, expected] of cases) {
+          const query = { 'values.0': value }
+          const docs = await d.findAsync(query)
+          assert.deepEqual(docs.map(doc => doc._id).sort(), expected)
+          assert.equal(await d.countAsync(query), expected.length)
+        }
+      })
+    }
+
     it('Can find all documents if an empty query is used', async () => {
       await d.insertAsync({ somedata: 'ok' })
       await d.insertAsync({ somedata: 'another', plus: 'additional data' })

@@ -208,6 +208,8 @@ Basic querying means are looking for documents whose fields match the ones you
 specify. You can use regular expression to match strings. You can use the dot
 notation to navigate inside nested documents, arrays, arrays of subdocuments and
 to match a specific element of an array.
+Positional queries also match stored `0`, `false`, `''` and `null` values
+(for example, `{ 'values.0': false }`).
 
 ```javascript
 // Let's say our datastore contains the following collection

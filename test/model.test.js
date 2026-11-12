@@ -1046,6 +1046,16 @@ describe('Model', function () {
         }, 'data.planets.0.name')
         dv.should.equal('Earth')
       })
+
+      it('Preserves falsy values at the end of an indexed array path', function () {
+        for (const value of [0, false, '', null]) {
+          assert.strictEqual(model.getDotValue({ values: [value] }, 'values.0'), value)
+          assert.strictEqual(model.getDotValue({ values: [[value]] }, 'values.0.0'), value)
+          assert.deepStrictEqual(model.getDotValue({ rows: [{ values: [value] }] }, 'rows.values.0'), [value])
+          assert.isUndefined(model.getDotValue({ values: [value] }, 'values.0.missing'))
+          assert.isUndefined(model.getDotValue({ values: [value] }, 'values.1'))
+        }
+      })
     })
 
     describe('Field equality', function () {
